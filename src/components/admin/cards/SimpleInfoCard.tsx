@@ -22,10 +22,10 @@ const SimpleInfoCard = ({ info }: InfoProps) => {
                 </p>
             </div>
             <div
-                className={`${info.area_congest_lvl === "원활" ? "bg-green-500" : info.area_congest_lvl === "보통" ? "bg-yellow-400" : info.area_congest_lvl === "약간붐빔" ? "bg-orange-500" : "bg-red-500"} p-2 rounded shadow`}
+                className={`${info.area_congest_lvl === "원활" ? "bg-green-500" : info.area_congest_lvl === "보통" ? "bg-yellow-400" : info.area_congest_lvl === "약간붐빔" ? "bg-orange-500" : "bg-red-500"} p-2 rounded shadow flex flex-col h-full`}
             >
                 <h3 className="font-semibold text-sm text-black">혼잡정도</h3>
-                <p className="text-white text-center text-3xl font-bold">
+                <p className="text-white text-center text-7xl sm:text-5xl font-bold my-auto">
                     {info.area_congest_lvl}
                 </p>
             </div>

@@ -66,20 +66,21 @@ const PieCard = ({ datas, name }: PieCardProps) => {
     const isSmallScreen = windowWidth < 768;
 
     return (
-        // <div className="bg-white p-2 shadow rounded-lg h-full overflow-hidden">
         <>
             <h3 className="font-semibold text-lg text-black mb-2 mt-2 ml-2">
                 {name}
             </h3>
             <ResponsiveContainer
                 width="100%"
-                height={isSmallScreen ? 300 : 200}
+                height={isSmallScreen ? 350 : 300}
             >
                 <PieChart>
                     <Legend
                         layout={isSmallScreen ? "horizontal" : "vertical"}
-                        align={isSmallScreen ? "center" : "left"}
-                        verticalAlign={isSmallScreen ? "top" : "middle"}
+                        align={isSmallScreen ? "center" : "right"}
+                        verticalAlign={isSmallScreen ? "bottom" : "middle"}
+                        iconSize={10}
+                        wrapperStyle={isSmallScreen ? {} : { paddingRight: 20 }}
                         payload={[
                             {
                                 value: `${datas[0]?.name || ""} : ${datas[0]?.value || 0}%`,
@@ -99,16 +100,15 @@ const PieCard = ({ datas, name }: PieCardProps) => {
                         dataKey="value"
                         nameKey="name"
                         cx="50%"
-                        cy={isSmallScreen ? "35%" : "50%"}
+                        cy="50%"
                         label={renderCustomizedLabel}
                         labelLine={false}
-                        outerRadius={isSmallScreen ? 60 : 80}
+                        outerRadius={isSmallScreen ? 90 : 120}
                         innerRadius={0}
                     />
                 </PieChart>
             </ResponsiveContainer>
         </>
-        // </div>
     );
 };
 
