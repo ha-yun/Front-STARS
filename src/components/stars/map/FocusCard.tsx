@@ -93,17 +93,17 @@ const FocusCard: React.FC<FocusCardProps> = ({
             </div>
             {/* 카드 본문 */}
             <div
-                className="relative z-20 flex flex-col items-center gap-6 max-w-5xl w-full px-6"
+                className="relative z-20 flex flex-col items-center gap-6 w-auto px-6"
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* 방문자 수 카드 */}
                 <motion.div
-                    className="bg-white rounded-2xl shadow-lg p-4 w-2/5"
+                    className="bg-white rounded-2xl shadow-lg p-4 w-4/5 md:w-96"
                     whileHover={{ y: -8 }}
                 >
                     <div className="flex items-center justify-between mb-2">
                         {/* 즐겨찾기 토글 버튼 */}
-                        <h3 className="text-xl text-gray-500 mb-1">
+                        <h3 className="md:text-xl text-lg text-gray-500 mb-1">
                             {place.name} 방문자 수
                         </h3>
                         <button
@@ -135,20 +135,20 @@ const FocusCard: React.FC<FocusCardProps> = ({
                             )}
                         </button>
                     </div>
-                    <p className="text-5xl font-bold text-gray-900">
+                    <p className="md:text-5xl text-3xl font-bold text-gray-900">
                         <span ref={visitorCountRef}></span>명
                     </p>
                 </motion.div>
 
                 {/* 행사 & 키워드 & 자세히 보기 */}
-                <div className="flex flex-wrap justify-center items-start gap-4 w-full">
+                <div className="flex flex-wrap justify-center items-start gap-4">
                     {/* 행사 */}
                     <motion.div
                         className="bg-red-500 text-white rounded-2xl shadow-lg p-4"
                         whileHover={{ y: -8 }}
                     >
                         <h3 className="text-xl font-medium mb-1">행사</h3>
-                        <ul className="text-2xl space-y-1">
+                        <ul className="md:text-2xl text-xl space-y-1">
                             {place.events.map((e, idx) => (
                                 <li key={idx}>{e}</li>
                             ))}
@@ -157,7 +157,7 @@ const FocusCard: React.FC<FocusCardProps> = ({
 
                     {/* 키워드 */}
                     <motion.div
-                        className="bg-blue-600 text-white w-1/5 rounded-2xl shadow-lg p-4"
+                        className="bg-blue-600 text-white md:w-48 w-40 rounded-2xl shadow-lg p-4"
                         whileHover={{ y: -8 }}
                     >
                         <h3 className="text-xl font-medium mb-1">
@@ -167,7 +167,7 @@ const FocusCard: React.FC<FocusCardProps> = ({
                             {place.tags.map((tag) => (
                                 <span
                                     key={tag}
-                                    className="bg-white/20 text-white text-l px-3 py-1 rounded-full"
+                                    className="bg-white/20 text-white md:text-l text-sm px-3 py-1 rounded-full"
                                 >
                                     #{tag}
                                 </span>
@@ -178,7 +178,7 @@ const FocusCard: React.FC<FocusCardProps> = ({
                 {/* 자세히 보기 버튼 */}
                 <motion.div
                     onClick={onDetail}
-                    className="cursor-pointer bg-white rounded-2xl shadow-lg p-6 flex items-center justify-center text-4xl font-bold text-indigo-600 hover:bg-indigo-600 hover:text-white"
+                    className="cursor-pointer bg-white rounded-2xl shadow-lg p-6 flex items-center justify-center md:text-4xl text-3xl font-bold text-indigo-600 hover:bg-indigo-600 hover:text-white"
                     whileHover={{ y: -8 }}
                 >
                     자세히 보기 ↓
