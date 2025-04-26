@@ -20,6 +20,11 @@ interface PopulationRateProps {
 
 const PopulationRateCard = ({ population }: PopulationRateProps) => {
     const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+    const getBarSize = () => {
+        if (windowWidth < 640) return 20; // 모바일 화면
+        if (windowWidth < 1024) return 30; // 태블릿 화면
+        return 40; // 데스크톱 화면
+    };
 
     useEffect(() => {
         const handleResize = () => {
@@ -36,7 +41,7 @@ const PopulationRateCard = ({ population }: PopulationRateProps) => {
 
     return (
         <div className="bg-white p-2 shadow rounded-lg md:col-span-1 xl:col-span-2">
-            <h3 className="font-semibold text-lg text-black">연령대별 분포</h3>
+            <h3 className="font-semibold text-xl text-black">연령대별 분포</h3>
             <ResponsiveContainer
                 width="100%"
                 height={isSmallScreen ? 350 : 250}
@@ -49,7 +54,7 @@ const PopulationRateCard = ({ population }: PopulationRateProps) => {
                         left: -20,
                         bottom: -10,
                     }}
-                    // barSize={40}
+                    barSize={getBarSize()}
                     barCategoryGap={10}
                     barGap={0}
                 >
