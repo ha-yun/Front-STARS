@@ -3,6 +3,7 @@ import { touristInfo, touristSpots, weatherData } from "../../data/adminData";
 import { WeatherCard } from "./cards/weatherCard";
 import { SpotCard } from "./cards/spotCard";
 import AdminHeader from "./AdminHeader";
+import CongestionTag from "./cards/CongestionTag";
 
 export default function AdminComponent() {
     const navigate = useNavigate();
@@ -99,8 +100,11 @@ export default function AdminComponent() {
                                         <div className="w-1/4 text-center text-black overflow-hidden text-ellipsis px-1">
                                             {info.timestamp}
                                         </div>
-                                        <div className="w-1/4 text-center font-medium text-black">
-                                            {info.participantCount}
+                                        <div className="w-1/4 text-center overflow-hidden flex justify-center">
+                                            <CongestionTag
+                                                level={info.participantCount}
+                                                size="sm"
+                                            />
                                         </div>
                                     </div>
                                 ))}
