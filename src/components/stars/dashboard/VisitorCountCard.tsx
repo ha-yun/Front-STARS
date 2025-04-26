@@ -14,17 +14,17 @@ export default function VisitorCountCard({
 }: VisitorCountCardProps) {
     return (
         <motion.div
-            className="col-span-3 bg-emerald-500 rounded-xl shadow-lg p-4 my-2"
+            className="col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-3 bg-white rounded-xl shadow-lg p-4 my-2"
             whileHover={{ y: -6 }}
             animate={style}
             style={style}
             ref={cardRef}
         >
-            <p className="text-sm text-gray-200">현재 유동 인구수</p>
-            <p className="text-4xl text-white font-bold mt-2">
+            <p className="text-sm text-gray-500">현재 유동 인구수</p>
+            <p className="text-4xl text-orange-500 font-bold mt-2">
                 <span ref={refEl}></span>명
             </p>
-            <p className="text-xs text-gray-200 mt-1">
+            <p className="text-sm text-gray-500 mt-2">
                 {new Date().toLocaleString()} 기준
             </p>
         </motion.div>
