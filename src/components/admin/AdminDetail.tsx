@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import PieCard from "./cards/PieCard";
 import SimpleInfoCard from "./cards/SimpleInfoCard";
 import AreaPopulationCard from "./cards/AreaPopulationCard";
 import PopulationRateCard from "./cards/PopulationRateCard";
 import ForecastPopulationCard from "./cards/ForecastPopulationCard";
 import RodeCard from "./cards/RodeCard";
+import AdminHeader from "./AdminHeader";
 
 // 예측 인구 데이터 인터페이스
 interface ForecastPopulation {
@@ -84,6 +85,108 @@ const dummyData: PopulationResponse = {
         fcst_ppltn_wrapper: {
             fcst_ppltn: [
                 {
+                    fcst_time: "2025-04-18 00:00",
+                    fcst_congest_lvl: "원활",
+                    fcst_ppltn_min: 18000,
+                    fcst_ppltn_max: 20000,
+                },
+                {
+                    fcst_time: "2025-04-18 01:00",
+                    fcst_congest_lvl: "원활",
+                    fcst_ppltn_min: 14000,
+                    fcst_ppltn_max: 16000,
+                },
+                {
+                    fcst_time: "2025-04-18 02:00",
+                    fcst_congest_lvl: "원활",
+                    fcst_ppltn_min: 10000,
+                    fcst_ppltn_max: 12000,
+                },
+                {
+                    fcst_time: "2025-04-18 03:00",
+                    fcst_congest_lvl: "원활",
+                    fcst_ppltn_min: 8000,
+                    fcst_ppltn_max: 10000,
+                },
+                {
+                    fcst_time: "2025-04-18 04:00",
+                    fcst_congest_lvl: "원활",
+                    fcst_ppltn_min: 6000,
+                    fcst_ppltn_max: 8000,
+                },
+                {
+                    fcst_time: "2025-04-18 05:00",
+                    fcst_congest_lvl: "원활",
+                    fcst_ppltn_min: 10000,
+                    fcst_ppltn_max: 12000,
+                },
+                {
+                    fcst_time: "2025-04-18 06:00",
+                    fcst_congest_lvl: "원활",
+                    fcst_ppltn_min: 15000,
+                    fcst_ppltn_max: 17000,
+                },
+                {
+                    fcst_time: "2025-04-18 07:00",
+                    fcst_congest_lvl: "보통",
+                    fcst_ppltn_min: 22000,
+                    fcst_ppltn_max: 24000,
+                },
+                {
+                    fcst_time: "2025-04-18 08:00",
+                    fcst_congest_lvl: "보통",
+                    fcst_ppltn_min: 28000,
+                    fcst_ppltn_max: 30000,
+                },
+                {
+                    fcst_time: "2025-04-18 09:00",
+                    fcst_congest_lvl: "약간 붐빔",
+                    fcst_ppltn_min: 32000,
+                    fcst_ppltn_max: 34000,
+                },
+                {
+                    fcst_time: "2025-04-18 10:00",
+                    fcst_congest_lvl: "약간 붐빔",
+                    fcst_ppltn_min: 36000,
+                    fcst_ppltn_max: 38000,
+                },
+                {
+                    fcst_time: "2025-04-18 11:00",
+                    fcst_congest_lvl: "붐빔",
+                    fcst_ppltn_min: 40000,
+                    fcst_ppltn_max: 42000,
+                },
+                {
+                    fcst_time: "2025-04-18 12:00",
+                    fcst_congest_lvl: "붐빔",
+                    fcst_ppltn_min: 44000,
+                    fcst_ppltn_max: 46000,
+                },
+                {
+                    fcst_time: "2025-04-18 13:00",
+                    fcst_congest_lvl: "붐빔",
+                    fcst_ppltn_min: 46000,
+                    fcst_ppltn_max: 48000,
+                },
+                {
+                    fcst_time: "2025-04-18 14:00",
+                    fcst_congest_lvl: "붐빔",
+                    fcst_ppltn_min: 45000,
+                    fcst_ppltn_max: 47000,
+                },
+                {
+                    fcst_time: "2025-04-18 15:00",
+                    fcst_congest_lvl: "약간 붐빔",
+                    fcst_ppltn_min: 42000,
+                    fcst_ppltn_max: 44000,
+                },
+                {
+                    fcst_time: "2025-04-18 16:00",
+                    fcst_congest_lvl: "약간 붐빔",
+                    fcst_ppltn_min: 40000,
+                    fcst_ppltn_max: 42000,
+                },
+                {
                     fcst_time: "2025-04-18 17:00",
                     fcst_congest_lvl: "약간 붐빔",
                     fcst_ppltn_min: 38000,
@@ -125,20 +228,15 @@ const dummyData: PopulationResponse = {
                     fcst_ppltn_min: 24000,
                     fcst_ppltn_max: 26000,
                 },
-                {
-                    fcst_time: "2025-04-19 00:00",
-                    fcst_congest_lvl: "원활",
-                    fcst_ppltn_min: 20000,
-                    fcst_ppltn_max: 22000,
-                },
             ],
         },
     },
 };
 
 const AdminDetail = () => {
-    const navigate = useNavigate();
-    // const { spotCode } = useParams<{ spotCode: string }>();
+    // const navigate = useNavigate();
+    // spotCode별로 API를 불러와야 하는데 아직 없어서 그러지 못하는중
+    const { spotCode } = useParams<{ spotCode: string }>();
 
     const [gender, setGender] = useState<Data[]>([]);
     const [resnt, setResnt] = useState<Data[]>([]);
@@ -181,7 +279,7 @@ const AdminDetail = () => {
         // name(category), ppltn_rate_@
         setPpltnRate([
             {
-                name: "10대 미만",
+                name: "10대>",
                 value: dummyData.ppltn_data.ppltn_rate_0,
                 fill: "#EB6927",
             },
@@ -216,7 +314,7 @@ const AdminDetail = () => {
                 fill: "#EB6927",
             },
             {
-                name: "70대 이상",
+                name: "<70대",
                 value: dummyData.ppltn_data.ppltn_rate_70,
                 fill: "#EB6927",
             },
@@ -246,38 +344,24 @@ const AdminDetail = () => {
         }
     }, []);
 
+    // AdminDetail.tsx의 return문 일부
     return (
         <div className="bg-gray-100 min-h-screen flex flex-col w-full">
             {/* Header */}
-            <div className="bg-white px-6 py-4 flex items-center relative">
-                <button
-                    className="absolute left-6 bg-white shadow-md px-4 py-2 text-indigo-500 font-semibold hover:bg-indigo-500 hover:text-white transition"
-                    onClick={() => {
-                        navigate("/manage");
-                    }}
-                >
-                    <span className="hidden sm:inline">← 돌아가기</span>
-                    <span className="sm:hidden">←</span>
-                </button>
-                <h1 className="text-xl md:text-2xl text-center font-bold text-gray-600 w-full">
-                    STARS 관리자 통합 화면
-                </h1>
-            </div>
+            <AdminHeader path={"/manage"} />
             {/* End of Header */}
 
             {/* Main Container - 반응형 그리드 사용 */}
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 p-4 md:p-6 flex-grow">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 p-6 flex-grow">
+                {/*grid-rows-[0.7fr_1fr_1fr]*/}
                 {/* layer1 */}
-                <div className="xl:col-span-1">
-                    <SimpleInfoCard
-                        info={{
-                            area_name: dummyData.ppltn_data.area_nm,
-                            area_code: dummyData.ppltn_data.area_cd,
-                            area_congest_lvl:
-                                dummyData.ppltn_data.area_congest_lvl,
-                        }}
-                    />
-                </div>
+                <SimpleInfoCard
+                    info={{
+                        area_name: dummyData.ppltn_data.area_nm,
+                        area_code: dummyData.ppltn_data.area_cd,
+                        area_congest_lvl: dummyData.ppltn_data.area_congest_lvl,
+                    }}
+                />
 
                 <AreaPopulationCard
                     population={{
@@ -289,15 +373,12 @@ const AdminDetail = () => {
                 <RodeCard />
 
                 {/* layer2 */}
-                <div className="bg-white shadow rounded-lg">
-                    <PieCard datas={gender} name="남여 비율" />
-                </div>
+                <PieCard datas={gender} name="남여 비율" />
+
                 <PopulationRateCard population={ppltnRate} />
 
                 {/* layer3 */}
-                <div className="bg-white shadow rounded-lg">
-                    <PieCard datas={resnt} name="거주자 비율" />
-                </div>
+                <PieCard datas={resnt} name="거주자 비율" />
 
                 <ForecastPopulationCard fcst_ppltn={forecastData} />
             </div>

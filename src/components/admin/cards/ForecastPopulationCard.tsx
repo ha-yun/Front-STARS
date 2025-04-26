@@ -88,8 +88,8 @@ const ForecastPopulationCard = ({ fcst_ppltn }: ForecastPopulationProps) => {
     };
 
     return (
-        <div className="bg-white p-3 shadow rounded-lg md:col-span-1 xl:col-span-2">
-            <h3 className="font-semibold text-lg text-black">
+        <div className="bg-white p-3 shadow rounded-lg md:col-span-2 xl:col-span-2">
+            <h3 className="font-semibold text-xl text-black">
                 24시간 인구 추이 예측
             </h3>
             <ResponsiveContainer
