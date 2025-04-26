@@ -70,7 +70,7 @@ export default function MapSectionComponent() {
     };
 
     return (
-        <div className="relative w-screen h-screen">
+        <div className="relative w-screen app-full-height">
             {/* 우측 상단 로그인 버튼 */}
             <div className="absolute md:top-6 top-24 right-6 z-10">
                 <button
@@ -80,10 +80,8 @@ export default function MapSectionComponent() {
                     로그인 →
                 </button>
             </div>
-
             {/* 검색 바 */}
             <SearchBar onSearch={handleSearch} />
-
             {/* Mapbox 지도 */}
             <div className="w-full h-full" ref={mapContainer} />
 
