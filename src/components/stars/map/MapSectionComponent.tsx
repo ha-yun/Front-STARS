@@ -28,7 +28,6 @@ export default function MapSectionComponent() {
         keyof typeof places | null
     >(null);
 
-    console.log("CI테스트 CI테스트 CI테스트 CI테스트 CI테스트 CI테스트");
     // 지도 초기화 + 마커 이벤트 등록
     useEffect(() => {
         if (!mapContainer.current) return;
@@ -73,7 +72,7 @@ export default function MapSectionComponent() {
     return (
         <div className="relative w-screen h-screen">
             {/* 우측 상단 로그인 버튼 */}
-            <div className="absolute top-6 right-6 z-30">
+            <div className="absolute md:top-6 top-24 right-6 z-10">
                 <button
                     className="bg-white shadow-md px-4 py-2 text-indigo-500 font-semibold hover:bg-indigo-500 hover:text-white transition"
                     onClick={() => window.fullpage_api?.moveSlideRight()}

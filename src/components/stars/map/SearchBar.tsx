@@ -24,11 +24,11 @@ export default function SearchBarWithMenu({ onSearch }: SearchBarProps) {
         <div>
             {/* SearchBar */}
             <div
-                className={`absolute top-6 left-6 z-30 w-96 bg-white shadow-md flex items-center rounded-full px-4 py-2 transition-all duration-300 ${
+                className={`absolute top-6 left-1/2 transform -translate-x-1/2 z-30 w-11/12 max-w-md bg-white shadow-md flex items-center rounded-full px-4 py-2 transition-all duration-300 ${
                     isMenuOpen
                         ? "bg-opacity-90"
                         : "bg-opacity-60 hover:bg-opacity-90"
-                }`}
+                } md:top-6 md:left-6 md:transform-none md:w-96`}
             >
                 <button
                     className="bg-transparent text-gray-500 hover:text-gray-700 mr-3 focus:outline-none border-0"

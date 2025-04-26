@@ -32,7 +32,7 @@ export default function Menu({ isOpen }: MenuProps) {
 
     return (
         <div
-            className={`absolute top-28 w-96 bg-white shadow-lg rounded-2xl bg-opacity-90 transition-transform duration-300 z-20 ${
+            className={`absolute top-28 md:w-96 w-10/12 bg-white shadow-lg rounded-2xl bg-opacity-90 transition-transform duration-300 z-20 ${
                 isOpen
                     ? "translate-x-6 opacity-100 pointer-events-auto"
                     : "-translate-x-full pointer-events-none"

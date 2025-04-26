@@ -65,9 +65,9 @@ const FocusCard: React.FC<FocusCardProps> = ({
                 onClick={onClose}
             />
             {/* 안내 메시지 */}
-            <div className="fixed bottom-10 w-full flex justify-center z-20">
+            <div className="fixed bottom-10 left-1/2 transform -translate-x-1/2 w-auto max-w-xs flex items-center z-20">
                 <motion.div
-                    className="flex items-center justify-center p-4 space-x-4 bg-white text-green-500 rounded-2xl shadow-xl"
+                    className="flex p-4 space-x-4 bg-white text-green-500 rounded-2xl shadow-xl"
                     role="alert"
                     animate={{ scale: [1, 1.05, 1] }}
                     transition={{
