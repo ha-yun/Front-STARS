@@ -20,6 +20,11 @@ interface PopulationRateProps {
 
 const PopulationRateCard = ({ population }: PopulationRateProps) => {
     const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+    const getBarSize = () => {
+        if (windowWidth < 640) return 20; // 모바일 화면
+        if (windowWidth < 1024) return 30; // 태블릿 화면
+        return 40; // 데스크톱 화면
+    };
 
     useEffect(() => {
         const handleResize = () => {
@@ -49,7 +54,7 @@ const PopulationRateCard = ({ population }: PopulationRateProps) => {
                         left: -20,
                         bottom: -10,
                     }}
-                    // barSize={40}
+                    barSize={getBarSize()}
                     barCategoryGap={10}
                     barGap={0}
                 >
