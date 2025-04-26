@@ -20,7 +20,7 @@ export default function POICardList({
     cardStyles,
 }: POICardListProps) {
     return (
-        <motion.div className="col-span-12 grid grid-cols-3 gap-4 mt-4 my-2">
+        <motion.div className="col-span-12 grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-4 my-2">
             {pois.map((poi, idx) => (
                 <motion.div
                     key={idx}
