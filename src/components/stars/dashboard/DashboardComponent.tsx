@@ -112,11 +112,10 @@ export default function DashboardComponent() {
     return (
         <div
             ref={containerRef}
-            className="h-screen w-full overflow-y-scroll bg-gray-100 text-black px-24 py-[150px]"
+            className="h-screen w-full overflow-y-scroll bg-gray-100 text-black px-10 py-[150px]"
         >
             <motion.div className="max-w-[1000px] mx-auto grid grid-cols-12 gap-4">
-                <VisitorCountCard
-                    refEl={visitorCountRef}
+                <ActionButton
                     style={cardStyles[0]}
                     cardRef={(el) => (cardRefs.current[0] = el)}
                 />
@@ -127,13 +126,14 @@ export default function DashboardComponent() {
                     cardRef={(el) => (cardRefs.current[1] = el)}
                 />
 
-                <CongestionStatusCard
-                    status="약간붐빔" // 또는 place.congestionStatus
+                <VisitorCountCard
+                    refEl={visitorCountRef}
                     style={cardStyles[2]}
                     cardRef={(el) => (cardRefs.current[2] = el)}
                 />
 
-                <ActionButton
+                <CongestionStatusCard
+                    status="약간붐빔" // 또는 place.congestionStatus
                     style={cardStyles[3]}
                     cardRef={(el) => (cardRefs.current[3] = el)}
                 />

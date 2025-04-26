@@ -63,33 +63,34 @@ const FocusCard: React.FC<FocusCardProps> = ({
             <div
                 className="absolute inset-0 z-10 bg-white/30 backdrop-blur-sm"
                 onClick={onClose}
-            />
-            {/* 안내 메시지 */}
-            <div className="fixed bottom-10 left-1/2 transform -translate-x-1/2 w-auto max-w-xs flex items-center z-20">
-                <motion.div
-                    className="flex p-4 space-x-4 bg-white text-green-500 rounded-2xl shadow-xl"
-                    role="alert"
-                    animate={{ scale: [1, 1.05, 1] }}
-                    transition={{
-                        duration: 1,
-                        repeat: Infinity,
-                        repeatDelay: 1,
-                    }}
-                >
-                    {/* Content */}
-                    <svg
-                        className="w-5 h-5"
-                        aria-hidden="true"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
+            >
+                {/* 안내 메시지 */}
+                <div className="fixed bottom-10 left-1/2 transform -translate-x-1/2 md:w-auto w-64 max-w-xs flex items-center z-20">
+                    <motion.div
+                        className="flex ml-1 p-4 space-x-4 bg-white text-green-500 rounded-2xl shadow-xl"
+                        role="alert"
+                        animate={{ scale: [1, 1.05, 1] }}
+                        transition={{
+                            duration: 1,
+                            repeat: Infinity,
+                            repeatDelay: 1,
+                        }}
                     >
-                        <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z" />
-                    </svg>
-                    <div className="text-sm font-bold text-gray-500">
-                        돌아가시려면 화면 밖을 클릭해 주세요.
-                    </div>
-                </motion.div>
+                        {/* Content */}
+                        <svg
+                            className="w-5 h-5"
+                            aria-hidden="true"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                        >
+                            <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z" />
+                        </svg>
+                        <div className="md:text-sm text-xs font-bold text-gray-500 flex items-center ">
+                            돌아가시려면 화면 밖을 클릭해 주세요.
+                        </div>
+                    </motion.div>
+                </div>
             </div>
             {/* 카드 본문 */}
             <div
@@ -148,7 +149,7 @@ const FocusCard: React.FC<FocusCardProps> = ({
                         whileHover={{ y: -8 }}
                     >
                         <h3 className="text-xl font-medium mb-1">행사</h3>
-                        <ul className="md:text-2xl text-xl space-y-1">
+                        <ul className="md:text-2xl text-l space-y-1">
                             {place.events.map((e, idx) => (
                                 <li key={idx}>{e}</li>
                             ))}
@@ -178,7 +179,7 @@ const FocusCard: React.FC<FocusCardProps> = ({
                 {/* 자세히 보기 버튼 */}
                 <motion.div
                     onClick={onDetail}
-                    className="cursor-pointer bg-white rounded-2xl shadow-lg p-6 flex items-center justify-center md:text-4xl text-3xl font-bold text-indigo-600 hover:bg-indigo-600 hover:text-white"
+                    className="cursor-pointer bg-white rounded-2xl shadow-lg p-6 flex items-center justify-center md:text-4xl text-xl font-bold text-indigo-600 hover:bg-indigo-600 hover:text-white"
                     whileHover={{ y: -8 }}
                 >
                     자세히 보기 ↓

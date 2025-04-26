@@ -9,7 +9,7 @@ interface ActionButtonProps {
 export default function ActionButton({ style, cardRef }: ActionButtonProps) {
     return (
         <motion.div
-            className="col-span-3 bg-white rounded-2xl shadow-lg p-6 flex items-center justify-center text-md md:text-4xl sm:text-2xl font-bold text-indigo-600 hover:bg-indigo-600 hover:text-white cursor-pointer my-2"
+            className="col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-2 bg-white rounded-2xl shadow-lg p-6 flex items-center justify-center text-2xl md:text-xl sm:text-2xl font-bold text-indigo-600 hover:bg-indigo-600 hover:text-white cursor-pointer my-2"
             whileHover={{ y: -8 }}
             animate={style}
             style={style}
