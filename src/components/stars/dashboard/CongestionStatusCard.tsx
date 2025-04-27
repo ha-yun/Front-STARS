@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 
 interface CongestionStatusCardProps {
     status: "원활" | "보통" | "약간붐빔" | "붐빔";
-    style: { opacity: number; y: number };
+    style: { opacity: number; y: number; scale: number };
     cardRef: (el: HTMLDivElement | null) => void;
 }
 
@@ -24,7 +24,11 @@ export default function CongestionStatusCard({
         <motion.div
             className={`col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-2 rounded-xl shadow-lg p-4 my-2 ${color}`}
             whileHover={{ y: -6 }}
-            animate={style}
+            animate={
+                style
+                    ? { opacity: style.opacity, y: style.y, scale: style.scale }
+                    : {}
+            }
             style={style}
             ref={cardRef}
         >
