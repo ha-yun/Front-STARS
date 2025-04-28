@@ -14,6 +14,7 @@ import TrafficInfoCard from "./TrafficInfoCard";
 import ParkingInfoCard from "./ParkingInfoCard";
 import PlaceImageCard from "./PlaceImageCard";
 import CongestionStatusCard from "./CongestionStatusCard";
+import { scrollToTop } from "../../../utils/scrollToTop";
 
 export default function DashboardComponent() {
     const containerRef = useRef<HTMLDivElement | null>(null);
@@ -34,7 +35,7 @@ export default function DashboardComponent() {
                 visitorCountRef.current,
                 place.todayVisitors,
                 {
-                    duration: 2,
+                    duration: 1,
                     useEasing: true,
                     separator: ",",
                 }
@@ -116,13 +117,13 @@ export default function DashboardComponent() {
     return (
         <div
             ref={containerRef}
-            className="h-screen w-full overflow-y-scroll bg-gray-100 text-black px-10 py-[150px]"
+            className="h-screen w-full overflow-y-scroll bg-gray-100 text-black px-10 md:py-[120px] py-[100px]"
         >
             <motion.div className="max-w-[1000px] mx-auto grid grid-cols-12 gap-4">
-                <ActionButton
-                    style={cardStyles[0]}
-                    cardRef={(el) => (cardRefs.current[0] = el)}
-                />
+                {/*<ActionButton*/}
+                {/*    style={cardStyles[0]}*/}
+                {/*    cardRef={(el) => (cardRefs.current[0] = el)}*/}
+                {/*/>*/}
 
                 <PlaceInfoCard
                     place={place}
@@ -182,6 +183,21 @@ export default function DashboardComponent() {
                     cardStyles={cardStyles}
                 />
             </motion.div>
+            <div className="absolute top-8 right-8 z-10 justify-between flex gap-2">
+                <div
+                    className="bg-gray-50 hover:bg-indigo-500 text-indigo-400 hover:text-white rounded-full p-4 w-auto h-12 flex items-center justify-center text-lg shadow-lg transition cursor-pointer"
+                    onClick={() => window.fullpage_api?.moveSectionUp()}
+                >
+                    맵으로 가기
+                </div>
+                <div
+                    onClick={() => scrollToTop(containerRef.current)}
+                    className="bg-indigo-400 hover:bg-indigo-500 text-white rounded-full w-12 h-12 flex items-center justify-center text-2xl shadow-lg transition cursor-pointer"
+                    aria-label="최상단으로 이동"
+                >
+                    ↑
+                </div>
+            </div>
         </div>
     );
 }
