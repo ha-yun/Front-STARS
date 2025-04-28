@@ -161,7 +161,10 @@ export default function DashboardComponent() {
                 />
 
                 <ReviewAnalysisCard
-                    image={place.image}
+                    datas={[
+                        { name: "좋아요", value: 70, fill: "#00bc7d" },
+                        { name: "별로예요", value: 30, fill: "#ef4444" },
+                    ]}
                     style={cardStyles[7]}
                     cardRef={(el) => (cardRefs.current[7] = el)}
                 />
@@ -185,14 +188,14 @@ export default function DashboardComponent() {
             </motion.div>
             <div className="absolute top-8 right-8 z-10 justify-between flex gap-2">
                 <div
-                    className="bg-gray-50 hover:bg-indigo-500 text-indigo-400 hover:text-white rounded-full p-4 w-auto h-12 flex items-center justify-center text-lg shadow-lg transition cursor-pointer"
+                    className="bg-gray-50 hover:bg-indigo-600 text-indigo-600 hover:text-white font-medium rounded-full p-4 w-auto h-12 flex items-center justify-center text-lg shadow-lg transition cursor-pointer"
                     onClick={() => window.fullpage_api?.moveSectionUp()}
                 >
                     맵으로 가기
                 </div>
                 <div
                     onClick={() => scrollToTop(containerRef.current)}
-                    className="bg-indigo-400 hover:bg-indigo-500 text-white rounded-full w-12 h-12 flex items-center justify-center text-2xl shadow-lg transition cursor-pointer"
+                    className="bg-indigo-600 hover:bg-gray-50 text-white hover:text-indigo-600 font-medium rounded-full w-12 h-12 flex items-center justify-center text-2xl shadow-lg transition cursor-pointer"
                     aria-label="최상단으로 이동"
                 >
                     ↑
