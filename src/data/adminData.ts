@@ -72,68 +72,70 @@ export interface Data {
     fill: string;
 }
 
+// 혼잡도가 높은 지역만 조회
 export const touristSpots: TouristSpot[] = [
-    { name: "여의도 한강공원", code: "POI072", status: "붐빔" },
-    { name: "국회의사당", code: "POI073", status: "붐빔" },
-    { name: "63스퀘어", code: "POI074", status: "매우 붐빔" },
-    { name: "여의도 봄꽃축제거리", code: "POI075", status: "매우 붐빔" },
-    { name: "IFC몰", code: "POI076", status: "붐빔" },
+    { name: "여의도 한강공원", code: "POI072", status: "약간 붐빔" },
+    { name: "국회의사당", code: "POI073", status: "약간 붐빔" },
+    { name: "63스퀘어", code: "POI074", status: "붐빔" },
+    { name: "여의도 봄꽃축제거리", code: "POI075", status: "붐빔" },
+    { name: "IFC몰", code: "POI076", status: "약간 붐빔" },
 
     // 강남 지역
-    { name: "강남역", code: "POI001", status: "매우 붐빔" },
-    { name: "코엑스", code: "POI002", status: "붐빔" },
-    { name: "삼성역", code: "POI003", status: "붐빔" },
-    { name: "압구정 로데오거리", code: "POI004", status: "붐빔" },
-    { name: "청담동 명품거리", code: "POI005", status: "매우 붐빔" },
+    { name: "강남역", code: "POI001", status: "붐빔" },
+    { name: "코엑스", code: "POI002", status: "약간 붐빔" },
+    { name: "삼성역", code: "POI003", status: "약간 붐빔" },
+    { name: "압구정 로데오거리", code: "POI004", status: "약간 붐빔" },
+    { name: "청담동 명품거리", code: "POI005", status: "붐빔" },
 
     // 명동/종로 지역
-    { name: "명동 쇼핑거리", code: "POI011", status: "매우 붐빔" },
-    { name: "경복궁", code: "POI012", status: "붐빔" },
-    { name: "창덕궁", code: "POI013", status: "붐빔" },
-    { name: "광화문 광장", code: "POI014", status: "붐빔" },
-    { name: "인사동", code: "POI015", status: "매우 붐빔" },
+    { name: "명동 쇼핑거리", code: "POI011", status: "붐빔" },
+    { name: "경복궁", code: "POI012", status: "약간 붐빔" },
+    { name: "창덕궁", code: "POI013", status: "약간 붐빔" },
+    { name: "광화문 광장", code: "POI014", status: "약간 붐빔" },
+    { name: "인사동", code: "POI015", status: "붐빔" },
 
     // 홍대/이태원 지역
-    { name: "홍대 걷고싶은거리", code: "POI021", status: "매우 붐빔" },
-    { name: "연남동", code: "POI022", status: "붐빔" },
-    { name: "경의선 숲길", code: "POI023", status: "붐빔" },
-    { name: "이태원 거리", code: "POI024", status: "붐빔" },
-    { name: "한강진역", code: "POI025", status: "매우 붐빔" },
+    { name: "홍대 걷고싶은거리", code: "POI021", status: "붐빔" },
+    { name: "연남동", code: "POI022", status: "약간 붐빔" },
+    { name: "경의선 숲길", code: "POI023", status: "약간 붐빔" },
+    { name: "이태원 거리", code: "POI024", status: "약간 붐빔" },
+    { name: "한강진역", code: "POI025", status: "붐빔" },
 
     // 한강 주변
-    { name: "반포 한강공원", code: "POI031", status: "붐빔" },
-    { name: "뚝섬 한강공원", code: "POI032", status: "매우 붐빔" },
-    { name: "망원 한강공원", code: "POI033", status: "붐빔" },
-    { name: "잠실 한강공원", code: "POI034", status: "매우 붐빔" },
-    { name: "난지 한강공원", code: "POI035", status: "붐빔" },
+    { name: "반포 한강공원", code: "POI031", status: "약간 붐빔" },
+    { name: "뚝섬 한강공원", code: "POI032", status: "붐빔" },
+    { name: "망원 한강공원", code: "POI033", status: "약간 붐빔" },
+    { name: "잠실 한강공원", code: "POI034", status: "붐빔" },
+    { name: "난지 한강공원", code: "POI035", status: "약간 붐빔" },
 
     // 북한산/도봉산 지역
-    { name: "북한산국립공원", code: "POI041", status: "매우 붐빔" },
-    { name: "도봉산국립공원", code: "POI042", status: "붐빔" },
-    { name: "북한산 둘레길", code: "POI043", status: "매우 붐빔" },
+    { name: "북한산국립공원", code: "POI041", status: "붐빔" },
+    { name: "도봉산국립공원", code: "POI042", status: "약간 붐빔" },
+    { name: "북한산 둘레길", code: "POI043", status: "붐빔" },
 
     // 서울 숲/동대문 지역
-    { name: "서울숲공원", code: "POI051", status: "붐빔" },
-    { name: "동대문디자인플라자", code: "POI052", status: "붐빔" },
-    { name: "창신동 봉제골목", code: "POI053", status: "매우 붐빔" },
-    { name: "청계천", code: "POI054", status: "붐빔" },
-    { name: "동대문 쇼핑타운", code: "POI055", status: "매우 붐빔" },
+    { name: "서울숲공원", code: "POI051", status: "약간 붐빔" },
+    { name: "동대문디자인플라자", code: "POI052", status: "약간 붐빔" },
+    { name: "창신동 봉제골목", code: "POI053", status: "붐빔" },
+    { name: "청계천", code: "POI054", status: "약간 붐빔" },
+    { name: "동대문 쇼핑타운", code: "POI055", status: "붐빔" },
 
     // 잠실/송파 지역
-    { name: "롯데월드", code: "POI061", status: "매우 붐빔" },
-    { name: "석촌호수", code: "POI062", status: "붐빔" },
-    { name: "올림픽공원", code: "POI063", status: "매우 붐빔" },
-    { name: "방이동 먹자골목", code: "POI064", status: "붐빔" },
-    { name: "가락시장", code: "POI065", status: "매우 붐빔" },
+    { name: "롯데월드", code: "POI061", status: "붐빔" },
+    { name: "석촌호수", code: "POI062", status: "약간 붐빔" },
+    { name: "올림픽공원", code: "POI063", status: "붐빔" },
+    { name: "방이동 먹자골목", code: "POI064", status: "약간 붐빔" },
+    { name: "가락시장", code: "POI065", status: "붐빔" },
 
     // 기타 지역
-    { name: "남산타워", code: "POI081", status: "매우 붐빔" },
-    { name: "서울로7017", code: "POI082", status: "붐빔" },
-    { name: "덕수궁", code: "POI083", status: "매우 붐빔" },
-    { name: "창경궁", code: "POI084", status: "붐빔" },
-    { name: "노을공원", code: "POI085", status: "매우 붐빔" },
+    { name: "남산타워", code: "POI081", status: "붐빔" },
+    { name: "서울로7017", code: "POI082", status: "약간 붐빔" },
+    { name: "덕수궁", code: "POI083", status: "붐빔" },
+    { name: "창경궁", code: "POI084", status: "약간 붐빔" },
+    { name: "노을공원", code: "POI085", status: "붐빔" },
 ];
 
+// 단순 5일치 날씨 조회
 export const weatherData: WeatherCard[] = [
     {
         date: "04-22",
@@ -192,6 +194,7 @@ export const weatherData: WeatherCard[] = [
     },
 ];
 
+// 관광지별 혼잡도 조회
 export const touristInfo: TouristInfo[] = [
     {
         spotName: "광화문/덕수궁",
@@ -315,6 +318,7 @@ export const touristInfo: TouristInfo[] = [
     },
 ];
 
+// 해당 지역 상세보기 정보
 export const dummyData: PopulationResponse = {
     ppltn_data: {
         area_nm: "광화문·덕수궁",
@@ -488,4 +492,251 @@ export const dummyData: PopulationResponse = {
             ],
         },
     },
+};
+
+// 날씨
+// /main/stream
+
+// 날씨 예보 데이터 타입 정의
+interface WeatherForecast {
+    fcst_dt: string;
+    pre_temp: number;
+    pre_precipitation: string;
+    pre_precpt_type: string;
+    pre_rain_chance: number;
+    pre_sky_stts: string;
+}
+
+// 날씨 데이터 타입 정의
+interface WeatherData {
+    temp: number;
+    precipitation: string;
+    precpt_type: string;
+    pcp_msg: string;
+    sensible_temp: number;
+    max_temp: number;
+    min_temp: number;
+    pm25: number;
+    pm10: number;
+    area_nm: string;
+    weather_time: string;
+    fcst24hours: WeatherForecast[];
+}
+
+// 전체 데이터 구조 정의
+interface WeatherResponse {
+    data: WeatherData[];
+}
+
+// 더미 데이터 생성
+export const weatherDummyData: WeatherResponse = {
+    data: [
+        {
+            temp: 18.1,
+            precipitation: "-",
+            precpt_type: "없음",
+            pcp_msg: "비 또는 눈 소식이 없어요.",
+            sensible_temp: 18.1,
+            max_temp: 18.0,
+            min_temp: 8.0,
+            pm25: 22,
+            pm10: 46,
+            area_nm: "덕수궁길·정동길",
+            weather_time: "2025-04-24 17:10",
+            fcst24hours: [
+                {
+                    fcst_dt: "202504241500",
+                    pre_temp: 20.0,
+                    pre_precipitation: "NaN",
+                    pre_precpt_type: "없음",
+                    pre_rain_chance: 0.0,
+                    pre_sky_stts: "맑음",
+                },
+                {
+                    fcst_dt: "202504241600",
+                    pre_temp: 19.0,
+                    pre_precipitation: "NaN",
+                    pre_precpt_type: "없음",
+                    pre_rain_chance: 0.0,
+                    pre_sky_stts: "맑음",
+                },
+                {
+                    fcst_dt: "202504241700",
+                    pre_temp: 17.0,
+                    pre_precipitation: "NaN",
+                    pre_precpt_type: "없음",
+                    pre_rain_chance: 0.0,
+                    pre_sky_stts: "구름많음",
+                },
+                {
+                    fcst_dt: "202504241800",
+                    pre_temp: 15.0,
+                    pre_precipitation: "NaN",
+                    pre_precpt_type: "없음",
+                    pre_rain_chance: 0.0,
+                    pre_sky_stts: "맑음",
+                },
+                {
+                    fcst_dt: "202504241900",
+                    pre_temp: 15.0,
+                    pre_precipitation: "NaN",
+                    pre_precpt_type: "없음",
+                    pre_rain_chance: 0.0,
+                    pre_sky_stts: "맑음",
+                },
+                {
+                    fcst_dt: "202504242000",
+                    pre_temp: 13.0,
+                    pre_precipitation: "NaN",
+                    pre_precpt_type: "없음",
+                    pre_rain_chance: 0.0,
+                    pre_sky_stts: "맑음",
+                },
+                {
+                    fcst_dt: "202504242100",
+                    pre_temp: 12.0,
+                    pre_precipitation: "NaN",
+                    pre_precpt_type: "없음",
+                    pre_rain_chance: 0.0,
+                    pre_sky_stts: "맑음",
+                },
+                {
+                    fcst_dt: "202504242200",
+                    pre_temp: 11.0,
+                    pre_precipitation: "NaN",
+                    pre_precpt_type: "없음",
+                    pre_rain_chance: 0.0,
+                    pre_sky_stts: "맑음",
+                },
+                {
+                    fcst_dt: "202504242300",
+                    pre_temp: 10.0,
+                    pre_precipitation: "NaN",
+                    pre_precpt_type: "없음",
+                    pre_rain_chance: 0.0,
+                    pre_sky_stts: "맑음",
+                },
+                {
+                    fcst_dt: "202504250000",
+                    pre_temp: 10.0,
+                    pre_precipitation: "NaN",
+                    pre_precpt_type: "없음",
+                    pre_rain_chance: 0.0,
+                    pre_sky_stts: "맑음",
+                },
+                {
+                    fcst_dt: "202504250100",
+                    pre_temp: 9.0,
+                    pre_precipitation: "NaN",
+                    pre_precpt_type: "없음",
+                    pre_rain_chance: 0.0,
+                    pre_sky_stts: "맑음",
+                },
+                {
+                    fcst_dt: "202504250200",
+                    pre_temp: 9.0,
+                    pre_precipitation: "NaN",
+                    pre_precpt_type: "없음",
+                    pre_rain_chance: 0.0,
+                    pre_sky_stts: "맑음",
+                },
+                {
+                    fcst_dt: "202504250300",
+                    pre_temp: 8.0,
+                    pre_precipitation: "NaN",
+                    pre_precpt_type: "없음",
+                    pre_rain_chance: 0.0,
+                    pre_sky_stts: "맑음",
+                },
+                {
+                    fcst_dt: "202504250400",
+                    pre_temp: 8.0,
+                    pre_precipitation: "NaN",
+                    pre_precpt_type: "없음",
+                    pre_rain_chance: 0.0,
+                    pre_sky_stts: "맑음",
+                },
+                {
+                    fcst_dt: "202504250500",
+                    pre_temp: 8.0,
+                    pre_precipitation: "NaN",
+                    pre_precpt_type: "없음",
+                    pre_rain_chance: 0.0,
+                    pre_sky_stts: "맑음",
+                },
+                {
+                    fcst_dt: "202504250600",
+                    pre_temp: 8.0,
+                    pre_precipitation: "NaN",
+                    pre_precpt_type: "없음",
+                    pre_rain_chance: 0.0,
+                    pre_sky_stts: "맑음",
+                },
+                {
+                    fcst_dt: "202504250700",
+                    pre_temp: 8.0,
+                    pre_precipitation: "NaN",
+                    pre_precpt_type: "없음",
+                    pre_rain_chance: 0.0,
+                    pre_sky_stts: "맑음",
+                },
+                {
+                    fcst_dt: "202504250800",
+                    pre_temp: 10.0,
+                    pre_precipitation: "NaN",
+                    pre_precpt_type: "없음",
+                    pre_rain_chance: 0.0,
+                    pre_sky_stts: "맑음",
+                },
+                {
+                    fcst_dt: "202504250900",
+                    pre_temp: 12.0,
+                    pre_precipitation: "NaN",
+                    pre_precpt_type: "없음",
+                    pre_rain_chance: 0.0,
+                    pre_sky_stts: "맑음",
+                },
+                {
+                    fcst_dt: "202504251000",
+                    pre_temp: 14.0,
+                    pre_precipitation: "NaN",
+                    pre_precpt_type: "없음",
+                    pre_rain_chance: 0.0,
+                    pre_sky_stts: "맑음",
+                },
+                {
+                    fcst_dt: "202504251100",
+                    pre_temp: 16.0,
+                    pre_precipitation: "NaN",
+                    pre_precpt_type: "없음",
+                    pre_rain_chance: 0.0,
+                    pre_sky_stts: "맑음",
+                },
+                {
+                    fcst_dt: "202504251200",
+                    pre_temp: 17.0,
+                    pre_precipitation: "NaN",
+                    pre_precpt_type: "없음",
+                    pre_rain_chance: 0.0,
+                    pre_sky_stts: "맑음",
+                },
+                {
+                    fcst_dt: "202504251300",
+                    pre_temp: 17.0,
+                    pre_precipitation: "NaN",
+                    pre_precpt_type: "없음",
+                    pre_rain_chance: 0.0,
+                    pre_sky_stts: "맑음",
+                },
+                {
+                    fcst_dt: "202504251400",
+                    pre_temp: 17.0,
+                    pre_precipitation: "NaN",
+                    pre_precpt_type: "없음",
+                    pre_rain_chance: 0.0,
+                    pre_sky_stts: "맑음",
+                },
+            ],
+        },
+    ],
 };
