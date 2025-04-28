@@ -93,12 +93,12 @@ export default function DashboardComponent() {
                 if (cardCenter < containerTop + fadeMargin) {
                     const ratio = (cardCenter - containerTop) / fadeMargin;
                     // opacity = Math.max(0, ratio);
-                    // scale = Math.max(0.9, ratio);
+                    // scale = Math.max(0, ratio);
                     y = -15 * (1 - ratio);
                 } else if (cardCenter > containerBottom - fadeMargin) {
                     const ratio = (containerBottom - cardCenter) / fadeMargin;
                     opacity = Math.max(0, ratio);
-                    scale = Math.max(0, ratio);
+                    scale = Math.max(0.8, ratio);
                     y = 30 * (1 - ratio);
                 }
 
