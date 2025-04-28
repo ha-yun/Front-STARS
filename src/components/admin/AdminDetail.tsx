@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import PieCard from "./cards/PieCard";
 import SimpleInfoCard from "./cards/SimpleInfoCard";
 import AreaPopulationCard from "./cards/AreaPopulationCard";

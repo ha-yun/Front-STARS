@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { touristInfo, touristSpots, weatherData } from "../../data/adminData";
 import { WeatherCard } from "./cards/weatherCard";
+import CongestionTag from "./cards/CongestionTag";
 import { SpotCard } from "./cards/spotCard";
 import AdminHeader from "./AdminHeader";
 
@@ -57,53 +58,65 @@ export default function AdminComponent() {
                         </div>
                     </div>
 
-                    {/* 관광지 정보 테이블 */}
+                    {/* 관광지 정보 테이블 - DIV에서 TABLE로 변경 & 스크롤 기능 추가 */}
                     <div className="w-full bg-white rounded-lg shadow-md overflow-hidden border-2">
-                        <div
-                            className="flex bg-gray-100 py-2 md:py-3 border-b font-medium text-sm md:text-lg w-full"
-                            style={{ minWidth: "650px" }}
-                        >
-                            <div className="w-1/4 text-center text-black">
-                                관광지명
-                            </div>
-                            <div className="w-1/4 text-center text-black">
-                                코드
-                            </div>
-                            <div className="w-1/4 text-center text-black">
-                                시간
-                            </div>
-                            <div className="w-1/4 text-center text-black">
-                                혼잡도
-                            </div>
-                        </div>
-                        <div className="overflow-y-auto max-h-[410px]">
-                            <div style={{ minWidth: "650px" }}>
-                                {touristInfo.map((info, idx) => (
-                                    <div
-                                        key={idx}
-                                        className="flex py-3 border-b hover:bg-gray-100 transition-colors text-xs md:text-base cursor-pointer"
-                                        onClick={() => {
-                                            // 페이지 이동 전 스크롤 위치 초기화
-                                            window.scrollTo(0, 0);
-                                            navigate(
-                                                `/manage/${info.spotCode}`
-                                            );
-                                        }}
-                                    >
-                                        <div className="w-1/4 text-center text-black overflow-hidden text-ellipsis px-1">
-                                            {info.spotName}
-                                        </div>
-                                        <div className="w-1/4 text-center text-black overflow-hidden text-ellipsis px-1">
-                                            {info.spotCode}
-                                        </div>
-                                        <div className="w-1/4 text-center text-black overflow-hidden text-ellipsis px-1">
-                                            {info.timestamp}
-                                        </div>
-                                        <div className="w-1/4 text-center font-medium text-black">
-                                            {info.participantCount}
-                                        </div>
-                                    </div>
-                                ))}
+                        <div className="relative">
+                            <table className="min-w-full">
+                                <thead className="bg-gray-100 border-b font-medium text-sm md:text-lg sticky top-0 z-10">
+                                    <tr>
+                                        <th className="py-2 md:py-3 text-center text-black w-1/4">
+                                            관광지명
+                                        </th>
+                                        <th className="py-2 md:py-3 text-center text-black w-1/4">
+                                            코드
+                                        </th>
+                                        <th className="py-2 md:py-3 text-center text-black w-1/4">
+                                            시간
+                                        </th>
+                                        <th className="py-2 md:py-3 text-center text-black w-1/4">
+                                            혼잡도
+                                        </th>
+                                    </tr>
+                                </thead>
+                            </table>
+                            <div className="overflow-y-auto max-h-[410px]">
+                                <table className="min-w-full">
+                                    <tbody>
+                                        {touristInfo.map((info, idx) => (
+                                            <tr
+                                                key={idx}
+                                                className="border-b hover:bg-gray-100 transition-colors text-xs md:text-base cursor-pointer"
+                                                onClick={() => {
+                                                    // 페이지 이동 전 스크롤 위치 초기화
+                                                    window.scrollTo(0, 0);
+                                                    navigate(
+                                                        `/manage/${info.spotCode}`
+                                                    );
+                                                }}
+                                            >
+                                                <td className="py-3 text-center text-black overflow-hidden text-ellipsis px-1 w-1/4">
+                                                    {info.spotName}
+                                                </td>
+                                                <td className="py-3 text-center text-black overflow-hidden text-ellipsis px-1 w-1/4">
+                                                    {info.spotCode}
+                                                </td>
+                                                <td className="py-3 text-center text-black overflow-hidden text-ellipsis px-1 w-1/4">
+                                                    {info.timestamp}
+                                                </td>
+                                                <td className="py-3 text-center w-1/4">
+                                                    <div className="flex justify-center">
+                                                        <CongestionTag
+                                                            level={
+                                                                info.participantCount
+                                                            }
+                                                            size="sm"
+                                                        />
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
