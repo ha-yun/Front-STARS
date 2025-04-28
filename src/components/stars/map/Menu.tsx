@@ -32,13 +32,13 @@ export default function Menu({ isOpen }: MenuProps) {
 
     return (
         <div
-            className={`absolute md:top-28 top-24 md:w-96 w-10/12 bg-white shadow-lg rounded-2xl bg-opacity-90 transition-transform duration-300 z-20 ${
+            className={`absolute md:top-28 top-24 h-4/5 md:w-96 w-11/12 bg-white shadow-lg rounded-2xl bg-opacity-90 transition-transform duration-300 z-20 ${
                 isOpen
                     ? "translate-x-6 opacity-100 pointer-events-auto"
                     : "-translate-x-full pointer-events-none"
             }`}
         >
-            <div className="p-4 max-h-[80vh] flex flex-col">
+            <div className="p-4 h-full flex flex-col">
                 {/* 헤더 */}
                 <div className="flex justify-between items-center mb-4 sticky top-0 z-10">
                     <div className="flex items-center">

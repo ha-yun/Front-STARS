@@ -179,7 +179,7 @@ const FocusCard: React.FC<FocusCardProps> = ({
                 {/* 자세히 보기 버튼 */}
                 <motion.div
                     onClick={onDetail}
-                    className="cursor-pointer bg-white rounded-2xl shadow-lg p-6 flex items-center justify-center md:text-4xl text-xl font-bold text-indigo-600 hover:bg-indigo-600 hover:text-white"
+                    className="cursor-pointer bg-white rounded-2xl shadow-lg md:p-6 p-4 flex items-center justify-center md:text-4xl text-xl font-bold text-indigo-600 hover:bg-indigo-600 hover:text-white"
                     whileHover={{ y: -8 }}
                 >
                     자세히 보기 ↓
