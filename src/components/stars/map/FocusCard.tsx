@@ -38,7 +38,7 @@ const FocusCard: React.FC<FocusCardProps> = ({
             visitorCountRef.current,
             place.todayVisitors,
             {
-                duration: 2,
+                duration: 1,
                 useEasing: true,
                 separator: ",",
             }
