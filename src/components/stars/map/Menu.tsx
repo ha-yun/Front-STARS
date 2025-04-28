@@ -5,10 +5,10 @@ interface MenuProps {
     isOpen: boolean;
 }
 
+type DropdownType = "category" | "gender" | "age" | null;
+
 export default function Menu({ isOpen }: MenuProps) {
-    const [categoryOpen, setCategoryOpen] = useState(false);
-    const [genderOpen, setGenderOpen] = useState(false);
-    const [ageOpen, setAgeOpen] = useState(false);
+    const [openDropdown, setOpenDropdown] = useState<DropdownType>(null);
 
     const [selectedCategory, setSelectedCategory] =
         useState<string>("카테고리");
@@ -32,7 +32,7 @@ export default function Menu({ isOpen }: MenuProps) {
 
     return (
         <div
-            className={`absolute md:top-28 top-24 h-4/5 md:w-96 w-11/12 bg-white shadow-lg rounded-2xl bg-opacity-90 transition-transform duration-300 z-20 ${
+            className={`absolute md:top-28 top-24 h-4/5 md:w-96 w-11/12 bg-white shadow-lg rounded-2xl transition-transform duration-300 z-20 ${
                 isOpen
                     ? "translate-x-6 opacity-100 pointer-events-auto"
                     : "-translate-x-full pointer-events-none"
@@ -54,10 +54,15 @@ export default function Menu({ isOpen }: MenuProps) {
                     <div className="flex gap-2">
                         {renderDropdown(
                             "카테고리",
-                            categoryOpen,
-                            setCategoryOpen,
+                            openDropdown === "category",
+                            () =>
+                                setOpenDropdown(
+                                    openDropdown === "category"
+                                        ? null
+                                        : "category"
+                                ),
                             selectedCategory,
-                            setSelectedCategory,
+                            (v) => setSelectedCategory(v),
                             [
                                 "카테고리",
                                 "카페",
@@ -74,18 +79,24 @@ export default function Menu({ isOpen }: MenuProps) {
                         )}
                         {renderDropdown(
                             "성별",
-                            genderOpen,
-                            setGenderOpen,
+                            openDropdown === "gender",
+                            () =>
+                                setOpenDropdown(
+                                    openDropdown === "gender" ? null : "gender"
+                                ),
                             selectedGender,
-                            setSelectedGender,
+                            (v) => setSelectedGender(v),
                             ["성별", "남성", "여성"]
                         )}
                         {renderDropdown(
                             "나이",
-                            ageOpen,
-                            setAgeOpen,
+                            openDropdown === "age",
+                            () =>
+                                setOpenDropdown(
+                                    openDropdown === "age" ? null : "age"
+                                ),
                             selectedAge,
-                            setSelectedAge,
+                            (v) => setSelectedAge(v),
                             [
                                 "나이",
                                 "10대",
@@ -143,7 +154,7 @@ export default function Menu({ isOpen }: MenuProps) {
 function renderDropdown(
     placeholder: string,
     isOpen: boolean,
-    setOpen: (open: boolean) => void,
+    toggleOpen: () => void,
     selected: string,
     setSelected: (value: string) => void,
     options: string[]
@@ -151,7 +162,7 @@ function renderDropdown(
     return (
         <div className="relative">
             <div
-                onClick={() => setOpen(!isOpen)}
+                onClick={toggleOpen}
                 className="flex items-center justify-between text-gray-700 cursor-pointer text-sm transition"
             >
                 {selected}
@@ -183,7 +194,7 @@ function renderDropdown(
                                 }`}
                                 onClick={() => {
                                     setSelected(item);
-                                    setOpen(false);
+                                    toggleOpen();
                                 }}
                             >
                                 {item}
