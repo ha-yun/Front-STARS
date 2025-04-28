@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import React from "react";
 
 interface WeatherCardProps {
-    style: { opacity: number; y: number };
+    style: { opacity: number; y: number; scale: number };
     cardRef: (el: HTMLDivElement | null) => void;
 }
 
@@ -11,7 +11,11 @@ export default function WeatherCard({ style, cardRef }: WeatherCardProps) {
         <motion.div
             className="col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-6 bg-red-500 rounded-xl shadow-lg p-4 my-2"
             whileHover={{ y: -6 }}
-            animate={style}
+            animate={
+                style
+                    ? { opacity: style.opacity, y: style.y, scale: style.scale }
+                    : {}
+            }
             style={style}
             ref={cardRef}
         >

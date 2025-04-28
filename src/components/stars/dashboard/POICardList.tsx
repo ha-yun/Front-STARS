@@ -10,7 +10,9 @@ interface POICardListProps {
     pois: POI[];
     baseIndex: number;
     cardRefs: React.MutableRefObject<(HTMLDivElement | null)[]>;
-    cardStyles: { [key: number]: { opacity: number; y: number } };
+    cardStyles: {
+        [key: number]: { opacity: number; y: number; scale: number };
+    };
 }
 
 export default function POICardList({
@@ -20,7 +22,7 @@ export default function POICardList({
     cardStyles,
 }: POICardListProps) {
     return (
-        <motion.div className="col-span-12 grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-4 my-2">
+        <motion.div className="col-span-12 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-4 my-2">
             {pois.map((poi, idx) => (
                 <motion.div
                     key={idx}

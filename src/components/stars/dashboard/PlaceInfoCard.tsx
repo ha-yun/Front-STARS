@@ -3,7 +3,7 @@ import { places } from "../../../data/placesData";
 
 interface PlaceInfoCardProps {
     place: (typeof places)[keyof typeof places];
-    style: { opacity: number; y: number };
+    style: { opacity: number; y: number; scale: number };
     cardRef: (el: HTMLDivElement | null) => void;
 }
 
@@ -16,7 +16,11 @@ export default function PlaceInfoCard({
         <motion.div
             className="col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-5 bg-white rounded-xl shadow-lg p-4 my-2"
             whileHover={{ y: -6 }}
-            animate={style}
+            animate={
+                style
+                    ? { opacity: style.opacity, y: style.y, scale: style.scale }
+                    : {}
+            }
             style={style}
             ref={cardRef}
         >

@@ -55,7 +55,7 @@ export default function DashboardComponent() {
     );
 
     const [cardStyles, setCardStyles] = useState<{
-        [key: number]: { opacity: number; y: number };
+        [key: number]: { opacity: number; y: number; scale: number };
     }>({});
     const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
 
@@ -66,10 +66,11 @@ export default function DashboardComponent() {
             const containerRect = containerRef.current.getBoundingClientRect();
             const containerTop = containerRect.top;
             const containerBottom = containerRect.bottom;
-            const fadeMargin = 150;
+            const fadeMargin = 50;
 
-            const newStyles: { [key: number]: { opacity: number; y: number } } =
-                {};
+            const newStyles: {
+                [key: number]: { opacity: number; y: number; scale: number };
+            } = {};
 
             cardRefs.current.forEach((el, i) => {
                 if (!el) return;
@@ -81,24 +82,27 @@ export default function DashboardComponent() {
                     cardCenter >= containerTop + fadeMargin &&
                     cardCenter <= containerBottom - fadeMargin
                 ) {
-                    newStyles[i] = { opacity: 1, y: 0 };
+                    newStyles[i] = { opacity: 1, y: 0, scale: 1 };
                     return;
                 }
 
                 let opacity = 1;
                 let y = 0;
+                let scale = 1;
 
                 if (cardCenter < containerTop + fadeMargin) {
                     const ratio = (cardCenter - containerTop) / fadeMargin;
                     // opacity = Math.max(0, ratio);
-                    y = -30 * (1 - ratio);
+                    // scale = Math.max(0, ratio);
+                    y = -15 * (1 - ratio);
                 } else if (cardCenter > containerBottom - fadeMargin) {
                     const ratio = (containerBottom - cardCenter) / fadeMargin;
                     opacity = Math.max(0, ratio);
+                    scale = Math.max(0.8, ratio);
                     y = 30 * (1 - ratio);
                 }
 
-                newStyles[i] = { opacity, y };
+                newStyles[i] = { opacity, y, scale };
             });
 
             setCardStyles(newStyles);
