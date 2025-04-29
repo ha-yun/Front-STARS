@@ -1,7 +1,11 @@
 // components/LoginForm.tsx
 import { useState, FormEvent } from "react";
 
-export default function LoginForm() {
+interface LoginFormProps {
+    onError: (msg: string) => void;
+}
+
+export default function LoginForm({ onError }: LoginFormProps) {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
 
@@ -11,7 +15,7 @@ export default function LoginForm() {
         if (username === "admin" && password === "password") {
             window.fullpage_api?.moveSlideRight();
         } else {
-            alert("아이디 또는 비밀번호가 올바르지 않습니다.");
+            onError("아이디 또는 비밀번호가 올바르지 않습니다.");
         }
     };
 

@@ -20,7 +20,11 @@ const mbtiOptions = [
     "ESFP",
 ];
 
-export default function RegisterForm() {
+interface RegisterFormProps {
+    onRegisterSuccess: () => void;
+}
+
+export default function RegisterForm({ onRegisterSuccess }: RegisterFormProps) {
     const [form, setForm] = useState({
         username: "",
         nickname: "",
@@ -45,9 +49,8 @@ export default function RegisterForm() {
             return;
         }
 
-        // TODO: 실제 API 연동으로 변경 가능
-        alert("회원가입 완료! 로그인 페이지로 이동합니다.");
-        window.fullpage_api?.moveSlideLeft(); // 예: 왼쪽으로 로그인 폼으로 돌아감
+        // 회원가입 완료 -> 부모에 알림
+        onRegisterSuccess();
     };
 
     return (
