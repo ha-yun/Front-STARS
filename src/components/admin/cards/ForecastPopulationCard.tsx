@@ -92,80 +92,45 @@ const ForecastPopulationCard = ({ fcst_ppltn }: ForecastPopulationProps) => {
             <h3 className="font-semibold text-xl text-black mb-2">
                 24시간 인구 추이 예측
             </h3>
-            <div className="flex-grow" style={{ minHeight: "240px" }}>
-                <ResponsiveContainer
-                    width="100%"
-                    height={isSmallScreen ? 280 : 240}
-                >
+            <div
+                style={{ minHeight: "180px", width: "100%" }}
+                className="flex-grow"
+            >
+                <ResponsiveContainer width="100%" height={220}>
                     <BarChart
                         data={chartData}
-                        margin={{
-                            top: 15,
-                            right: 15,
-                            left: 0,
-                            bottom: 15,
-                        }}
-                        barSize={25}
+                        margin={{ top: 10, right: 30, left: 0, bottom: -40 }}
+                        barCategoryGap={5}
+                        barGap={0}
                     >
                         <CartesianGrid strokeDasharray="3 3" vertical={false} />
                         <XAxis
                             dataKey="time"
-                            tick={{ fontSize: 11 }}
-                            height={40}
-                            padding={{ left: 10, right: 10 }}
+                            tick={{ fontSize: 12 }}
+                            height={60}
                         />
-                        <YAxis
-                            tickFormatter={formatPopulation}
-                            tick={{ fontSize: 11 }}
-                            width={50}
+                        <YAxis tick={{ fontSize: 11 }} />
+                        <Tooltip />
+                        <Bar
+                            dataKey="min"
+                            fill="#34C759"
+                            name="최소 인구"
+                            radius={[8, 8, 0, 0]}
                         />
-                        <Tooltip
-                            formatter={(value, name) => {
-                                if (name === "average") {
-                                    return [
-                                        `${formatPopulation(value as number)}명`,
-                                        "평균 인구",
-                                    ];
-                                }
-                                return [
-                                    `${formatPopulation(value as number)}명`,
-                                    name === "min" ? "최소 인구" : "최대 인구",
-                                ];
-                            }}
-                            labelFormatter={(label) => `시간: ${label}`}
-                            contentStyle={{ fontSize: "12px" }}
+                        <Bar
+                            dataKey="max"
+                            fill="#FF3B30"
+                            name="최대 인구"
+                            radius={[8, 8, 0, 0]}
                         />
-
                         <Bar
                             dataKey="average"
+                            fill="#FFCC00"
                             name="평균 인구"
-                            radius={[4, 4, 0, 0]}
-                            isAnimationActive={true}
-                            fill="#1f77b4"
+                            radius={[8, 8, 0, 0]}
                         />
                     </BarChart>
                 </ResponsiveContainer>
-            </div>
-
-            <div className="mt-2">
-                <div className="flex flex-wrap gap-3 justify-center">
-                    {["원활", "보통", "약간 붐빔", "붐빔"].map((level) => (
-                        <div
-                            key={level}
-                            className="flex items-center bg-gray-50 px-2 py-1 rounded"
-                        >
-                            <div
-                                className="w-3 h-3 rounded-full mr-1"
-                                style={{
-                                    backgroundColor: getCongestionColor(level),
-                                }}
-                            />
-                            <span className="text-xs text-gray-600">
-                                {level}
-                            </span>
-                        </div>
-                    ))}
-                </div>
             </div>
         </div>
     );

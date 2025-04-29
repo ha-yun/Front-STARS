@@ -49,17 +49,14 @@ const PopulationRateCard = ({ population }: PopulationRateProps) => {
                 style={{ minHeight: "180px", width: "100%" }}
                 className="flex-grow"
             >
-                <ResponsiveContainer
-                    width="100%"
-                    height={isSmallScreen ? 280 : 220}
-                >
+                <ResponsiveContainer width="100%" height={220}>
                     <BarChart
                         data={population}
                         margin={{
                             top: 10,
                             right: 30,
                             left: 0,
-                            bottom: 30,
+                            bottom: 0,
                         }}
                         barSize={getBarSize()}
                         barCategoryGap={5}
