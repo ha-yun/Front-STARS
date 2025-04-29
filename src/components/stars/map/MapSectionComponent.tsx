@@ -77,7 +77,7 @@ export default function MapSectionComponent() {
                     className="bg-white shadow-md px-4 py-2 text-indigo-500 font-semibold hover:bg-indigo-500 hover:text-white transition"
                     onClick={() => window.fullpage_api?.moveSlideRight()}
                 >
-                    로그인 →
+                    MyPage →
                 </button>
             </div>
             {/* 검색 바 */}
