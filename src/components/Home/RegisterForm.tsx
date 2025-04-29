@@ -1,5 +1,6 @@
 // components/RegisterForm.tsx
 import { useState, FormEvent } from "react";
+import { motion } from "framer-motion";
 
 const mbtiOptions = [
     "INTJ",
@@ -33,6 +34,7 @@ export default function RegisterForm({ onRegisterSuccess }: RegisterFormProps) {
         email: "",
         mbti: "",
     });
+    const [isRegistered, setIsRegistered] = useState(false);
 
     const handleChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -49,9 +51,31 @@ export default function RegisterForm({ onRegisterSuccess }: RegisterFormProps) {
             return;
         }
 
-        // 회원가입 완료 -> 부모에 알림
-        onRegisterSuccess();
+        setIsRegistered(true);
+
+        // 1.5초 후 로그인 폼으로 이동
+        setTimeout(() => {
+            onRegisterSuccess();
+        }, 1500);
     };
+
+    if (isRegistered) {
+        return (
+            <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.6 }}
+                className="flex flex-col items-center justify-center text-center text-white"
+            >
+                <h2 className="text-3xl font-bold mb-4">
+                    가입을 축하합니다! 🎉
+                </h2>
+                <p className="text-sm opacity-80">
+                    로그인 화면으로 이동합니다...
+                </p>
+            </motion.div>
+        );
+    }
 
     return (
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
