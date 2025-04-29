@@ -4,6 +4,7 @@ import MapSection from "../pages/stars/MapSectionPage";
 import Dashboard from "../pages/stars/DashboardPage";
 import AdminLogin from "../pages/admin/AdminLoginPage";
 import { initializeAppHeight } from "../utils/setAppHeight";
+import MyPage from "../components/user/MyPage";
 
 export default function FullPageLayout() {
     useEffect(() => {
@@ -29,10 +30,13 @@ export default function FullPageLayout() {
                 <ReactFullpage.Wrapper>
                     <div className="section">
                         <div className="slide">
+                            <AdminLogin />
+                        </div>
+                        <div className="slide">
                             <MapSection />
                         </div>
                         <div className="slide">
-                            <AdminLogin />
+                            <MyPage />
                         </div>
                     </div>
                     <div className="section">
