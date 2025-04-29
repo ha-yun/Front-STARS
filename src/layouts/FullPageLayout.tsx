@@ -2,9 +2,9 @@ import { useEffect } from "react";
 import ReactFullpage from "@fullpage/react-fullpage";
 import MapSection from "../pages/stars/MapSectionPage";
 import Dashboard from "../pages/stars/DashboardPage";
-import AdminLogin from "../pages/admin/AdminLoginPage";
 import { initializeAppHeight } from "../utils/setAppHeight";
 import MyPage from "../components/user/MyPage";
+import Home from "../components/Home/Home";
 
 export default function FullPageLayout() {
     useEffect(() => {
@@ -30,7 +30,7 @@ export default function FullPageLayout() {
                 <ReactFullpage.Wrapper>
                     <div className="section">
                         <div className="slide">
-                            <AdminLogin />
+                            <Home />
                         </div>
                         <div className="slide">
                             <MapSection />
