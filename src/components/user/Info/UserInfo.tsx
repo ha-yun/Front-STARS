@@ -48,11 +48,7 @@ const UserInfo = () => {
     };
 
     return (
-        <div className="bg-white shadow-md rounded-lg p-4">
-            <h2 className="text-xl font-semibold mb-4 border-b pb-2">
-                내 프로필 정보
-            </h2>
-
+        <div className="bg-white rounded-lg p-2 md:p-4">
             {!edited ? (
                 <UserInfoShow />
             ) : (
@@ -61,11 +57,11 @@ const UserInfo = () => {
                 />
             )}
 
-            <div className="flex items-center justify-between mt-6">
+            <div className="flex flex-col sm:flex-row items-center justify-between mt-4 md:mt-6 gap-2 sm:gap-0">
                 {edited ? (
                     <>
                         <button
-                            className={`py-2 px-4 rounded transition-colors ${
+                            className={`w-full sm:w-auto py-2 px-4 rounded transition-colors ${
                                 isPasswordValid
                                     ? "bg-green-500 hover:bg-green-600 text-white"
                                     : "bg-green-300 text-white cursor-not-allowed"
@@ -76,7 +72,7 @@ const UserInfo = () => {
                             완료
                         </button>
                         <button
-                            className="bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600 transition-colors"
+                            className="w-full sm:w-auto bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600 transition-colors mt-2 sm:mt-0"
                             onClick={handleEditToggle}
                         >
                             취소
@@ -85,13 +81,13 @@ const UserInfo = () => {
                 ) : (
                     <>
                         <button
-                            className="bg-indigo-500 text-white py-2 px-4 rounded hover:bg-indigo-600 transition-colors"
+                            className="w-full sm:w-auto bg-indigo-500 text-white py-2 px-4 rounded hover:bg-indigo-600 transition-colors"
                             onClick={handleEditToggle}
                         >
                             수정하기
                         </button>
                         <button
-                            className="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600 transition-colors"
+                            className="w-full sm:w-auto bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600 transition-colors mt-2 sm:mt-0"
                             onClick={handleDeleteAccount}
                         >
                             계정 삭제

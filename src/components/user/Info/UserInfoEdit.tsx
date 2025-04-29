@@ -107,17 +107,17 @@ const UserInfoEdit: React.FC<UserInfoEditProps> = ({
     };
 
     return (
-        <div className="p-4">
-            <div className="p-4 mb-4">
-                <div className="mb-4">
+        <div className="p-2 md:p-4">
+            <div className="p-2 md:p-4 mb-2 md:mb-4">
+                <div className="mb-3 md:mb-4">
                     <label
-                        className="block text-gray-700 text-sm font-bold mb-2"
+                        className="block text-gray-700 text-xs md:text-sm font-bold mb-1 md:mb-2"
                         htmlFor="user_id"
                     >
                         아이디(수정불가)
                     </label>
                     <input
-                        className="shadow appearance-none border rounded w-full py-2 px-3 bg-gray-300 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        className="shadow appearance-none border rounded w-full py-1 md:py-2 px-2 md:px-3 bg-gray-300 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-sm"
                         id="user_id"
                         name="user_id"
                         type="text"
@@ -127,15 +127,15 @@ const UserInfoEdit: React.FC<UserInfoEditProps> = ({
                     />
                 </div>
 
-                <div className="mb-4">
+                <div className="mb-3 md:mb-4">
                     <label
-                        className="block text-gray-700 text-sm font-bold mb-2"
+                        className="block text-gray-700 text-xs md:text-sm font-bold mb-1 md:mb-2"
                         htmlFor="nickname"
                     >
                         닉네임
                     </label>
                     <input
-                        className="shadow appearance-none border rounded w-full py-2 px-3 bg-white text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        className="shadow appearance-none border rounded w-full py-1 md:py-2 px-2 md:px-3 bg-white text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-sm"
                         id="nickname"
                         name="nickname"
                         type="text"
@@ -144,15 +144,15 @@ const UserInfoEdit: React.FC<UserInfoEditProps> = ({
                     />
                 </div>
 
-                <div className="mb-4">
+                <div className="mb-3 md:mb-4">
                     <label
-                        className="block text-gray-700 text-sm font-bold mb-2"
+                        className="block text-gray-700 text-xs md:text-sm font-bold mb-1 md:mb-2"
                         htmlFor="birth_year"
                     >
                         생년월일
                     </label>
                     <input
-                        className="shadow appearance-none border rounded w-full py-2 px-3 bg-white text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        className="shadow appearance-none border rounded w-full py-1 md:py-2 px-2 md:px-3 bg-white text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-sm"
                         id="birth_year"
                         name="birth_year"
                         type="number"
@@ -161,15 +161,15 @@ const UserInfoEdit: React.FC<UserInfoEditProps> = ({
                     />
                 </div>
 
-                <div className="mb-4">
+                <div className="mb-3 md:mb-4">
                     <label
-                        className="block text-gray-700 text-sm font-bold mb-2"
+                        className="block text-gray-700 text-xs md:text-sm font-bold mb-1 md:mb-2"
                         htmlFor="password-input"
                     >
                         비밀번호
                     </label>
                     <input
-                        className={`shadow appearance-none border ${getPasswordFieldStyle()} rounded w-full py-2 px-3 bg-white text-gray-700 leading-tight focus:outline-none focus:shadow-outline`}
+                        className={`shadow appearance-none border ${getPasswordFieldStyle()} rounded w-full py-1 md:py-2 px-2 md:px-3 bg-white text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-sm`}
                         id="password-input"
                         name="password"
                         type="password"
@@ -189,15 +189,15 @@ const UserInfoEdit: React.FC<UserInfoEditProps> = ({
                     </p>
                 </div>
 
-                <div className="mb-4">
+                <div className="mb-3 md:mb-4">
                     <label
-                        className="block text-gray-700 text-sm font-bold mb-2"
+                        className="block text-gray-700 text-xs md:text-sm font-bold mb-1 md:mb-2"
                         htmlFor="chk_password-input"
                     >
                         비밀번호 재입력
                     </label>
                     <input
-                        className={`shadow appearance-none border ${getPasswordConfirmFieldStyle()} rounded w-full py-2 px-3 bg-white text-gray-700 leading-tight focus:outline-none focus:shadow-outline`}
+                        className={`shadow appearance-none border ${getPasswordConfirmFieldStyle()} rounded w-full py-1 md:py-2 px-2 md:px-3 bg-white text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-sm`}
                         id="chk_password-input"
                         name="chk_password"
                         type="password"
@@ -213,15 +213,15 @@ const UserInfoEdit: React.FC<UserInfoEditProps> = ({
                         )}
                 </div>
 
-                <div className="mb-4">
+                <div className="mb-3 md:mb-4">
                     <label
-                        className="block text-gray-700 text-sm font-bold mb-2"
+                        className="block text-gray-700 text-xs md:text-sm font-bold mb-1 md:mb-2"
                         htmlFor="mbti"
                     >
                         MBTI
                     </label>
                     <select
-                        className="shadow appearance-none border rounded w-full py-2 px-3 bg-white text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        className="shadow appearance-none border rounded w-full py-1 md:py-2 px-2 md:px-3 bg-white text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-sm"
                         id="mbti"
                         name="mbti"
                         value={userInfo.mbti}
@@ -246,30 +246,30 @@ const UserInfoEdit: React.FC<UserInfoEditProps> = ({
                     </select>
                 </div>
 
-                <div className="mb-4">
-                    <label className="block text-gray-700 text-sm font-bold mb-2">
+                <div className="mb-3 md:mb-4">
+                    <label className="block text-gray-700 text-xs md:text-sm font-bold mb-1 md:mb-2">
                         성별
                     </label>
                     <div className="flex items-center">
-                        <label className="mr-4 text-black">
+                        <label className="mr-4 text-black text-sm">
                             <input
                                 type="radio"
                                 name="gender"
                                 value="남"
                                 checked={userInfo.gender === "남"}
                                 onChange={handleChange}
-                                className="mr-2"
+                                className="mr-1 md:mr-2"
                             />
                             남성
                         </label>
-                        <label className="mr-4 text-black">
+                        <label className="mr-4 text-black text-sm">
                             <input
                                 type="radio"
                                 name="gender"
                                 value="여"
                                 checked={userInfo.gender === "여"}
                                 onChange={handleChange}
-                                className="mr-2"
+                                className="mr-1 md:mr-2"
                             />
                             여성
                         </label>
@@ -278,7 +278,7 @@ const UserInfoEdit: React.FC<UserInfoEditProps> = ({
 
                 {/* 비밀번호 상태 요약 메시지 */}
                 <div
-                    className={`p-3 rounded mb-4 ${
+                    className={`p-2 md:p-3 rounded mb-2 md:mb-4 ${
                         !passwordValidation.isEmpty &&
                         passwordValidation.isValid &&
                         passwordValidation.match
@@ -286,7 +286,7 @@ const UserInfoEdit: React.FC<UserInfoEditProps> = ({
                             : "bg-red-50 text-red-800 border border-red-200"
                     }`}
                 >
-                    <p className="text-sm">
+                    <p className="text-xs md:text-sm">
                         {!passwordValidation.isEmpty &&
                         passwordValidation.isValid &&
                         passwordValidation.match
