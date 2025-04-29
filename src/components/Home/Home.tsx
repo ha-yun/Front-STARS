@@ -6,22 +6,33 @@ import RegisterForm from "./RegisterForm";
 export default function Home() {
     const [isRegistering, setIsRegistering] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
+    const [errorVisible, setErrorVisible] = useState(false);
 
     const handleFormSwitch = () => {
         setErrorMessage("");
+        setErrorVisible(false);
         setIsRegistering((prev) => !prev);
     };
 
     const handleRegisterSuccess = () => {
         setIsRegistering(false);
-        setErrorMessage("회원가입이 완료되었습니다! 로그인 해주세요.");
-        setTimeout(() => {
-            setErrorMessage("");
-        }, 2000);
+        triggerError("회원가입이 완료되었습니다! 로그인 해주세요.");
     };
 
     const handleError = (message: string) => {
+        triggerError(message);
+    };
+
+    const triggerError = (message: string) => {
         setErrorMessage(message);
+        setErrorVisible(true);
+
+        // 1.5초 후 fade-out 시작
+        setTimeout(() => {
+            setErrorVisible(false);
+        }, 1500);
+
+        // fade-out 끝나고 에러 메시지 비우기
         setTimeout(() => {
             setErrorMessage("");
         }, 2000);
@@ -37,7 +48,7 @@ export default function Home() {
                 playsInline
                 className="absolute w-full h-full object-cover"
             >
-                <source src="/home-bg-video.mp4" type="video/mp4" />
+                <source src="../public/home-bg-video.mp4" type="video/mp4" />
             </video>
 
             {/* 블러 오버레이 */}
@@ -51,17 +62,23 @@ export default function Home() {
                         {isRegistering ? "회원가입" : "Login"}
                     </h2>
 
-                    {/* 에러 메시지 출력 */}
-                    {errorMessage && (
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            className="text-center text-red-300 text-sm mb-4"
-                        >
-                            {errorMessage}
-                        </motion.div>
-                    )}
+                    {/* 에러메시지 공간 항상 확보 */}
+                    <div className="min-h-[24px] mb-4 text-center">
+                        <AnimatePresence>
+                            {errorMessage && (
+                                <motion.div
+                                    key={errorMessage}
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: errorVisible ? 1 : 0 }}
+                                    exit={{ opacity: 0 }}
+                                    transition={{ duration: 0.5 }}
+                                    className="text-red-300 text-sm"
+                                >
+                                    {errorMessage}
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                    </div>
 
                     {/* 폼 부분 */}
                     <AnimatePresence mode="wait">
