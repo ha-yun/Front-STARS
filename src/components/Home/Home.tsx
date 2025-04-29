@@ -13,8 +13,18 @@ export default function Home() {
     };
 
     const handleRegisterSuccess = () => {
-        setIsRegistering(false); // 회원가입 성공하면 로그인 폼으로 이동
+        setIsRegistering(false);
         setErrorMessage("회원가입이 완료되었습니다! 로그인 해주세요.");
+        setTimeout(() => {
+            setErrorMessage("");
+        }, 2000);
+    };
+
+    const handleError = (message: string) => {
+        setErrorMessage(message);
+        setTimeout(() => {
+            setErrorMessage("");
+        }, 2000);
     };
 
     return (
@@ -43,9 +53,14 @@ export default function Home() {
 
                     {/* 에러 메시지 출력 */}
                     {errorMessage && (
-                        <div className="text-center text-red-300 text-sm mb-4">
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="text-center text-red-300 text-sm mb-4"
+                        >
                             {errorMessage}
-                        </div>
+                        </motion.div>
                     )}
 
                     {/* 폼 부분 */}
@@ -62,7 +77,7 @@ export default function Home() {
                                     onRegisterSuccess={handleRegisterSuccess}
                                 />
                             ) : (
-                                <LoginForm onError={setErrorMessage} />
+                                <LoginForm onError={handleError} />
                             )}
                         </motion.div>
                     </AnimatePresence>

@@ -1,4 +1,3 @@
-// components/LoginForm.tsx
 import { useState, FormEvent } from "react";
 import { motion } from "framer-motion";
 
@@ -10,6 +9,7 @@ export default function LoginForm({ onError }: LoginFormProps) {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [shake, setShake] = useState(false);
 
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
@@ -17,12 +17,13 @@ export default function LoginForm({ onError }: LoginFormProps) {
         if (username === "admin" && password === "password") {
             setIsLoggedIn(true);
 
-            // 1.5초 후 fullpage 이동
             setTimeout(() => {
                 window.fullpage_api?.moveSlideRight();
             }, 1500);
         } else {
             onError("아이디 또는 비밀번호가 올바르지 않습니다.");
+            setShake(true);
+            setTimeout(() => setShake(false), 500); // 0.5초 뒤 흔들림 해제
         }
     };
 
@@ -41,7 +42,12 @@ export default function LoginForm({ onError }: LoginFormProps) {
     }
 
     return (
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <motion.form
+            onSubmit={handleSubmit}
+            className="flex flex-col gap-4"
+            animate={shake ? { x: [-10, 10, -8, 8, -4, 4, 0] } : {}}
+            transition={{ duration: 0.4 }}
+        >
             <input
                 type="text"
                 name="username"
@@ -66,6 +72,6 @@ export default function LoginForm({ onError }: LoginFormProps) {
             >
                 로그인
             </button>
-        </form>
+        </motion.form>
     );
 }
