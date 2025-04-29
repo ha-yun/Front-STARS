@@ -22,7 +22,7 @@ export default function AdminLogin() {
             <div className="absolute top-6 left-6 z-30">
                 <button
                     className="bg-white shadow-md px-4 py-2 text-indigo-500 font-semibold hover:bg-indigo-500 hover:text-white transition"
-                    onClick={() => window.fullpage_api?.moveSlideLeft()} // ← 왼쪽으로 슬라이드 이동
+                    onClick={() => window.fullpage_api?.moveSlideRight()} // ← 왼쪽으로 슬라이드 이동
                 >
                     ← 돌아가기
                 </button>
