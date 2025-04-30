@@ -6,7 +6,7 @@ import "mapbox-gl/dist/mapbox-gl.css";
 import { usePlace } from "../../../context/PlaceContext";
 import { places } from "../../../data/placesData";
 import FocusCard from "./FocusCard"; // 분리된 카드 컴포넌트
-import SearchBar from "./SearchBar";
+// import SearchBar from "./SearchBar";
 
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
 
@@ -64,10 +64,10 @@ export default function MapSectionComponent() {
         return () => map.remove();
     }, [setSelectedPlace]);
 
-    const handleSearch = (query: string) => {
-        console.log("검색어:", query);
-        // 검색 로직 추가
-    };
+    // const handleSearch = (query: string) => {
+    //     console.log("검색어:", query);
+    //     // 검색 로직 추가
+    // };
 
     return (
         <div className="relative w-screen app-full-height">
@@ -80,8 +80,16 @@ export default function MapSectionComponent() {
                     MyPage →
                 </button>
             </div>
+            <div className="absolute md:top-6 top-24 left-6 z-10">
+                <button
+                    className="bg-white shadow-md px-4 py-2 text-indigo-500 font-semibold hover:bg-indigo-500 hover:text-white transition"
+                    onClick={() => window.fullpage_api?.moveSlideLeft()} // ← 왼쪽으로 슬라이드 이동
+                >
+                    ← 돌아가기
+                </button>
+            </div>
             {/* 검색 바 */}
-            <SearchBar onSearch={handleSearch} />
+            {/*<SearchBar onSearch={handleSearch} />*/}
             {/* Mapbox 지도 */}
             <div className="w-full h-full" ref={mapContainer} />
 
