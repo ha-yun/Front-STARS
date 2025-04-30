@@ -38,6 +38,7 @@ export default function FullPageLayout() {
                     <div className="section">
                         <Dashboard />
                     </div>
+                    <div className="section"></div>
                 </ReactFullpage.Wrapper>
             )}
         />
