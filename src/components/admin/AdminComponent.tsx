@@ -30,6 +30,9 @@ export default function AdminComponent() {
     const [error, setError] = useState<string | null>(null);
     const [refreshing, setRefreshing] = useState<boolean>(false);
 
+    // 테스트용 실패확률
+    const persent: number = 0.2;
+
     // 혼잡도 값에 대한 우선순위 매핑
     const congestionOrder = {
         원활: 1,
@@ -95,8 +98,7 @@ export default function AdminComponent() {
             const response = await new Promise<TouristInfo[]>(
                 (resolve, reject) => {
                     setTimeout(() => {
-                        // 90% 확률로 성공, 10% 확률로 실패 (테스트용)
-                        if (Math.random() > 0.1) {
+                        if (Math.random() > persent) {
                             resolve(touristInfo);
                         } else {
                             reject(
@@ -105,16 +107,18 @@ export default function AdminComponent() {
                                 )
                             );
                         }
-                    }, 2000);
+                    }, 1000);
                 }
             );
 
             setTouristInfoData(response);
         } catch (err) {
             console.error("Failed to fetch tourist info:", err);
-            setError("관광지 정보를 불러오는데 실패했습니다.");
+            setError("정보를 불러오는데 실패했습니다.");
+            // 초기화
+            setTouristInfoData([]);
             // 에러 발생시 더미 데이터 사용
-            setTouristInfoData(touristInfo);
+            // setTouristInfoData(touristInfo);
         } finally {
             setLoading(false);
         }
@@ -126,17 +130,30 @@ export default function AdminComponent() {
 
         try {
             // API 통신 시뮬레이션 (1.5초 지연)
-            const response = await new Promise<TouristSpot[]>((resolve) => {
-                setTimeout(() => {
-                    resolve(touristSpots);
-                }, 1500);
-            });
+            const response = await new Promise<TouristSpot[]>(
+                (resolve, reject) => {
+                    setTimeout(() => {
+                        if (Math.random() > persent) {
+                            resolve(touristSpots);
+                        } else {
+                            reject(
+                                new Error(
+                                    "관광지 정보를 불러오는데 실패했습니다."
+                                )
+                            );
+                        }
+                    }, 1000);
+                }
+            );
 
             setTouristSpotsData(response);
         } catch (err) {
             console.error("Failed to fetch tourist spots:", err);
+            setError("정보를 불러오는데 실패했습니다");
+            // 초기화
+            setTouristSpotsData([]);
             // 에러 발생시 더미 데이터 사용
-            setTouristSpotsData(touristSpots);
+            // setTouristSpotsData(touristSpots);
         } finally {
             setSpotsLoading(false);
         }
@@ -153,7 +170,7 @@ export default function AdminComponent() {
                 (resolve, reject) => {
                     setTimeout(() => {
                         // 95% 확률로 성공, 5% 확률로 실패 (테스트용)
-                        if (Math.random() > 0.05) {
+                        if (Math.random() > persent) {
                             resolve(weatherData);
                         } else {
                             reject(
@@ -162,15 +179,18 @@ export default function AdminComponent() {
                                 )
                             );
                         }
-                    }, 2500);
+                    }, 1000);
                 }
             );
 
             setWeatherInfoData(response);
         } catch (err) {
             console.error("Failed to fetch weather data:", err);
+            setError("정보를 불러오는데 실패했습니다");
+            // 초기화
+            setWeatherInfoData([]);
             // 에러 발생시 더미 데이터 사용
-            setWeatherInfoData(weatherData);
+            // setWeatherInfoData(weatherData);
         } finally {
             setWeatherLoading(false);
         }
@@ -249,7 +269,7 @@ export default function AdminComponent() {
     return (
         <div className="bg-gray-100 h-auto flex flex-col w-full overflow-y-auto">
             {/* Header */}
-            <AdminHeader path={"/"} />
+            <AdminHeader path={"/login"} />
             {/* End of Header */}
 
             {/* 오류 메시지 표시 */}

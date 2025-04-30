@@ -32,7 +32,7 @@ const AdminTour = () => {
                 (resolve, reject) => {
                     setTimeout(() => {
                         // 95% 확률로 성공, 5% 확률로 실패 (테스트용)
-                        if (Math.random() > 0.2) {
+                        if (Math.random() > 0.5) {
                             resolve(events);
                         } else {
                             reject(
@@ -63,19 +63,7 @@ const AdminTour = () => {
         } catch (err) {
             console.error("Failed to fetch events:", err);
             setError("문화 행사 데이터를 불러오는데 실패했습니다.");
-
-            // 에러 발생시에도 더미 데이터로 표시
-            // if (events && events.length > 0) {
-            //     const tourData = events.map((e) => ({
-            //         category: e.category,
-            //         gu: e.gu,
-            //         title: e.title,
-            //         start_date: e.start_date,
-            //         end_date: e.end_date,
-            //         is_free: e.is_free !== "유료",
-            //     }));
-            //     setList(tourData);
-            // }
+            setList([]);
         } finally {
             setLoading(false);
         }
