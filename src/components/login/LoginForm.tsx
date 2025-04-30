@@ -21,7 +21,7 @@ export default function LoginForm({ onError }: LoginFormProps) {
             setIsLoggedIn(true);
 
             setTimeout(() => {
-                navigate("/manage");
+                navigate("/map");
             }, 1500);
         } else {
             onError("아이디 또는 비밀번호가 올바르지 않습니다.");
