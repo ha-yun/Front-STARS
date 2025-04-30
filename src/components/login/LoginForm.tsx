@@ -1,5 +1,6 @@
 import { useState, FormEvent } from "react";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
 interface LoginFormProps {
     onError: (msg: string) => void;
@@ -11,6 +12,8 @@ export default function LoginForm({ onError }: LoginFormProps) {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [shake, setShake] = useState(false);
 
+    const navigate = useNavigate();
+
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
 
@@ -18,7 +21,7 @@ export default function LoginForm({ onError }: LoginFormProps) {
             setIsLoggedIn(true);
 
             setTimeout(() => {
-                window.fullpage_api?.moveSlideRight();
+                navigate("/manage");
             }, 1500);
         } else {
             onError("아이디 또는 비밀번호가 올바르지 않습니다.");
