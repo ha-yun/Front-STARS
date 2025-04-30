@@ -43,7 +43,7 @@ const renderCustomizedLabel = ({
             fill="white"
             textAnchor={x > cx ? "start" : "end"}
             dominantBaseline="central"
-            fontSize="10"
+            fontSize="12"
             fontWeight="bold"
         >
             {`${(percent * 100).toFixed(0)}%`}
@@ -95,35 +95,37 @@ const PieCard = ({ datas, name }: PieCardProps) => {
 
     // 컨테이너 사이즈에 비례하여 반지름 계산
     const smallerDimension = Math.min(dimensions.width, dimensions.height);
-    const outerRadius = Math.max(30, smallerDimension * 0.4); // 크기 약간 감소
+    const outerRadius = Math.max(40, smallerDimension * 0.35); // 파이 차트 크기 조절
 
     return (
         <div
             ref={containerRef}
-            className="bg-white shadow rounded-lg p-2 flex flex-col w-full h-full"
+            className="bg-white shadow rounded-lg p-4 flex flex-col w-full h-full"
         >
-            <h3 className="font-semibold text-xl text-black mb-1">{name}</h3>
+            <h3 className="font-semibold text-xl text-black mb-2">{name}</h3>
             <div
                 className="flex-grow flex items-center justify-center"
-                style={{ height: "120px" }}
+                style={{ minHeight: "180px" }}
             >
                 {isVisible && dimensions.width > 0 && dimensions.height > 0 ? (
                     <ResponsiveContainer width="100%" height="100%">
                         <PieChart
-                            margin={{ top: 0, right: 0, left: 0, bottom: 0 }}
+                            margin={{ top: 5, right: 5, left: 5, bottom: 5 }}
                         >
                             <Legend
                                 layout="horizontal"
-                                align="right"
+                                verticalAlign="bottom"
+                                align="center"
                                 wrapperStyle={{
-                                    fontSize: "20px",
+                                    fontSize: "14px",
                                     fontWeight: "bold",
+                                    paddingTop: "10px",
                                 }}
-                                iconSize={8}
+                                iconSize={10}
                             />
                             <Tooltip
                                 formatter={(value) => [`${value}%`, "비율"]}
-                                contentStyle={{ fontSize: "20px" }}
+                                contentStyle={{ fontSize: "14px" }}
                             />
                             <Pie
                                 data={datas}
@@ -136,6 +138,7 @@ const PieCard = ({ datas, name }: PieCardProps) => {
                                 label={renderCustomizedLabel}
                                 labelLine={false}
                                 outerRadius={outerRadius}
+                                innerRadius={outerRadius * 0.4} // 도넛 형태로 변경
                             />
                         </PieChart>
                     </ResponsiveContainer>

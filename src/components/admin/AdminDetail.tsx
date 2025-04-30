@@ -149,12 +149,10 @@ const AdminDetail = () => {
 
                 <RodeCard />
 
-                {/* layer2 */}
                 <PieCard datas={gender} name="남여 비율" />
 
                 <PopulationRateCard population={ppltnRate} />
 
-                {/* layer3 */}
                 <PieCard datas={resnt} name="거주자 비율" />
 
                 <ForecastPopulationCard fcst_ppltn={forecastData} />
