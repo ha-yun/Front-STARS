@@ -12,6 +12,18 @@ import AdminHeader from "./AdminHeader";
 const AdminDetail = () => {
     // spotCode별로 API를 불러와야 하는데 아직 없어서 그러지 못하는중
     const { spotCode } = useParams<{ spotCode: string }>();
+    const [loading, setLoading] = useState<boolean>(true);
+
+    const fetchData = async () => {
+        setLoading(true);
+        try {
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     console.log(spotCode);
 
@@ -22,8 +34,6 @@ const AdminDetail = () => {
 
     // 데이터 전처리
     useEffect(() => {
-        // 성별 비율 파싱 -> Data
-        // name(category), male/female_ppltn_rate
         setGender([
             {
                 name: "남자",
