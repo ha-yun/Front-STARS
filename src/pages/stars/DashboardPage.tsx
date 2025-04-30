@@ -1,6 +1,6 @@
 import DashboardComponent from "../../components/stars/dashboard/DashboardComponent";
 
-export default function HomePage() {
+export default function DashboardPage() {
     return (
         <div>
             <DashboardComponent />
