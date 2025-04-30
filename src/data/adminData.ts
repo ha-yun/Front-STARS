@@ -505,9 +505,6 @@ export const dummyData: PopulationResponse = {
     },
 };
 
-// 날씨
-// /main/stream
-
 // 날씨 예보 데이터 타입 정의
 interface WeatherForecast {
     fcst_dt: string;
