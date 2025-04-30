@@ -16,7 +16,7 @@ export default function AdminHeader({ path }: Props) {
     const menuItems = [
         { label: "대시보드", path: "/manage" },
         { label: "축제 현황", path: "/manage/tour" },
-        { label: "사용자 관리", path: "/users" },
+        { label: "사용자 즐겨찾기", path: "/manage/user" },
         { label: "설정", path: "/settings" },
         { label: "로그아웃", path: "/" },
     ];

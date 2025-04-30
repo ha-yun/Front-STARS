@@ -107,10 +107,10 @@ const AdminTour = () => {
                                                 {item.title}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                {formatDate(item.start_date)}
+                                                {item.start_date}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                {formatDate(item.end_date)}
+                                                {item.end_date}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                                 <span
@@ -149,7 +149,7 @@ const formatDate = (dateString: string) => {
             day: "numeric",
         });
     } catch (error) {
-        return dateString; // 오류 발생 시 원본 문자열 반환
+        return error; // 오류 발생 시 원본 문자열 반환
     }
 };
 
