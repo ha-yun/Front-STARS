@@ -14,23 +14,23 @@ interface ApiResponse<T> {
 const typeColors = {
     attraction: {
         badge: "bg-blue-100 text-blue-800",
-        border: "border-l-4 border-blue-500",
+        border: "border-l-8 border-blue-500",
     },
     restaurant: {
         badge: "bg-green-100 text-green-800",
-        border: "border-l-4 border-green-500",
+        border: "border-l-8 border-green-500",
     },
     cafe: {
         badge: "bg-orange-100 text-orange-800",
-        border: "border-l-4 border-orange-500",
+        border: "border-l-8 border-orange-500",
     },
     hotel: {
         badge: "bg-purple-100 text-purple-800",
-        border: "border-l-4 border-purple-500",
+        border: "border-l-8 border-purple-500",
     },
     default: {
         badge: "bg-gray-100 text-gray-800",
-        border: "border-l-4 border-gray-500",
+        border: "border-l-8 border-gray-500",
     },
 };
 
@@ -326,9 +326,6 @@ const UserFavorite = () => {
                                     {item.address}
                                 </p>
                                 <div className="flex justify-between items-center mt-2">
-                                    <p className="text-gray-500 text-xs">
-                                        ID: {item.place_id}
-                                    </p>
                                     <div className="flex gap-1">
                                         <span className="text-xs px-2 py-1 bg-indigo-50 text-indigo-600 rounded-full">
                                             상세보기
