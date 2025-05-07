@@ -7,6 +7,7 @@ import {
     XAxis,
     YAxis,
     Tooltip,
+    Legend,
 } from "recharts";
 
 interface ForecastPopulation {
@@ -47,7 +48,6 @@ const getCongestionColor = (level: string): string => {
 
 const ForecastPopulationCard = ({ fcst_ppltn }: ForecastPopulationProps) => {
     const [windowWidth, setWindowWidth] = useState(window.innerWidth);
-    // any 타입 대신 명확한 인터페이스 사용
     const [chartData, setChartData] = useState<ChartDataItem[]>([]);
 
     useEffect(() => {
@@ -88,70 +88,49 @@ const ForecastPopulationCard = ({ fcst_ppltn }: ForecastPopulationProps) => {
     };
 
     return (
-        <div className="bg-white p-3 shadow rounded-lg md:col-span-2 xl:col-span-2">
-            <h3 className="font-semibold text-xl text-black">
+        <div className="bg-white p-4 shadow rounded-lg md:col-span-2 xl:col-span-2 h-full">
+            <h3 className="font-semibold text-xl text-black mb-2">
                 24시간 인구 추이 예측
             </h3>
-            <ResponsiveContainer
-                width="100%"
-                height={isSmallScreen ? 300 : 250}
+            <div
+                style={{ minHeight: "180px", width: "100%" }}
+                className="flex-grow"
             >
-                <BarChart
-                    data={chartData}
-                    margin={{
-                        top: 30,
-                        right: 30,
-                        left: 20,
-                        bottom: 10,
-                    }}
-                    barSize={30}
-                >
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="time" tick={{ fontSize: 12 }} height={40} />
-                    <YAxis
-                        tickFormatter={formatPopulation}
-                        tick={{ fontSize: 12 }}
-                    />
-                    <Tooltip
-                        formatter={(value, name) => {
-                            if (name === "average") {
-                                return [
-                                    `${formatPopulation(value as number)}명`,
-                                    "평균 인구",
-                                ];
-                            }
-                            return [
-                                `${formatPopulation(value as number)}명`,
-                                name === "min" ? "최소 인구" : "최대 인구",
-                            ];
-                        }}
-                        labelFormatter={(label) => `시간: ${label}`}
-                    />
-                    <Bar
-                        dataKey="average"
-                        name="평균 인구"
-                        radius={[4, 4, 0, 0]}
-                        isAnimationActive={true}
-                    />
-                </BarChart>
-            </ResponsiveContainer>
-
-            <div className="mt-4">
-                <div className="flex flex-wrap gap-2">
-                    {["원활", "보통", "약간 붐빔", "붐빔"].map((level) => (
-                        <div key={level} className="flex items-center">
-                            <div
-                                className="w-3 h-3 rounded-full mr-1"
-                                style={{
-                                    backgroundColor: getCongestionColor(level),
-                                }}
-                            />
-                            <span className="text-xs text-gray-600">
-                                {level}
-                            </span>
-                        </div>
-                    ))}
-                </div>
+                <ResponsiveContainer width="100%" height={220}>
+                    <BarChart
+                        data={chartData}
+                        margin={{ top: 10, right: 30, left: 0, bottom: -40 }}
+                        barCategoryGap={5}
+                        barGap={0}
+                    >
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                        <XAxis
+                            dataKey="time"
+                            tick={{ fontSize: 12 }}
+                            height={60}
+                        />
+                        <YAxis tick={{ fontSize: 11 }} />
+                        <Tooltip />
+                        <Bar
+                            dataKey="min"
+                            fill="#34C759"
+                            name="최소 인구"
+                            radius={[8, 8, 0, 0]}
+                        />
+                        <Bar
+                            dataKey="max"
+                            fill="#FF3B30"
+                            name="최대 인구"
+                            radius={[8, 8, 0, 0]}
+                        />
+                        <Bar
+                            dataKey="average"
+                            fill="#FFCC00"
+                            name="평균 인구"
+                            radius={[8, 8, 0, 0]}
+                        />
+                    </BarChart>
+                </ResponsiveContainer>
             </div>
         </div>
     );

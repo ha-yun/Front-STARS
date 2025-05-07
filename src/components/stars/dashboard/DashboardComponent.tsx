@@ -7,12 +7,12 @@ import VisitorCountCard from "./VisitorCountCard";
 import PlaceInfoCard from "./PlaceInfoCard";
 import WeatherCard from "./WeatherCard";
 import ChartCard from "./ChartCard";
-import ActionButton from "./ActionButton";
+// import ActionButton from "./ActionButton";
 import POICardList from "./POICardList";
 import ReviewAnalysisCard from "./ReviewAnalysisCard";
 import TrafficInfoCard from "./TrafficInfoCard";
 import ParkingInfoCard from "./ParkingInfoCard";
-import PlaceImageCard from "./PlaceImageCard";
+// import PlaceImageCard from "./PlaceImageCard";
 import CongestionStatusCard from "./CongestionStatusCard";
 import { scrollToTop } from "../../../utils/scrollToTop";
 
@@ -98,9 +98,9 @@ export default function DashboardComponent() {
                     y = -15 * (1 - ratio);
                 } else if (cardCenter > containerBottom - fadeMargin) {
                     const ratio = (containerBottom - cardCenter) / fadeMargin;
-                    opacity = Math.max(0, ratio);
-                    scale = Math.max(0.8, ratio);
-                    y = 30 * (1 - ratio);
+                    // opacity = Math.max(0, ratio);
+                    // scale = Math.max(0.8, ratio);
+                    y = 15 * (1 - ratio);
                 }
 
                 newStyles[i] = { opacity, y, scale };
@@ -143,11 +143,11 @@ export default function DashboardComponent() {
                     cardRef={(el) => (cardRefs.current[3] = el)}
                 />
 
-                <PlaceImageCard
-                    image={place.image}
-                    style={cardStyles[4]}
-                    cardRef={(el) => (cardRefs.current[4] = el)}
-                />
+                {/*<PlaceImageCard*/}
+                {/*    image={place.image}*/}
+                {/*    style={cardStyles[4]}*/}
+                {/*    cardRef={(el) => (cardRefs.current[4] = el)}*/}
+                {/*/>*/}
 
                 <WeatherCard
                     style={cardStyles[5]}
@@ -188,7 +188,7 @@ export default function DashboardComponent() {
             </motion.div>
             <div className="absolute top-8 right-8 z-10 justify-between flex gap-2">
                 <div
-                    className="bg-gray-50 hover:bg-indigo-600 text-indigo-600 hover:text-white font-medium rounded-full p-4 w-auto h-12 flex items-center justify-center text-lg shadow-lg transition cursor-pointer"
+                    className="bg-gray-50 hover:bg-indigo-600 text-indigo-600 hover:text-white font-medium rounded-2xl p-4 w-auto h-12 flex items-center justify-center text-lg shadow-lg transition cursor-pointer"
                     onClick={() => window.fullpage_api?.moveSectionUp()}
                 >
                     맵으로 가기

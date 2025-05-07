@@ -26,7 +26,7 @@ export default function POICardList({
             {pois.map((poi, idx) => (
                 <motion.div
                     key={idx}
-                    className="bg-white rounded-xl shadow-lg p-4 my-2"
+                    className="bg-white rounded-3xl shadow-lg p-4 my-2"
                     whileHover={{ y: -6 }}
                     animate={cardStyles[baseIndex + idx]}
                     style={cardStyles[baseIndex + idx]}
