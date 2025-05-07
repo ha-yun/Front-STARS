@@ -5,6 +5,7 @@ import { SpotCard } from "./cards/spotCard";
 import AdminHeader from "./AdminHeader";
 import CongestionTag from "./cards/CongestionTag";
 import { useState, useEffect } from "react";
+import { subscribeCongestionAlert } from "../../api/starsApi";
 
 // 타입 가져오기
 import {
@@ -31,7 +32,7 @@ export default function AdminComponent() {
     const [refreshing, setRefreshing] = useState<boolean>(false);
 
     // 테스트용 실패확률
-    const persent: number = 0.2;
+    const persent: number = 0.1;
 
     // 혼잡도 값에 대한 우선순위 매핑
     const congestionOrder = {
@@ -95,23 +96,83 @@ export default function AdminComponent() {
 
         try {
             // API 통신 시뮬레이션 (2초 지연)
-            const response = await new Promise<TouristInfo[]>(
-                (resolve, reject) => {
-                    setTimeout(() => {
-                        if (Math.random() > persent) {
-                            resolve(touristInfo);
+            // const response = await new Promise<TouristInfo[]>(
+            //     (resolve, reject) => {
+            //         setTimeout(() => {
+            //             if (Math.random() > persent) {
+            //                 resolve(touristInfo);
+            //             } else {
+            //                 reject(
+            //                     new Error(
+            //                         "관광지 정보를 불러오는데 실패했습니다."
+            //                     )
+            //                 );
+            //             }
+            //         }, 1000);
+            //     }
+            // );
+
+            // SSE를 통해 데이터가 넘어올텐데 이걸 처리하는 로직을 여기에다가 넣어야 하는 듯 함
+            const event: EventSource = subscribeCongestionAlert(
+                (alertData): void => {
+                    // 타입 단언을 사용하여 데이터의 특정 필드에 접근
+                    const updateData = alertData as {
+                        area_nm: string;
+                        area_cd: string;
+                        ppltn_time: string;
+                        area_congest_lvl: string;
+                    };
+
+                    // 관광지 정보 데이터 업데이트
+                    setTouristInfoData((prevData) => {
+                        // 이전 데이터의 복사본 생성
+                        const updatedData = [...prevData];
+
+                        // 일치하는 관광지 찾기
+                        const existingIndex = updatedData.findIndex(
+                            (item) => item.spotCode === updateData.area_cd
+                        );
+
+                        if (existingIndex !== -1) {
+                            // 기존 레코드 업데이트
+                            updatedData[existingIndex] = {
+                                ...updatedData[existingIndex],
+                                spotName: updateData.area_nm,
+                                spotCode: updateData.area_cd,
+                                timestamp: updateData.ppltn_time,
+                                participantCount: updateData.area_congest_lvl,
+                            };
                         } else {
-                            reject(
-                                new Error(
-                                    "관광지 정보를 불러오는데 실패했습니다."
-                                )
-                            );
+                            // 없는 경우 새 레코드로 추가
+                            updatedData.push({
+                                spotName: updateData.area_nm,
+                                spotCode: updateData.area_cd,
+                                timestamp: updateData.ppltn_time,
+                                participantCount: updateData.area_congest_lvl,
+                            });
                         }
-                    }, 1000);
+
+                        return updatedData;
+                    });
+
+                    // 유효한 데이터를 받았으므로 오류 상태 초기화
+                    if (error) {
+                        setError(null);
+                    }
+
+                    // 디버깅을 위한 업데이트 로그
+                    console.log("혼잡도 업데이트 수신:", alertData);
                 }
             );
 
-            setTouristInfoData(response);
+            // setTouristInfoData(response);
+
+            // 컴포넌트 언마운트 시 구독 정리
+            return () => {
+                if (event) {
+                    event.close();
+                }
+            };
         } catch (err) {
             console.error("Failed to fetch tourist info:", err);
             setError("정보를 불러오는데 실패했습니다.");
@@ -215,6 +276,7 @@ export default function AdminComponent() {
 
     // 컴포넌트 마운트 시 데이터 로드
     useEffect(() => {
+        // 더미 API 호출
         fetchTouristInfo();
         fetchTouristSpots();
         fetchWeatherData();

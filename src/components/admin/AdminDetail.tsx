@@ -14,14 +14,12 @@ import {
 import RodeCard from "./cards/RodeCard";
 import AdminHeader from "./AdminHeader";
 
-// API 응답 타입 정의
+// API 응답 타입 정의, 더미 API용
 interface ApiResponse {
     success: boolean;
     message: string;
     data: PopulationResponse;
 }
-
-// MockApiCall -> 임시로 만든 API 호출, 이걸 갈아끼면 될듯?
 
 const AdminDetail = () => {
     // URL 파라미터에서 spotCode 가져오기

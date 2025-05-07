@@ -19,10 +19,10 @@ export interface WeatherCard {
 }
 
 export interface TouristInfo {
-    spotName: string;
-    spotCode: string;
-    timestamp: string;
-    participantCount: string;
+    spotName: string; // 이름
+    spotCode: string; // 코드
+    timestamp: string; // 측정시간
+    participantCount: string; // 4단계 예측
 }
 
 export interface PopulationData {
