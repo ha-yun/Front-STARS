@@ -34,25 +34,18 @@ export interface PopulationData {
     area_ppltn_max: number; // 지역 최대 인구
     male_ppltn_rate: number; // 남성 인구 비율
     female_ppltn_rate: number; // 여성 인구 비율
-    ppltn_rate_0: number; // 0-9세 인구 비율
-    ppltn_rate_10: number; // 10-19세 인구 비율
-    ppltn_rate_20: number; // 20-29세 인구 비율
-    ppltn_rate_30: number; // 30-39세 인구 비율
-    ppltn_rate_40: number; // 40-49세 인구 비율
-    ppltn_rate_50: number; // 50-59세 인구 비율
-    ppltn_rate_60: number; // 60-69세 인구 비율
-    ppltn_rate_70: number; // 70세 이상 인구 비율
     resnt_ppltn_rate: number; // 거주 인구 비율
     non_resnt_ppltn_rate: number; // 비거주 인구 비율
     replace_yn: string; // 대체 여부
     ppltn_time: string; // 인구 데이터 시간
     fcst_yn: string; // 예측 여부
     fcst_ppltn_wrapper: ForecastPopulationWrapper; // 예측 인구 데이터 래퍼
+    ppltn_rates: number[]; // 연령별 인구 분포
 }
 
 // 전체 데이터 구조 인터페이스
 export interface PopulationResponse {
-    ppltn_data: PopulationData; // 인구 데이터
+    data: PopulationData[]; // 인구 데이터
 }
 
 export interface ForecastPopulationWrapper {
@@ -336,178 +329,179 @@ export const touristInfo: TouristInfo[] = [
 
 // 해당 지역 상세보기 정보
 export const dummyData: PopulationResponse = {
-    ppltn_data: {
-        area_nm: "광화문·덕수궁",
-        area_cd: "POI009",
-        area_congest_lvl: "보통",
-        area_congest_msg:
-            "사람이 몰려있을 수 있지만 크게 붐비지는 않아요. 도보 이동에 큰 제약이 없어요.",
-        area_ppltn_min: 40000,
-        area_ppltn_max: 43000,
-        male_ppltn_rate: 48.1,
-        female_ppltn_rate: 51.9,
-        ppltn_rate_0: 0.1,
-        ppltn_rate_10: 2.5,
-        ppltn_rate_20: 16.4,
-        ppltn_rate_30: 24.1,
-        ppltn_rate_40: 26.5,
-        ppltn_rate_50: 18.8,
-        ppltn_rate_60: 8.0,
-        ppltn_rate_70: 3.6,
-        resnt_ppltn_rate: 29.6,
-        non_resnt_ppltn_rate: 70.4,
-        replace_yn: "N",
-        ppltn_time: "2025-04-18 16:05",
-        fcst_yn: "Y",
-        fcst_ppltn_wrapper: {
-            fcst_ppltn: [
-                {
-                    fcst_time: "2025-04-18 00:00",
-                    fcst_congest_lvl: "원활",
-                    fcst_ppltn_min: 18000,
-                    fcst_ppltn_max: 20000,
-                },
-                {
-                    fcst_time: "2025-04-18 01:00",
-                    fcst_congest_lvl: "원활",
-                    fcst_ppltn_min: 14000,
-                    fcst_ppltn_max: 16000,
-                },
-                {
-                    fcst_time: "2025-04-18 02:00",
-                    fcst_congest_lvl: "원활",
-                    fcst_ppltn_min: 10000,
-                    fcst_ppltn_max: 12000,
-                },
-                {
-                    fcst_time: "2025-04-18 03:00",
-                    fcst_congest_lvl: "원활",
-                    fcst_ppltn_min: 8000,
-                    fcst_ppltn_max: 10000,
-                },
-                {
-                    fcst_time: "2025-04-18 04:00",
-                    fcst_congest_lvl: "원활",
-                    fcst_ppltn_min: 6000,
-                    fcst_ppltn_max: 8000,
-                },
-                {
-                    fcst_time: "2025-04-18 05:00",
-                    fcst_congest_lvl: "원활",
-                    fcst_ppltn_min: 10000,
-                    fcst_ppltn_max: 12000,
-                },
-                {
-                    fcst_time: "2025-04-18 06:00",
-                    fcst_congest_lvl: "원활",
-                    fcst_ppltn_min: 15000,
-                    fcst_ppltn_max: 17000,
-                },
-                {
-                    fcst_time: "2025-04-18 07:00",
-                    fcst_congest_lvl: "보통",
-                    fcst_ppltn_min: 22000,
-                    fcst_ppltn_max: 24000,
-                },
-                {
-                    fcst_time: "2025-04-18 08:00",
-                    fcst_congest_lvl: "보통",
-                    fcst_ppltn_min: 28000,
-                    fcst_ppltn_max: 30000,
-                },
-                {
-                    fcst_time: "2025-04-18 09:00",
-                    fcst_congest_lvl: "약간 붐빔",
-                    fcst_ppltn_min: 32000,
-                    fcst_ppltn_max: 34000,
-                },
-                {
-                    fcst_time: "2025-04-18 10:00",
-                    fcst_congest_lvl: "약간 붐빔",
-                    fcst_ppltn_min: 36000,
-                    fcst_ppltn_max: 38000,
-                },
-                {
-                    fcst_time: "2025-04-18 11:00",
-                    fcst_congest_lvl: "붐빔",
-                    fcst_ppltn_min: 40000,
-                    fcst_ppltn_max: 42000,
-                },
-                {
-                    fcst_time: "2025-04-18 12:00",
-                    fcst_congest_lvl: "붐빔",
-                    fcst_ppltn_min: 44000,
-                    fcst_ppltn_max: 46000,
-                },
-                {
-                    fcst_time: "2025-04-18 13:00",
-                    fcst_congest_lvl: "붐빔",
-                    fcst_ppltn_min: 46000,
-                    fcst_ppltn_max: 48000,
-                },
-                {
-                    fcst_time: "2025-04-18 14:00",
-                    fcst_congest_lvl: "붐빔",
-                    fcst_ppltn_min: 45000,
-                    fcst_ppltn_max: 47000,
-                },
-                {
-                    fcst_time: "2025-04-18 15:00",
-                    fcst_congest_lvl: "약간 붐빔",
-                    fcst_ppltn_min: 42000,
-                    fcst_ppltn_max: 44000,
-                },
-                {
-                    fcst_time: "2025-04-18 16:00",
-                    fcst_congest_lvl: "약간 붐빔",
-                    fcst_ppltn_min: 40000,
-                    fcst_ppltn_max: 42000,
-                },
-                {
-                    fcst_time: "2025-04-18 17:00",
-                    fcst_congest_lvl: "약간 붐빔",
-                    fcst_ppltn_min: 38000,
-                    fcst_ppltn_max: 40000,
-                },
-                {
-                    fcst_time: "2025-04-18 18:00",
-                    fcst_congest_lvl: "약간 붐빔",
-                    fcst_ppltn_min: 36000,
-                    fcst_ppltn_max: 38000,
-                },
-                {
-                    fcst_time: "2025-04-18 19:00",
-                    fcst_congest_lvl: "약간 붐빔",
-                    fcst_ppltn_min: 36000,
-                    fcst_ppltn_max: 38000,
-                },
-                {
-                    fcst_time: "2025-04-18 20:00",
-                    fcst_congest_lvl: "보통",
-                    fcst_ppltn_min: 34000,
-                    fcst_ppltn_max: 36000,
-                },
-                {
-                    fcst_time: "2025-04-18 21:00",
-                    fcst_congest_lvl: "보통",
-                    fcst_ppltn_min: 32000,
-                    fcst_ppltn_max: 34000,
-                },
-                {
-                    fcst_time: "2025-04-18 22:00",
-                    fcst_congest_lvl: "원활",
-                    fcst_ppltn_min: 28000,
-                    fcst_ppltn_max: 30000,
-                },
-                {
-                    fcst_time: "2025-04-18 23:00",
-                    fcst_congest_lvl: "원활",
-                    fcst_ppltn_min: 24000,
-                    fcst_ppltn_max: 26000,
-                },
-            ],
+    data: [
+        {
+            area_nm: "광화문·덕수궁",
+            area_cd: "POI009",
+            area_congest_lvl: "보통",
+            area_congest_msg:
+                "사람이 몰려있을 수 있지만 크게 붐비지는 않아요. 도보 이동에 큰 제약이 없어요.",
+            area_ppltn_min: 40000,
+            area_ppltn_max: 43000,
+            male_ppltn_rate: 48.1,
+            female_ppltn_rate: 51.9,
+            ppltn_rates: [0.1, 2.5, 16.4, 24.1, 26.5, 18.8, 8.0, 3.6],
+            resnt_ppltn_rate: 29.6,
+            non_resnt_ppltn_rate: 70.4,
+            replace_yn: "N",
+            ppltn_time: "2025-04-18 16:05",
+            fcst_yn: "Y",
+            fcst_ppltn_wrapper: {
+                fcst_ppltn: [
+                    {
+                        fcst_time: "2025-04-18 00:00",
+                        fcst_congest_lvl: "원활",
+                        fcst_ppltn_min: 18000,
+                        fcst_ppltn_max: 20000,
+                    },
+                    {
+                        fcst_time: "2025-04-18 01:00",
+                        fcst_congest_lvl: "원활",
+                        fcst_ppltn_min: 14000,
+                        fcst_ppltn_max: 16000,
+                    },
+                    {
+                        fcst_time: "2025-04-18 02:00",
+                        fcst_congest_lvl: "원활",
+                        fcst_ppltn_min: 10000,
+                        fcst_ppltn_max: 12000,
+                    },
+                ],
+            },
         },
-    },
+        {
+            area_nm: "강남역",
+            area_cd: "POI001",
+            area_congest_lvl: "붐빔",
+            area_congest_msg:
+                "사람이 많아 도보 이동이 제한적이에요. 활동과 이동 시 불편함이 있을 수 있어요.",
+            area_ppltn_min: 58000,
+            area_ppltn_max: 62000,
+            male_ppltn_rate: 46.3,
+            female_ppltn_rate: 53.7,
+            ppltn_rates: [0.2, 3.1, 22.5, 30.2, 25.7, 12.5, 4.3, 1.5],
+            resnt_ppltn_rate: 15.3,
+            non_resnt_ppltn_rate: 84.7,
+            replace_yn: "N",
+            ppltn_time: "2025-04-18 15:55",
+            fcst_yn: "Y",
+            fcst_ppltn_wrapper: {
+                fcst_ppltn: [
+                    {
+                        fcst_time: "2025-04-18 00:00",
+                        fcst_congest_lvl: "원활",
+                        fcst_ppltn_min: 22000,
+                        fcst_ppltn_max: 25000,
+                    },
+                    {
+                        fcst_time: "2025-04-18 12:00",
+                        fcst_congest_lvl: "붐빔",
+                        fcst_ppltn_min: 62000,
+                        fcst_ppltn_max: 66000,
+                    },
+                ],
+            },
+        },
+        {
+            area_nm: "코엑스",
+            area_cd: "POI002",
+            area_congest_lvl: "약간 붐빔",
+            area_congest_msg:
+                "사람이 몰려 도보 이동이 다소 불편할 수 있어요. 활동에 주의가 필요해요.",
+            area_ppltn_min: 48000,
+            area_ppltn_max: 52000,
+            male_ppltn_rate: 44.8,
+            female_ppltn_rate: 55.2,
+            ppltn_rates: [0.8, 4.2, 18.5, 32.1, 28.3, 12.1, 3.5, 0.5],
+            resnt_ppltn_rate: 8.7,
+            non_resnt_ppltn_rate: 91.3,
+            replace_yn: "N",
+            ppltn_time: "2025-04-18 16:10",
+            fcst_yn: "Y",
+            fcst_ppltn_wrapper: {
+                fcst_ppltn: [
+                    {
+                        fcst_time: "2025-04-18 00:00",
+                        fcst_congest_lvl: "원활",
+                        fcst_ppltn_min: 15000,
+                        fcst_ppltn_max: 18000,
+                    },
+                    {
+                        fcst_time: "2025-04-18 12:00",
+                        fcst_congest_lvl: "약간 붐빔",
+                        fcst_ppltn_min: 48000,
+                        fcst_ppltn_max: 52000,
+                    },
+                ],
+            },
+        },
+        {
+            area_nm: "명동 쇼핑거리",
+            area_cd: "POI011",
+            area_congest_lvl: "붐빔",
+            area_congest_msg:
+                "사람이 많아 도보 이동이 제한적이에요. 활동과 이동 시 불편함이 있을 수 있어요.",
+            area_ppltn_min: 56000,
+            area_ppltn_max: 60000,
+            male_ppltn_rate: 38.2,
+            female_ppltn_rate: 61.8,
+            ppltn_rates: [1.2, 5.5, 22.8, 35.2, 22.1, 9.2, 3.1, 0.9],
+            resnt_ppltn_rate: 5.2,
+            non_resnt_ppltn_rate: 94.8,
+            replace_yn: "N",
+            ppltn_time: "2025-04-18 16:15",
+            fcst_yn: "Y",
+            fcst_ppltn_wrapper: {
+                fcst_ppltn: [
+                    {
+                        fcst_time: "2025-04-18 00:00",
+                        fcst_congest_lvl: "보통",
+                        fcst_ppltn_min: 25000,
+                        fcst_ppltn_max: 28000,
+                    },
+                    {
+                        fcst_time: "2025-04-18 12:00",
+                        fcst_congest_lvl: "붐빔",
+                        fcst_ppltn_min: 60000,
+                        fcst_ppltn_max: 65000,
+                    },
+                ],
+            },
+        },
+        {
+            area_nm: "홍대 걷고싶은거리",
+            area_cd: "POI021",
+            area_congest_lvl: "붐빔",
+            area_congest_msg:
+                "사람이 많아 도보 이동이 제한적이에요. 활동과 이동 시 불편함이 있을 수 있어요.",
+            area_ppltn_min: 55000,
+            area_ppltn_max: 59000,
+            male_ppltn_rate: 43.5,
+            female_ppltn_rate: 56.5,
+            ppltn_rates: [0.5, 7.8, 35.2, 32.5, 15.8, 6.2, 1.5, 0.5],
+            resnt_ppltn_rate: 12.8,
+            non_resnt_ppltn_rate: 87.2,
+            replace_yn: "N",
+            ppltn_time: "2025-04-18 16:20",
+            fcst_yn: "Y",
+            fcst_ppltn_wrapper: {
+                fcst_ppltn: [
+                    {
+                        fcst_time: "2025-04-18 00:00",
+                        fcst_congest_lvl: "약간 붐빔",
+                        fcst_ppltn_min: 32000,
+                        fcst_ppltn_max: 36000,
+                    },
+                    {
+                        fcst_time: "2025-04-18 12:00",
+                        fcst_congest_lvl: "보통",
+                        fcst_ppltn_min: 38000,
+                        fcst_ppltn_max: 42000,
+                    },
+                ],
+            },
+        },
+    ],
 };
 
 // 날씨 예보 데이터 타입 정의

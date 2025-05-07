@@ -59,8 +59,8 @@ const AdminDetail = () => {
                         // 강남역 데이터 - 더 붐비는 데이터로 수정
                         responseData = {
                             ...dummyData,
-                            ppltn_data: {
-                                ...dummyData.ppltn_data,
+                            data: {
+                                ...dummyData.data,
                                 area_nm: "강남역",
                                 area_cd: "POI001",
                                 area_congest_lvl: "붐빔",
@@ -72,8 +72,8 @@ const AdminDetail = () => {
                         // 반포 한강공원 데이터
                         responseData = {
                             ...dummyData,
-                            ppltn_data: {
-                                ...dummyData.ppltn_data,
+                            data: {
+                                ...dummyData.data,
                                 area_nm: "반포 한강공원",
                                 area_cd: "POI031",
                                 area_congest_lvl: "원활",

@@ -1,5 +1,12 @@
 import { useNavigate } from "react-router-dom";
-import { touristInfo, touristSpots, weatherData } from "../../data/adminData";
+import {
+    dummyData,
+    ForecastPopulationWrapper,
+    PopulationResponse,
+    touristInfo,
+    touristSpots,
+    weatherData,
+} from "../../data/adminData";
 import { WeatherCard } from "./cards/weatherCard";
 import { SpotCard } from "./cards/spotCard";
 import AdminHeader from "./AdminHeader";
@@ -9,9 +16,10 @@ import { subscribeCongestionAlert } from "../../api/starsApi";
 
 // 타입 가져오기
 import {
-    TouristInfo,
+    TouristInfo, // 간단히 표시할 정보
     TouristSpot,
     WeatherCard as WeatherCardType,
+    PopulationData, // 전체 정보
 } from "../../data/adminData";
 
 export default function AdminComponent() {
@@ -20,7 +28,9 @@ export default function AdminComponent() {
     const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc"); // 기본값: 오름차순
 
     // 데이터 상태 및 로딩 상태
-    const [touristInfoData, setTouristInfoData] = useState<TouristInfo[]>([]);
+    const [touristInfoData, setTouristInfoData] = useState<PopulationData[]>(
+        []
+    );
     const [touristSpotsData, setTouristSpotsData] = useState<TouristSpot[]>([]);
     const [weatherInfoData, setWeatherInfoData] = useState<WeatherCardType[]>(
         []
@@ -33,6 +43,8 @@ export default function AdminComponent() {
 
     // 테스트용 실패확률
     const persent: number = 0.1;
+
+    const test = true;
 
     // 혼잡도 값에 대한 우선순위 매핑
     const congestionOrder = {
@@ -58,18 +70,18 @@ export default function AdminComponent() {
     const sortedTouristInfo = [...touristInfoData].sort((a, b) => {
         if (sortField === "spotName") {
             return sortDirection === "asc"
-                ? a.spotName.localeCompare(b.spotName)
-                : b.spotName.localeCompare(a.spotName);
+                ? a.area_nm.localeCompare(b.area_nm)
+                : b.area_nm.localeCompare(a.area_nm);
         }
 
         if (sortField === "congestion") {
             const valueA =
                 congestionOrder[
-                    a.participantCount as keyof typeof congestionOrder
+                    a.area_congest_lvl as keyof typeof congestionOrder
                 ] || 0;
             const valueB =
                 congestionOrder[
-                    b.participantCount as keyof typeof congestionOrder
+                    b.area_congest_lvl as keyof typeof congestionOrder
                 ] || 0;
 
             return sortDirection === "asc" ? valueA - valueB : valueB - valueA;
@@ -96,83 +108,115 @@ export default function AdminComponent() {
 
         try {
             // API 통신 시뮬레이션 (2초 지연)
-            // const response = await new Promise<TouristInfo[]>(
-            //     (resolve, reject) => {
-            //         setTimeout(() => {
-            //             if (Math.random() > persent) {
-            //                 resolve(touristInfo);
-            //             } else {
-            //                 reject(
-            //                     new Error(
-            //                         "관광지 정보를 불러오는데 실패했습니다."
-            //                     )
-            //                 );
-            //             }
-            //         }, 1000);
-            //     }
-            // );
-
+            if (test) {
+                const response = await new Promise<PopulationData[]>(
+                    (resolve, reject) => {
+                        setTimeout(() => {
+                            if (Math.random() > persent) {
+                                resolve(dummyData.data);
+                            } else {
+                                reject(
+                                    new Error(
+                                        "관광지 정보를 불러오는데 실패했습니다."
+                                    )
+                                );
+                            }
+                        }, 1000);
+                    }
+                );
+                setTouristInfoData(response);
+            }
             // SSE를 통해 데이터가 넘어올텐데 이걸 처리하는 로직을 여기에다가 넣어야 하는 듯 함
-            const event: EventSource = subscribeCongestionAlert(
-                (alertData): void => {
-                    // 타입 단언을 사용하여 데이터의 특정 필드에 접근
-                    const updateData = alertData as {
-                        area_nm: string;
-                        area_cd: string;
-                        ppltn_time: string;
-                        area_congest_lvl: string;
-                    };
+            else {
+                const event: EventSource = subscribeCongestionAlert(
+                    (data): void => {
+                        // 주어진 타입으로 수정
+                        const updateData = data as {
+                            area_nm: string; // 지역명
+                            area_cd: string; // 지역 코드
+                            area_congest_lvl: string; // 지역 혼잡도 수준
+                            area_congest_msg: string; // 지역 혼잡도 메시지
+                            area_ppltn_min: number; // 지역 최소 인구
+                            area_ppltn_max: number; // 지역 최대 인구
+                            male_ppltn_rate: number; // 남성 인구 비율
+                            female_ppltn_rate: number; // 여성 인구 비율
+                            resnt_ppltn_rate: number; // 거주 인구 비율
+                            non_resnt_ppltn_rate: number; // 비거주 인구 비율
+                            replace_yn: string; // 대체 여부
+                            ppltn_time: string; // 인구 데이터 시간
+                            fcst_yn: string; // 예측 여부
+                            fcst_ppltn_wrapper: ForecastPopulationWrapper; // 예측 인구 데이터 래퍼
+                            ppltn_rates: number[]; // 연령별 인구 분포
+                        };
 
-                    // 관광지 정보 데이터 업데이트
-                    setTouristInfoData((prevData) => {
-                        // 이전 데이터의 복사본 생성
-                        const updatedData = [...prevData];
+                        // 관광지 정보 데이터 업데이트
+                        setTouristInfoData((prevData) => {
+                            // 이전 데이터의 복사본 생성
+                            const updatedData = [...prevData];
 
-                        // 일치하는 관광지 찾기
-                        const existingIndex = updatedData.findIndex(
-                            (item) => item.spotCode === updateData.area_cd
-                        );
+                            // 일치하는 관광지 찾기
+                            const existingIndex = updatedData.findIndex(
+                                (item) => item.area_cd === updateData.area_cd
+                            );
 
-                        if (existingIndex !== -1) {
-                            // 기존 레코드 업데이트
-                            updatedData[existingIndex] = {
-                                ...updatedData[existingIndex],
-                                spotName: updateData.area_nm,
-                                spotCode: updateData.area_cd,
-                                timestamp: updateData.ppltn_time,
-                                participantCount: updateData.area_congest_lvl,
-                            };
-                        } else {
-                            // 없는 경우 새 레코드로 추가
-                            updatedData.push({
-                                spotName: updateData.area_nm,
-                                spotCode: updateData.area_cd,
-                                timestamp: updateData.ppltn_time,
-                                participantCount: updateData.area_congest_lvl,
-                            });
+                            if (existingIndex !== -1) {
+                                // 기존 레코드 업데이트
+                                updatedData[existingIndex] = {
+                                    ...updatedData[existingIndex],
+                                    area_nm: updateData.area_nm,
+                                    area_cd: updateData.area_cd,
+                                    ppltn_time: updateData.ppltn_time,
+                                    area_congest_lvl:
+                                        updateData.area_congest_lvl,
+                                };
+                            } else {
+                                // 없는 경우 새 레코드로 추가
+                                updatedData.push({
+                                    area_nm: updateData.area_nm,
+                                    area_cd: updateData.area_cd,
+                                    ppltn_time: updateData.ppltn_time,
+                                    area_congest_lvl:
+                                        updateData.area_congest_lvl,
+                                    area_congest_msg:
+                                        updateData.area_congest_msg,
+                                    // Add all the missing fields from PopulationData type
+                                    area_ppltn_min: updateData.area_ppltn_min,
+                                    area_ppltn_max: updateData.area_ppltn_max,
+                                    male_ppltn_rate: updateData.male_ppltn_rate,
+                                    female_ppltn_rate:
+                                        updateData.female_ppltn_rate,
+                                    resnt_ppltn_rate:
+                                        updateData.resnt_ppltn_rate,
+                                    non_resnt_ppltn_rate:
+                                        updateData.non_resnt_ppltn_rate,
+                                    replace_yn: updateData.replace_yn,
+                                    fcst_yn: updateData.fcst_yn,
+                                    fcst_ppltn_wrapper:
+                                        updateData.fcst_ppltn_wrapper,
+                                    ppltn_rates: updateData.ppltn_rates,
+                                });
+                            }
+
+                            return updatedData;
+                        });
+
+                        // 유효한 데이터를 받았으므로 오류 상태 초기화
+                        if (error) {
+                            setError(null);
                         }
 
-                        return updatedData;
-                    });
-
-                    // 유효한 데이터를 받았으므로 오류 상태 초기화
-                    if (error) {
-                        setError(null);
+                        // 디버깅을 위한 업데이트 로그
+                        console.log("혼잡도 업데이트 수신:", data);
                     }
+                );
 
-                    // 디버깅을 위한 업데이트 로그
-                    console.log("혼잡도 업데이트 수신:", alertData);
-                }
-            );
-
-            // setTouristInfoData(response);
-
-            // 컴포넌트 언마운트 시 구독 정리
-            return () => {
-                if (event) {
-                    event.close();
-                }
-            };
+                // EventSource 리소스 정리를 위한 cleanup 함수 반환
+                return () => {
+                    if (event) {
+                        event.close();
+                    }
+                };
+            }
         } catch (err) {
             console.error("Failed to fetch tourist info:", err);
             setError("정보를 불러오는데 실패했습니다.");
@@ -289,6 +333,23 @@ export default function AdminComponent() {
         // 컴포넌트 언마운트 시 인터벌 정리
         return () => clearInterval(interval);
     }, []);
+
+    // 관광지 클릭 핸들러 - 선택한 관광지 정보와 함께 디테일 페이지로 이동
+    const handleSpotClick = (info: PopulationData) => {
+        // 페이지 이동 전 스크롤 위치 초기화
+        window.scrollTo(0, 0);
+        console.log(info);
+
+        // 선택한 관광지 정보와 함께 상세 페이지로 이동
+        navigate(`/manage/${info.area_cd}`, {
+            state: {
+                selectedSpot: info,
+                // 추가 데이터가 필요한 경우 여기에 포함
+                currentWeather:
+                    weatherInfoData.length > 0 ? weatherInfoData[0] : null,
+            },
+        });
+    };
 
     // 로딩 스켈레톤 컴포넌트
     const SpotCardSkeleton = () => (
@@ -557,27 +618,23 @@ export default function AdminComponent() {
                                         <div
                                             key={idx}
                                             className="flex py-3 border-b hover:bg-gray-100 transition-colors text-xs md:text-base cursor-pointer"
-                                            onClick={() => {
-                                                // 페이지 이동 전 스크롤 위치 초기화
-                                                window.scrollTo(0, 0);
-                                                navigate(
-                                                    `/manage/${info.spotCode}`
-                                                );
-                                            }}
+                                            onClick={() =>
+                                                handleSpotClick(info)
+                                            }
                                         >
                                             <div className="w-1/4 text-center text-black overflow-hidden text-ellipsis px-1">
-                                                {info.spotName}
+                                                {info.area_nm}
                                             </div>
                                             <div className="w-1/4 text-center text-black overflow-hidden text-ellipsis px-1">
-                                                {info.spotCode}
+                                                {info.area_cd}
                                             </div>
                                             <div className="w-1/4 text-center text-black overflow-hidden text-ellipsis px-1">
-                                                {info.timestamp}
+                                                {info.ppltn_time}
                                             </div>
                                             <div className="w-1/4 text-center overflow-hidden flex justify-center">
                                                 <CongestionTag
                                                     level={
-                                                        info.participantCount
+                                                        info.area_congest_lvl
                                                     }
                                                     size="sm"
                                                 />
