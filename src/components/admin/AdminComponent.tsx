@@ -344,9 +344,6 @@ export default function AdminComponent() {
         navigate(`/manage/${info.area_cd}`, {
             state: {
                 selectedSpot: info,
-                // 추가 데이터가 필요한 경우 여기에 포함
-                currentWeather:
-                    weatherInfoData.length > 0 ? weatherInfoData[0] : null,
             },
         });
     };

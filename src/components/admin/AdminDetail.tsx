@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import PieCard from "./cards/PieCard";
 import SimpleInfoCard from "./cards/SimpleInfoCard";
 import AreaPopulationCard from "./cards/AreaPopulationCard";
@@ -7,9 +7,9 @@ import PopulationRateCard from "./cards/PopulationRateCard";
 import ForecastPopulationCard from "./cards/ForecastPopulationCard";
 import {
     ForecastPopulation,
-    dummyData,
     Data,
     PopulationResponse,
+    PopulationData,
 } from "../../data/adminData";
 import RodeCard from "./cards/RodeCard";
 import AdminHeader from "./AdminHeader";
@@ -24,6 +24,9 @@ interface ApiResponse {
 const AdminDetail = () => {
     // URL 파라미터에서 spotCode 가져오기
     const { spotCode } = useParams<{ spotCode: string }>();
+    // Navi로 이동할 때 같이 보낸 데이터 받아오기
+    const location = useLocation();
+    const selectedSpot: PopulationData = location.state.selectedSpot;
 
     // 상태 관리
     const [loading, setLoading] = useState<boolean>(true);
@@ -32,69 +35,14 @@ const AdminDetail = () => {
     const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
     // 데이터 상태
-    const [areaData, setAreaData] = useState<PopulationResponse | null>(null);
+    const [areaData, setAreaData] = useState<PopulationData | null>(null);
     const [gender, setGender] = useState<Data[]>([]);
     const [resnt, setResnt] = useState<Data[]>([]);
     const [ppltnRate, setPpltnRate] = useState<Data[]>([]);
     const [forecastData, setForecastData] = useState<ForecastPopulation[]>([]);
 
     console.log("Current spotCode:", spotCode);
-
-    // 모의 API 함수 - Promise 반환
-    const mockApiCall = (code: string): Promise<ApiResponse> => {
-        // 나중에 실제 API로 변경해야함
-        return new Promise((resolve, reject) => {
-            // 실제 API 통신을 시뮬레이션하기 위한 타임아웃
-            setTimeout(() => {
-                // 50% 확률로 성공, 50% 확률로 실패 (테스트 목적)
-                const shouldSucceed = Math.random() < 0.5;
-
-                if (shouldSucceed) {
-                    // 성공 시 더미 데이터 반환 (실제로는 API에서 받은 데이터)
-                    // 코드에 따라 다른 데이터를 반환하도록 할 수 있음
-                    let responseData = dummyData;
-
-                    // 특정 spotCode에 대해 다른 값 반환 (선택 사항)
-                    if (code === "POI001") {
-                        // 강남역 데이터 - 더 붐비는 데이터로 수정
-                        responseData = {
-                            ...dummyData,
-                            data: {
-                                ...dummyData.data,
-                                area_nm: "강남역",
-                                area_cd: "POI001",
-                                area_congest_lvl: "붐빔",
-                                area_ppltn_min: 60000,
-                                area_ppltn_max: 65000,
-                            },
-                        };
-                    } else if (code === "POI031") {
-                        // 반포 한강공원 데이터
-                        responseData = {
-                            ...dummyData,
-                            data: {
-                                ...dummyData.data,
-                                area_nm: "반포 한강공원",
-                                area_cd: "POI031",
-                                area_congest_lvl: "원활",
-                                area_ppltn_min: 20000,
-                                area_ppltn_max: 25000,
-                            },
-                        };
-                    }
-
-                    resolve({
-                        success: true,
-                        message: "데이터를 성공적으로 가져왔습니다.",
-                        data: responseData,
-                    });
-                } else {
-                    // 실패 시 에러 반환 (실제 API 에러 시뮬레이션)
-                    reject(new Error("API 요청 중 오류가 발생했습니다."));
-                }
-            }, 500); // 1초 지연으로 로딩 상태 시뮬레이션
-        });
-    };
+    console.log(selectedSpot);
 
     // 데이터 가져오기 함수
     const fetchAreaData = async (isRefresh = false) => {
@@ -106,17 +54,10 @@ const AdminDetail = () => {
         setError(null);
 
         try {
-            // 모의 API 호출
-            const response = await mockApiCall(spotCode || "");
-
-            // 호출 성공시 데이터 파싱
-            if (response.success) {
-                setAreaData(response.data);
-                processChartData(response.data);
-                setLastUpdated(new Date());
-            } else {
-                throw new Error(response.message || "데이터 가져오기 실패");
-            }
+            // Detail로 넘어올 때 useLocation을 이용해 해당 지역 데이터를 미리 받아옴
+            setAreaData(selectedSpot);
+            processChartData(selectedSpot);
+            setLastUpdated(new Date());
         } catch (err) {
             console.error("Error fetching area data:", err);
             setError(
@@ -138,19 +79,17 @@ const AdminDetail = () => {
     };
 
     // 차트 데이터 가공 함수
-    const processChartData = (data: PopulationResponse) => {
-        const ppltnData = data.ppltn_data;
-
+    const processChartData = (data: PopulationData) => {
         // 성별 비율 파싱
         setGender([
             {
                 name: "남자",
-                value: ppltnData.male_ppltn_rate,
+                value: data.male_ppltn_rate,
                 fill: "#EB6927",
             },
             {
                 name: "여자",
-                value: ppltnData.female_ppltn_rate,
+                value: data.female_ppltn_rate,
                 fill: "#2D8CFF",
             },
         ]);
@@ -159,12 +98,12 @@ const AdminDetail = () => {
         setResnt([
             {
                 name: "거주자",
-                value: ppltnData.resnt_ppltn_rate,
+                value: data.resnt_ppltn_rate,
                 fill: "#7f22fe",
             },
             {
                 name: "비거주자",
-                value: ppltnData.non_resnt_ppltn_rate,
+                value: data.non_resnt_ppltn_rate,
                 fill: "#00a63e",
             },
         ]);
@@ -173,53 +112,50 @@ const AdminDetail = () => {
         setPpltnRate([
             {
                 name: "10대>",
-                value: ppltnData.ppltn_rate_0,
+                value: data.ppltn_rates[0],
                 fill: "#EB6927",
             },
             {
                 name: "10대",
-                value: ppltnData.ppltn_rate_10,
+                value: data.ppltn_rates[1],
                 fill: "#EB6927",
             },
             {
                 name: "20대",
-                value: ppltnData.ppltn_rate_20,
+                value: data.ppltn_rates[2],
                 fill: "#EB6927",
             },
             {
                 name: "30대",
-                value: ppltnData.ppltn_rate_30,
+                value: data.ppltn_rates[3],
                 fill: "#EB6927",
             },
             {
                 name: "40대",
-                value: ppltnData.ppltn_rate_40,
+                value: data.ppltn_rates[4],
                 fill: "#EB6927",
             },
             {
                 name: "50대",
-                value: ppltnData.ppltn_rate_50,
+                value: data.ppltn_rates[5],
                 fill: "#EB6927",
             },
             {
                 name: "60대",
-                value: ppltnData.ppltn_rate_60,
+                value: data.ppltn_rates[6],
                 fill: "#EB6927",
             },
             {
                 name: "<70대",
-                value: ppltnData.ppltn_rate_70,
+                value: data.ppltn_rates[7],
                 fill: "#EB6927",
             },
         ]);
 
         // 24시간 인구 추이 예측 파싱
-        if (
-            ppltnData.fcst_ppltn_wrapper &&
-            ppltnData.fcst_ppltn_wrapper.fcst_ppltn
-        ) {
-            const forecastChartData =
-                ppltnData.fcst_ppltn_wrapper.fcst_ppltn.map((item) => {
+        if (data.fcst_ppltn_wrapper && data.fcst_ppltn_wrapper.fcst_ppltn) {
+            const forecastChartData = data.fcst_ppltn_wrapper.fcst_ppltn.map(
+                (item) => {
                     // 시간 포맷팅 (2025-04-18 17:00 -> 17:00)
                     const timeString = item.fcst_time.split(" ")[1];
 
@@ -229,7 +165,8 @@ const AdminDetail = () => {
                         fcst_ppltn_max: item.fcst_ppltn_max,
                         fcst_congest_lvl: item.fcst_congest_lvl,
                     };
-                });
+                }
+            );
             setForecastData(forecastChartData);
         }
     };
@@ -372,7 +309,7 @@ const AdminDetail = () => {
     }
 
     // 데이터가 없는 경우
-    if (!areaData || !areaData.ppltn_data) {
+    if (!areaData) {
         return (
             <div className="bg-gray-100 min-h-screen flex flex-col w-full">
                 <AdminHeader path={"/manage"} />
@@ -402,18 +339,17 @@ const AdminDetail = () => {
                     {/* SimpleInfoCard */}
                     <SimpleInfoCard
                         info={{
-                            area_name: areaData.ppltn_data.area_nm,
-                            area_code: areaData.ppltn_data.area_cd,
-                            area_congest_lvl:
-                                areaData.ppltn_data.area_congest_lvl,
+                            area_name: areaData.area_nm,
+                            area_code: areaData.area_cd,
+                            area_congest_lvl: areaData.area_congest_lvl,
                         }}
                     />
 
                     {/* AreaPopulationCard */}
                     <AreaPopulationCard
                         population={{
-                            area_ppltn_min: areaData.ppltn_data.area_ppltn_min,
-                            area_ppltn_max: areaData.ppltn_data.area_ppltn_max,
+                            area_ppltn_min: areaData.area_ppltn_min,
+                            area_ppltn_max: areaData.area_ppltn_max,
                         }}
                     />
 
