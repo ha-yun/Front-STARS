@@ -1,5 +1,6 @@
 import jwtAxios from "../utils/jwtUtil";
 import API_SERVER_HOST from "./apiConfig";
+import { Favorite } from "../data/adminData";
 
 const prefix = `${API_SERVER_HOST}/mypage`;
 
@@ -10,11 +11,6 @@ type UserProfile = {
     birth_year: number;
     mbti: string;
     gender: string;
-};
-
-type Favorite = {
-    type: string;
-    place_id: number;
 };
 
 export const getUserProfile = async () => {

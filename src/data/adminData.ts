@@ -72,12 +72,17 @@ export interface Data {
     fill: string;
 }
 
-export interface Favorite {
-    id: number;
+// 유저 즐겨찾기, 관리자 즐겨찾기 틀
+export type Favorite = {
+    favorite_id: number;
+    type: string;
     name: string;
     address: string;
-}
+    place_id: string;
+    user_id: string;
+};
 
+// 관리자 페이지 즐겨찾기 모아보기용
 export interface UserFavoriteList {
     userId: string;
     favoriteList: Favorite[];
@@ -748,3 +753,70 @@ export const weatherDummyData: WeatherResponse = {
         },
     ],
 };
+
+export const sampleFavorites: Favorite[] = [
+    {
+        favorite_id: 1,
+        type: "attraction",
+        name: "에버랜드",
+        address: "경기도 용인시",
+        place_id: "place_01",
+        user_id: "user_01",
+    },
+    {
+        favorite_id: 2,
+        type: "restaurant",
+        name: "맛있는 식당",
+        address: "서울시 강남구",
+        place_id: "place_02",
+        user_id: "user_01",
+    },
+    {
+        favorite_id: 3,
+        type: "cafe",
+        name: "스타벅스 강남점",
+        address: "서울시 강남구",
+        place_id: "place_03",
+        user_id: "user_01",
+    },
+    {
+        favorite_id: 4,
+        type: "hotel",
+        name: "그랜드 호텔",
+        address: "제주도 서귀포시",
+        place_id: "place_04",
+        user_id: "user_01",
+    },
+    {
+        favorite_id: 5,
+        type: "attraction",
+        name: "롯데월드",
+        address: "서울시 송파구",
+        place_id: "place_05",
+        user_id: "user_01",
+    },
+    {
+        favorite_id: 6,
+        type: "restaurant",
+        name: "한식당",
+        address: "서울시 중구",
+        place_id: "place_06",
+        user_id: "user_01",
+    },
+    {
+        favorite_id: 7,
+        type: "cafe",
+        name: "투썸플레이스",
+        address: "서울시 종로구",
+        place_id: "place_07",
+        user_id: "user_01",
+    },
+    {
+        favorite_id: 8,
+        type: "hotel",
+        name: "웨스틴 조선",
+        address: "서울시 중구",
+        place_id: "place_08",
+        user_id: "user_01",
+    },
+];

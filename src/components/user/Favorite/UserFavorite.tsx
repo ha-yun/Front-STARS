@@ -1,49 +1,44 @@
 // UserFavorite.tsx
 import React, { useState, useEffect } from "react";
-import { Favorite } from "../../../data/adminData";
+import { Favorite, sampleFavorites } from "../../../data/adminData";
+import { getUserFavoriteList, deleteFavorite } from "../../../api/mypageApi";
 
-// 샘플 데이터 - 나중에 API에서 받아올 데이터
-const sampleFavorites: Favorite[] = [
-    {
-        id: 1,
-        name: "에버랜드",
-        address: "경기도 용인시",
-    },
-    {
-        id: 2,
-        name: "맛있는 식당",
-        address: "서울시 강남구",
-    },
-    {
-        id: 3,
-        name: "스타벅스 강남점",
-        address: "서울시 강남구",
-    },
-    {
-        id: 4,
-        name: "그랜드 호텔",
-        address: "제주도 서귀포시",
-    },
-    {
-        id: 5,
-        name: "롯데월드",
-        address: "서울시 송파구",
-    },
-    { id: 6, name: "한식당", address: "서울시 중구" },
-    { id: 7, name: "투썸플레이스", address: "서울시 종로구" },
-    {
-        id: 8,
-        name: "웨스틴 조선",
-        address: "서울시 중구",
-    },
-];
-
-// API 응답 타입 정의
+// API 응답 타입 정의, 모의 API용
 interface ApiResponse<T> {
     success: boolean;
     data?: T;
     message?: string;
 }
+
+// 타입별 색상 정의
+const typeColors = {
+    attraction: {
+        badge: "bg-blue-100 text-blue-800",
+        border: "border-l-4 border-blue-500",
+    },
+    restaurant: {
+        badge: "bg-green-100 text-green-800",
+        border: "border-l-4 border-green-500",
+    },
+    cafe: {
+        badge: "bg-orange-100 text-orange-800",
+        border: "border-l-4 border-orange-500",
+    },
+    hotel: {
+        badge: "bg-purple-100 text-purple-800",
+        border: "border-l-4 border-purple-500",
+    },
+    default: {
+        badge: "bg-gray-100 text-gray-800",
+        border: "border-l-4 border-gray-500",
+    },
+};
+
+// 타입에 따른 색상 반환 함수
+const getTypeColor = (type: string) => {
+    const key = type as keyof typeof typeColors;
+    return typeColors[key] || typeColors.default;
+};
 
 const UserFavorite = () => {
     // 즐겨찾기 데이터 상태
@@ -67,7 +62,7 @@ const UserFavorite = () => {
             // 1초 지연 후 응답 (네트워크 지연 시뮬레이션)
             setTimeout(() => {
                 // 80% 확률로 성공
-                if (Math.random() < 0.8) {
+                if (Math.random() < 1) {
                     resolve({
                         success: true,
                         data: sampleFavorites,
@@ -85,7 +80,8 @@ const UserFavorite = () => {
     };
 
     // 즐겨찾기 항목을 삭제하는 모의 API 함수
-    const deleteFavorite = (id: number): Promise<ApiResponse<null>> => {
+    // 이것도 나중에 실제 API로 대체
+    const ddeleteFavorite = (id: number): Promise<ApiResponse<null>> => {
         return new Promise((resolve) => {
             // 실제 axios 사용 시:
             // return axios.delete(`/api/favorites/${id}`);
@@ -93,7 +89,7 @@ const UserFavorite = () => {
             // 800ms 지연 후 응답 (네트워크 지연 시뮬레이션)
             setTimeout(() => {
                 // 90% 확률로 성공
-                if (Math.random() < 0.9) {
+                if (Math.random() < 1) {
                     resolve({
                         success: true,
                         message: "즐겨찾기가 성공적으로 삭제되었습니다.",
@@ -115,7 +111,11 @@ const UserFavorite = () => {
         setError(null);
 
         try {
+            // 더미 모의 API 호출 함수
             const response = await fetchFavorites();
+
+            // 실제 호출해야한 API, response 처리 로직을 다시 짜야할 수 있음
+            // const response = await getUserFavoriteList();
 
             if (response.success && response.data) {
                 setFavorites(response.data);
@@ -160,16 +160,24 @@ const UserFavorite = () => {
     }, []);
 
     // 삭제 핸들러
-    const handleDelete = async (id: number) => {
+    const handleDelete = async (fav: Favorite) => {
         if (window.confirm("즐겨찾기를 삭제하시겠습니까?")) {
-            setDeletingId(id); // 삭제 중인 항목 표시
+            setDeletingId(fav.favorite_id); // 삭제 중인 항목 표시
 
             try {
-                const response = await deleteFavorite(id);
+                // 모의 API, 실제 API로 바꿔야함
+                const response = await ddeleteFavorite(fav.favorite_id);
+
+                // 실제 호출해야하는 API
+                // const response = await deleteFavorite(fav);
 
                 if (response.success) {
                     // 성공적으로 삭제되면 상태에서도 삭제
-                    setFavorites(favorites.filter((item) => item.id !== id));
+                    setFavorites(
+                        favorites.filter(
+                            (item) => item.favorite_id !== fav.favorite_id
+                        )
+                    );
                 } else {
                     // 실패 시 알림
                     alert(response.message || "삭제에 실패했습니다.");
@@ -208,9 +216,6 @@ const UserFavorite = () => {
     if (error) {
         return (
             <div className="p-2 md:p-4">
-                <h2 className="text-xl md:text-2xl font-bold mb-2 md:mb-4">
-                    내 즐겨찾기
-                </h2>
                 <div
                     className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4"
                     role="alert"
@@ -232,52 +237,63 @@ const UserFavorite = () => {
         <div className="p-2 md:p-4">
             <div className="flex justify-between items-center mb-2 md:mb-4">
                 <button
-                    className="bg-white border-gray-400 text-indigo-600 hover:text-indigo-800 text-sm"
+                    className="bg-white text-indigo-600 hover:text-indigo-800 text-sm flex items-center"
                     onClick={loadFavorites}
                 >
-                    <span className="flex items-center">
-                        <svg
-                            className="w-4 h-4 mr-1"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                            xmlns="http://www.w3.org/2000/svg"
-                        >
-                            <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth="2"
-                                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                            ></path>
-                        </svg>
-                        새로고침
-                    </span>
+                    <svg
+                        className="w-4 h-4 mr-1"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                    >
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                        ></path>
+                    </svg>
+                    새로고침
                 </button>
             </div>
 
             {/* 모바일에서는 스크롤 가능한 컨테이너, 데스크탑에서는 그리드 */}
             <div className={isMobile ? "h-96 overflow-y-auto pr-1" : ""}>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-4">
-                    {favorites.map((item) => (
-                        <div
-                            key={item.id}
-                            className={`p-2 md:p-3 rounded-lg shadow hover:shadow-lg transition-shadow duration-300 ${
-                                deletingId === item.id ? "opacity-50" : ""
-                            }`}
-                        >
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <span className="text-gray-700 font-bold text-sm md:text-base">
-                                        {item.name}
-                                    </span>
-                                </div>
-                                <div className="flex">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
+                    {favorites.map((item) => {
+                        const typeColor = getTypeColor(item.type);
+                        return (
+                            <div
+                                key={item.favorite_id}
+                                className={`p-2 md:p-3 bg-white rounded-lg shadow hover:shadow-md transition-shadow duration-300 ${typeColor.border} ${
+                                    deletingId === item.favorite_id
+                                        ? "opacity-50"
+                                        : ""
+                                }`}
+                            >
+                                <div className="flex items-center justify-between">
+                                    <div className="flex-1">
+                                        <span className="text-gray-700 font-bold text-sm md:text-base">
+                                            {item.name}
+                                        </span>
+                                        <span
+                                            className={`ml-2 px-2 py-1 text-xs rounded-full ${typeColor.badge}`}
+                                        >
+                                            {item.type}
+                                        </span>
+                                    </div>
                                     <button
-                                        className="bg-white text-red-500 hover:text-red-700 text-xs md:text-sm disabled:text-gray-400"
-                                        onClick={() => handleDelete(item.id)}
-                                        disabled={deletingId === item.id}
+                                        className="bg-white text-red-500 hover:text-red-700 text-xs md:text-sm disabled:text-gray-400 ml-2"
+                                        onClick={() =>
+                                            // 지금 모의 API라서 실제 API로 바꿔야한다, 넣어야할 params도 바뀌어야함
+                                            handleDelete(item)
+                                        }
+                                        disabled={
+                                            deletingId === item.favorite_id
+                                        }
                                     >
-                                        {deletingId === item.id ? (
+                                        {deletingId === item.favorite_id ? (
                                             <span className="flex items-center">
                                                 <svg
                                                     className="animate-spin -ml-1 mr-2 h-4 w-4 text-red-500"
@@ -306,12 +322,22 @@ const UserFavorite = () => {
                                         )}
                                     </button>
                                 </div>
+                                <p className="text-gray-600 text-xs md:text-sm mt-2">
+                                    {item.address}
+                                </p>
+                                <div className="flex justify-between items-center mt-2">
+                                    <p className="text-gray-500 text-xs">
+                                        ID: {item.place_id}
+                                    </p>
+                                    <div className="flex gap-1">
+                                        <span className="text-xs px-2 py-1 bg-indigo-50 text-indigo-600 rounded-full">
+                                            상세보기
+                                        </span>
+                                    </div>
+                                </div>
                             </div>
-                            <p className="text-gray-600 text-xs md:text-sm mt-1">
-                                {item.address}
-                            </p>
-                        </div>
-                    ))}
+                        );
+                    })}
                     {favorites.length === 0 && (
                         <div className="col-span-1 sm:col-span-2 p-4 text-center bg-gray-50 rounded-lg border border-gray-200 text-gray-500">
                             즐겨찾기 항목이 없습니다.
