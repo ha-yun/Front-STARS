@@ -86,8 +86,13 @@ const FocusCard: React.FC<FocusCardProps> = ({
                         >
                             <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z" />
                         </svg>
-                        <div className="md:text-sm text-xs font-bold text-gray-500 flex items-center ">
-                            돌아가시려면 화면 밖을 클릭해 주세요.
+                        <div className="md:text-sm text-xs font-bold text-gray-500 flex items-center">
+                            <span className="hidden md:inline">
+                                돌아가시려면 화면 밖을 클릭해 주세요.
+                            </span>
+                            <span className="md:hidden">
+                                돌아가시려면 여기를 터치해 주세요.
+                            </span>
                         </div>
                     </motion.div>
                 </div>
@@ -149,7 +154,7 @@ const FocusCard: React.FC<FocusCardProps> = ({
                         whileHover={{ y: -8 }}
                     >
                         <h3 className="text-xl font-medium mb-1">행사</h3>
-                        <ul className="md:text-2xl text-l space-y-1">
+                        <ul className="md:text-2xl text-sm space-y-1">
                             {place.events.map((e, idx) => (
                                 <li key={idx}>{e}</li>
                             ))}
@@ -158,17 +163,17 @@ const FocusCard: React.FC<FocusCardProps> = ({
 
                     {/* 키워드 */}
                     <motion.div
-                        className="bg-blue-600 text-white md:w-48 w-40 rounded-2xl shadow-lg p-4"
+                        className="bg-blue-600 text-white md:w-48 w-6/12 rounded-2xl shadow-lg p-4"
                         whileHover={{ y: -8 }}
                     >
                         <h3 className="text-xl font-medium mb-1">
                             관심 키워드
                         </h3>
-                        <div className="flex flex-wrap gap-2">
+                        <div className="flex flex-wrap justify-left">
                             {place.tags.map((tag) => (
                                 <span
                                     key={tag}
-                                    className="bg-white/20 text-white md:text-l text-sm px-3 py-1 rounded-full"
+                                    className="bg-white/20 text-white m-1 md:text-l text-sm px-2 py-1 rounded-full"
                                 >
                                     #{tag}
                                 </span>

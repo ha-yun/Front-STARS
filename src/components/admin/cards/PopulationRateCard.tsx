@@ -6,6 +6,7 @@ import {
     YAxis,
     ResponsiveContainer,
     Tooltip,
+    CartesianGrid,
 } from "recharts";
 
 interface Data {
@@ -21,9 +22,9 @@ interface PopulationRateProps {
 const PopulationRateCard = ({ population }: PopulationRateProps) => {
     const [windowWidth, setWindowWidth] = useState(window.innerWidth);
     const getBarSize = () => {
-        if (windowWidth < 640) return 20; // 모바일 화면
-        if (windowWidth < 1024) return 30; // 태블릿 화면
-        return 40; // 데스크톱 화면
+        if (windowWidth < 640) return 15; // 모바일 화면
+        if (windowWidth < 1024) return 25; // 태블릿 화면
+        return 35; // 데스크톱 화면
     };
 
     useEffect(() => {
@@ -40,42 +41,52 @@ const PopulationRateCard = ({ population }: PopulationRateProps) => {
     const isSmallScreen = windowWidth < 768;
 
     return (
-        <div className="bg-white p-2 shadow rounded-lg md:col-span-1 xl:col-span-2">
-            <h3 className="font-semibold text-xl text-black">연령대별 분포</h3>
-            <ResponsiveContainer
-                width="100%"
-                height={isSmallScreen ? 350 : 250}
+        <div className="bg-white p-4 shadow rounded-lg md:col-span-1 xl:col-span-2 h-full">
+            <h3 className="font-semibold text-xl text-black mb-2">
+                연령대별 분포
+            </h3>
+            <div
+                style={{ minHeight: "180px", width: "100%" }}
+                className="flex-grow"
             >
-                <BarChart
-                    data={population}
-                    margin={{
-                        top: 20,
-                        right: 30,
-                        left: -20,
-                        bottom: -10,
-                    }}
-                    barSize={getBarSize()}
-                    barCategoryGap={10}
-                    barGap={0}
-                >
-                    <XAxis
-                        dataKey="name"
-                        padding={{ left: 5 }}
-                        tick={{ fontSize: 12 }}
-                        angle={-45}
-                        textAnchor="end"
-                        height={60}
-                    />
-                    <YAxis />
-                    <Tooltip formatter={(value) => [`${value}%`, "비율"]} />
-                    <Bar
-                        dataKey="value"
-                        fill="#EB6927"
-                        name="연령 비율(%)"
-                        radius={[4, 4, 0, 0]}
-                    />
-                </BarChart>
-            </ResponsiveContainer>
+                <ResponsiveContainer width="100%" height={220}>
+                    <BarChart
+                        data={population}
+                        margin={{
+                            top: 10,
+                            right: 30,
+                            left: 0,
+                            bottom: 0,
+                        }}
+                        barSize={getBarSize()}
+                        barCategoryGap={5}
+                        barGap={0}
+                    >
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                        <XAxis
+                            dataKey="name"
+                            tick={{ fontSize: 12 }}
+                            angle={-45}
+                            textAnchor="end"
+                            height={60}
+                        />
+                        <YAxis
+                            tick={{ fontSize: 11 }}
+                            tickFormatter={(value) => `${value}%`}
+                        />
+                        <Tooltip
+                            formatter={(value) => [`${value}%`, "비율"]}
+                            contentStyle={{ fontSize: "12px" }}
+                        />
+                        <Bar
+                            dataKey="value"
+                            fill="#EB6927"
+                            name="연령 비율"
+                            radius={[4, 4, 0, 0]}
+                        />
+                    </BarChart>
+                </ResponsiveContainer>
+            </div>
         </div>
     );
 };

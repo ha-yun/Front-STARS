@@ -72,6 +72,17 @@ export interface Data {
     fill: string;
 }
 
+export interface Favorite {
+    id: number;
+    name: string;
+    address: string;
+}
+
+export interface UserFavoriteList {
+    userId: string;
+    favoriteList: Favorite[];
+}
+
 // 혼잡도가 높은 지역만 조회
 export const touristSpots: TouristSpot[] = [
     { name: "여의도 한강공원", code: "POI072", status: "약간 붐빔" },
@@ -493,9 +504,6 @@ export const dummyData: PopulationResponse = {
         },
     },
 };
-
-// 날씨
-// /main/stream
 
 // 날씨 예보 데이터 타입 정의
 interface WeatherForecast {

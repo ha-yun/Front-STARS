@@ -19,12 +19,12 @@ export default function AdminLogin() {
 
     return (
         <div className="w-full h-screen bg-gray-100 flex items-center justify-center relative">
-            <div className="absolute top-6 left-6 z-30">
+            <div className="absolute top-6 right-6 z-30">
                 <button
                     className="bg-white shadow-md px-4 py-2 text-indigo-500 font-semibold hover:bg-indigo-500 hover:text-white transition"
-                    onClick={() => window.fullpage_api?.moveSlideLeft()} // ← 왼쪽으로 슬라이드 이동
+                    onClick={() => window.fullpage_api?.moveSlideRight()} // ← 왼쪽으로 슬라이드 이동
                 >
-                    ← 돌아가기
+                    맵으로 →
                 </button>
             </div>
             <div className="max-w-md w-full p-8 bg-white rounded-lg shadow-md">
