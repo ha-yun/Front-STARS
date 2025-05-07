@@ -1,6 +1,11 @@
 // UserInfoEdit.tsx
 import React, { useState, useEffect } from "react";
 import { initialUserData } from "../../../data/UserInfoData";
+import {
+    getUserProfile,
+    editUserProfile,
+    UserProfile,
+} from "../../../api/mypageApi";
 
 // props 인터페이스 정의
 interface UserInfoEditProps {
@@ -24,6 +29,10 @@ const UserInfoEdit: React.FC<UserInfoEditProps> = ({
     const [isLoading, setIsLoading] = useState<boolean>(true);
     // 에러 상태
     const [error, setError] = useState<string | null>(null);
+    // API 요청 중 상태
+    const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+    // 성공 메시지 상태
+    const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
     // 비밀번호 유효성 상태
     const [passwordValidation, setPasswordValidation] = useState({
@@ -67,6 +76,8 @@ const UserInfoEdit: React.FC<UserInfoEditProps> = ({
 
         try {
             const response = await fetchUserInfo();
+
+            // const response = await getUserProfile();
 
             if (response.success && response.data) {
                 setUserInfo({
@@ -125,6 +136,8 @@ const UserInfoEdit: React.FC<UserInfoEditProps> = ({
 
             try {
                 const response = await fetchUserInfo();
+
+                // const response = await getUserProfile();
 
                 if (response.success && response.data) {
                     setUserInfo({
@@ -253,6 +266,63 @@ const UserInfoEdit: React.FC<UserInfoEditProps> = ({
         }
     };
 
+    // 폼 제출 핸들러
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        console.log("제출 호출됨...");
+
+        // 비밀번호 유효성 검사
+        if (
+            !passwordValidation.isEmpty &&
+            (!passwordValidation.isValid || !passwordValidation.match)
+        ) {
+            alert("비밀번호 형식이 올바르지 않거나 일치하지 않습니다.");
+            return;
+        }
+
+        // 수정 여부 확인
+        if (!userInfo._hasBeenEdited) {
+            alert("변경된 내용이 없습니다.");
+            return;
+        }
+
+        setIsSubmitting(true);
+        setError(null);
+        setSuccessMessage(null);
+
+        try {
+            // API 요청에 필요한 데이터 준비
+            const { _hasBeenEdited, chk_password, ...profileData } = userInfo;
+
+            // 비밀번호가 비어있는 경우 제외
+            const userProfile: UserProfile = passwordValidation.isEmpty
+                ? { ...profileData, password: "" } // 비밀번호 필드를 빈 문자열로 설정
+                : profileData; // 비밀번호를 포함
+
+            // editUserProfile API 호출
+            const response = await editUserProfile(userProfile);
+
+            if (response && response.success) {
+                setSuccessMessage(
+                    "사용자 정보가 성공적으로 업데이트되었습니다."
+                );
+                // 비밀번호 필드 초기화
+                setUserInfo({
+                    ...userInfo,
+                    password: "",
+                    chk_password: "",
+                    _hasBeenEdited: false,
+                });
+            } else {
+                setError(response?.message || "정보 업데이트에 실패했습니다.");
+            }
+        } catch (err) {
+            setError("네트워크 오류가 발생했습니다. 다시 시도해주세요.");
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
     // 비밀번호 입력 필드 스타일 계산
     const getPasswordFieldStyle = () => {
         if (passwordValidation.isEmpty) return "";
@@ -322,199 +392,255 @@ const UserInfoEdit: React.FC<UserInfoEditProps> = ({
     }
 
     return (
-        <div className="p-2 md:p-4">
-            <div className="p-2 md:p-4 mb-2 md:mb-4">
-                <div className="mb-3 md:mb-4">
-                    <label
-                        className="block text-gray-700 text-xs md:text-sm font-bold mb-1 md:mb-2"
-                        htmlFor="user_id"
+        <form onSubmit={handleSubmit}>
+            <div className="p-2 md:p-4">
+                {/* 성공 메시지 표시 */}
+                {successMessage && (
+                    <div
+                        className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4"
+                        role="alert"
                     >
-                        아이디(수정불가)
-                    </label>
-                    <input
-                        className="shadow appearance-none border rounded w-full py-1 md:py-2 px-2 md:px-3 bg-gray-300 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-sm"
-                        id="user_id"
-                        name="user_id"
-                        type="text"
-                        value={userInfo.user_id}
-                        onChange={handleChange}
-                        readOnly // 아이디는 수정 불가능하게 설정
-                    />
-                </div>
+                        <strong className="font-bold">성공! </strong>
+                        <span className="block sm:inline">
+                            {successMessage}
+                        </span>
+                    </div>
+                )}
 
-                <div className="mb-3 md:mb-4">
-                    <label
-                        className="block text-gray-700 text-xs md:text-sm font-bold mb-1 md:mb-2"
-                        htmlFor="nickname"
-                    >
-                        닉네임
-                    </label>
-                    <input
-                        className="shadow appearance-none border rounded w-full py-1 md:py-2 px-2 md:px-3 bg-white text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-sm"
-                        id="nickname"
-                        name="nickname"
-                        type="text"
-                        value={userInfo.nickname}
-                        onChange={handleChange}
-                    />
-                </div>
-
-                <div className="mb-3 md:mb-4">
-                    <label
-                        className="block text-gray-700 text-xs md:text-sm font-bold mb-1 md:mb-2"
-                        htmlFor="birth_year"
-                    >
-                        생년월일
-                    </label>
-                    <input
-                        className="shadow appearance-none border rounded w-full py-1 md:py-2 px-2 md:px-3 bg-white text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-sm"
-                        id="birth_year"
-                        name="birth_year"
-                        type="number"
-                        value={userInfo.birth_year}
-                        onChange={handleChange}
-                    />
-                </div>
-
-                <div className="mb-3 md:mb-4">
-                    <label
-                        className="block text-gray-700 text-xs md:text-sm font-bold mb-1 md:mb-2"
-                        htmlFor="password-input"
-                    >
-                        비밀번호
-                    </label>
-                    <input
-                        className={`shadow appearance-none border ${getPasswordFieldStyle()} rounded w-full py-1 md:py-2 px-2 md:px-3 bg-white text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-sm`}
-                        id="password-input"
-                        name="password"
-                        type="password"
-                        value={userInfo.password}
-                        onChange={handleChange}
-                        placeholder="변경을 원하시면 새 비밀번호를 입력하세요"
-                    />
-                    {!passwordValidation.isEmpty &&
-                        !passwordValidation.isValid && (
-                            <p className="text-red-500 text-xs italic mt-1">
-                                {passwordValidation.errorMessage}
-                            </p>
-                        )}
-                    <p className="text-gray-500 text-xs mt-1">
-                        비밀번호는 8자 이상, 영문, 숫자, 특수문자를 모두
-                        포함해야 합니다.
-                    </p>
-                </div>
-
-                <div className="mb-3 md:mb-4">
-                    <label
-                        className="block text-gray-700 text-xs md:text-sm font-bold mb-1 md:mb-2"
-                        htmlFor="chk_password-input"
-                    >
-                        비밀번호 재입력
-                    </label>
-                    <input
-                        className={`shadow appearance-none border ${getPasswordConfirmFieldStyle()} rounded w-full py-1 md:py-2 px-2 md:px-3 bg-white text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-sm`}
-                        id="chk_password-input"
-                        name="chk_password"
-                        type="password"
-                        value={userInfo.chk_password}
-                        onChange={handleChange}
-                        placeholder="새 비밀번호를 다시 입력하세요"
-                    />
-                    {!passwordValidation.isEmpty &&
-                        !passwordValidation.match && (
-                            <p className="text-red-500 text-xs italic mt-1">
-                                비밀번호가 일치하지 않습니다.
-                            </p>
-                        )}
-                </div>
-
-                <div className="mb-3 md:mb-4">
-                    <label
-                        className="block text-gray-700 text-xs md:text-sm font-bold mb-1 md:mb-2"
-                        htmlFor="mbti"
-                    >
-                        MBTI
-                    </label>
-                    <select
-                        className="shadow appearance-none border rounded w-full py-1 md:py-2 px-2 md:px-3 bg-white text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-sm"
-                        id="mbti"
-                        name="mbti"
-                        value={userInfo.mbti}
-                        onChange={handleChange}
-                    >
-                        <option value="ISTJ">ISTJ</option>
-                        <option value="ISFJ">ISFJ</option>
-                        <option value="INFJ">INFJ</option>
-                        <option value="INTJ">INTJ</option>
-                        <option value="ISTP">ISTP</option>
-                        <option value="ISFP">ISFP</option>
-                        <option value="INFP">INFP</option>
-                        <option value="INTP">INTP</option>
-                        <option value="ESTP">ESTP</option>
-                        <option value="ESFP">ESFP</option>
-                        <option value="ENFP">ENFP</option>
-                        <option value="ENTP">ENTP</option>
-                        <option value="ESTJ">ESTJ</option>
-                        <option value="ESFJ">ESFJ</option>
-                        <option value="ENFJ">ENFJ</option>
-                        <option value="ENTJ">ENTJ</option>
-                    </select>
-                </div>
-
-                <div className="mb-3 md:mb-4">
-                    <label className="block text-gray-700 text-xs md:text-sm font-bold mb-1 md:mb-2">
-                        성별
-                    </label>
-                    <div className="flex items-center">
-                        <label className="mr-4 text-black text-sm">
-                            <input
-                                type="radio"
-                                name="gender"
-                                value="남"
-                                checked={userInfo.gender === "남"}
-                                onChange={handleChange}
-                                className="mr-1 md:mr-2"
-                            />
-                            남성
+                <div className="p-2 md:p-4 mb-2 md:mb-4">
+                    <div className="mb-3 md:mb-4">
+                        <label
+                            className="block text-gray-700 text-xs md:text-sm font-bold mb-1 md:mb-2"
+                            htmlFor="user_id"
+                        >
+                            아이디(수정불가)
                         </label>
-                        <label className="mr-4 text-black text-sm">
-                            <input
-                                type="radio"
-                                name="gender"
-                                value="여"
-                                checked={userInfo.gender === "여"}
-                                onChange={handleChange}
-                                className="mr-1 md:mr-2"
-                            />
-                            여성
+                        <input
+                            className="shadow appearance-none border rounded w-full py-1 md:py-2 px-2 md:px-3 bg-gray-300 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-sm"
+                            id="user_id"
+                            name="user_id"
+                            type="text"
+                            value={userInfo.user_id}
+                            onChange={handleChange}
+                            readOnly // 아이디는 수정 불가능하게 설정
+                        />
+                    </div>
+
+                    <div className="mb-3 md:mb-4">
+                        <label
+                            className="block text-gray-700 text-xs md:text-sm font-bold mb-1 md:mb-2"
+                            htmlFor="nickname"
+                        >
+                            닉네임
                         </label>
+                        <input
+                            className="shadow appearance-none border rounded w-full py-1 md:py-2 px-2 md:px-3 bg-white text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-sm"
+                            id="nickname"
+                            name="nickname"
+                            type="text"
+                            value={userInfo.nickname}
+                            onChange={handleChange}
+                        />
+                    </div>
+
+                    <div className="mb-3 md:mb-4">
+                        <label
+                            className="block text-gray-700 text-xs md:text-sm font-bold mb-1 md:mb-2"
+                            htmlFor="birth_year"
+                        >
+                            생년월일
+                        </label>
+                        <input
+                            className="shadow appearance-none border rounded w-full py-1 md:py-2 px-2 md:px-3 bg-white text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-sm"
+                            id="birth_year"
+                            name="birth_year"
+                            type="number"
+                            value={userInfo.birth_year}
+                            onChange={handleChange}
+                        />
+                    </div>
+
+                    <div className="mb-3 md:mb-4">
+                        <label
+                            className="block text-gray-700 text-xs md:text-sm font-bold mb-1 md:mb-2"
+                            htmlFor="password-input"
+                        >
+                            비밀번호
+                        </label>
+                        <input
+                            className={`shadow appearance-none border ${getPasswordFieldStyle()} rounded w-full py-1 md:py-2 px-2 md:px-3 bg-white text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-sm`}
+                            id="password-input"
+                            name="password"
+                            type="password"
+                            value={userInfo.password}
+                            onChange={handleChange}
+                            placeholder="변경을 원하시면 새 비밀번호를 입력하세요"
+                        />
+                        {!passwordValidation.isEmpty &&
+                            !passwordValidation.isValid && (
+                                <p className="text-red-500 text-xs italic mt-1">
+                                    {passwordValidation.errorMessage}
+                                </p>
+                            )}
+                        <p className="text-gray-500 text-xs mt-1">
+                            비밀번호는 8자 이상, 영문, 숫자, 특수문자를 모두
+                            포함해야 합니다.
+                        </p>
+                    </div>
+
+                    <div className="mb-3 md:mb-4">
+                        <label
+                            className="block text-gray-700 text-xs md:text-sm font-bold mb-1 md:mb-2"
+                            htmlFor="chk_password-input"
+                        >
+                            비밀번호 재입력
+                        </label>
+                        <input
+                            className={`shadow appearance-none border ${getPasswordConfirmFieldStyle()} rounded w-full py-1 md:py-2 px-2 md:px-3 bg-white text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-sm`}
+                            id="chk_password-input"
+                            name="chk_password"
+                            type="password"
+                            value={userInfo.chk_password}
+                            onChange={handleChange}
+                            placeholder="새 비밀번호를 다시 입력하세요"
+                        />
+                        {!passwordValidation.isEmpty &&
+                            !passwordValidation.match && (
+                                <p className="text-red-500 text-xs italic mt-1">
+                                    비밀번호가 일치하지 않습니다.
+                                </p>
+                            )}
+                    </div>
+
+                    <div className="mb-3 md:mb-4">
+                        <label
+                            className="block text-gray-700 text-xs md:text-sm font-bold mb-1 md:mb-2"
+                            htmlFor="mbti"
+                        >
+                            MBTI
+                        </label>
+                        <select
+                            className="shadow appearance-none border rounded w-full py-1 md:py-2 px-2 md:px-3 bg-white text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-sm"
+                            id="mbti"
+                            name="mbti"
+                            value={userInfo.mbti}
+                            onChange={handleChange}
+                        >
+                            <option value="ISTJ">ISTJ</option>
+                            <option value="ISFJ">ISFJ</option>
+                            <option value="INFJ">INFJ</option>
+                            <option value="INTJ">INTJ</option>
+                            <option value="ISTP">ISTP</option>
+                            <option value="ISFP">ISFP</option>
+                            <option value="INFP">INFP</option>
+                            <option value="INTP">INTP</option>
+                            <option value="ESTP">ESTP</option>
+                            <option value="ESFP">ESFP</option>
+                            <option value="ENFP">ENFP</option>
+                            <option value="ENTP">ENTP</option>
+                            <option value="ESTJ">ESTJ</option>
+                            <option value="ESFJ">ESFJ</option>
+                            <option value="ENFJ">ENFJ</option>
+                            <option value="ENTJ">ENTJ</option>
+                        </select>
+                    </div>
+
+                    <div className="mb-3 md:mb-4">
+                        <label className="block text-gray-700 text-xs md:text-sm font-bold mb-1 md:mb-2">
+                            성별
+                        </label>
+                        <div className="flex items-center">
+                            <label className="mr-4 text-black text-sm">
+                                <input
+                                    type="radio"
+                                    name="gender"
+                                    value="남"
+                                    checked={userInfo.gender === "남"}
+                                    onChange={handleChange}
+                                    className="mr-1 md:mr-2"
+                                />
+                                남성
+                            </label>
+                            <label className="mr-4 text-black text-sm">
+                                <input
+                                    type="radio"
+                                    name="gender"
+                                    value="여"
+                                    checked={userInfo.gender === "여"}
+                                    onChange={handleChange}
+                                    className="mr-1 md:mr-2"
+                                />
+                                여성
+                            </label>
+                        </div>
+                    </div>
+
+                    {/* 비밀번호 상태 요약 메시지 */}
+                    <div
+                        className={`p-2 md:p-3 rounded mb-4 ${
+                            !passwordValidation.isEmpty &&
+                            passwordValidation.isValid &&
+                            passwordValidation.match
+                                ? "bg-green-50 text-green-800 border border-green-200"
+                                : "bg-red-50 text-red-800 border border-red-200"
+                        }`}
+                    >
+                        <p className="text-xs md:text-sm">
+                            {!passwordValidation.isEmpty &&
+                            passwordValidation.isValid &&
+                            passwordValidation.match
+                                ? "✅ 비밀번호가 유효하며 일치합니다."
+                                : "❌ " +
+                                  (passwordValidation.isEmpty
+                                      ? "비밀번호를 입력하지 않으면 기존 비밀번호가 유지됩니다."
+                                      : passwordValidation.errorMessage ||
+                                        "비밀번호가 유효하지 않습니다.")}
+                        </p>
+                    </div>
+
+                    {/* 제출 버튼 */}
+                    <div className="flex justify-end">
+                        <button
+                            type="submit"
+                            className={`bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline ${
+                                isSubmitting
+                                    ? "opacity-50 cursor-not-allowed"
+                                    : ""
+                            }`}
+                            disabled={isSubmitting}
+                        >
+                            {isSubmitting ? (
+                                <span className="flex items-center">
+                                    <svg
+                                        className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <circle
+                                            className="opacity-25"
+                                            cx="12"
+                                            cy="12"
+                                            r="10"
+                                            stroke="currentColor"
+                                            strokeWidth="4"
+                                        ></circle>
+                                        <path
+                                            className="opacity-75"
+                                            fill="currentColor"
+                                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                        ></path>
+                                    </svg>
+                                    저장 중...
+                                </span>
+                            ) : (
+                                "정보 저장"
+                            )}
+                        </button>
                     </div>
                 </div>
-
-                {/* 비밀번호 상태 요약 메시지 */}
-                <div
-                    className={`p-2 md:p-3 rounded mb-2 md:mb-4 ${
-                        !passwordValidation.isEmpty &&
-                        passwordValidation.isValid &&
-                        passwordValidation.match
-                            ? "bg-green-50 text-green-800 border border-green-200"
-                            : "bg-red-50 text-red-800 border border-red-200"
-                    }`}
-                >
-                    <p className="text-xs md:text-sm">
-                        {!passwordValidation.isEmpty &&
-                        passwordValidation.isValid &&
-                        passwordValidation.match
-                            ? "✅ 비밀번호가 유효하며 일치합니다."
-                            : "❌ " +
-                              (passwordValidation.isEmpty
-                                  ? "비밀번호를 입력해주세요."
-                                  : passwordValidation.errorMessage ||
-                                    "비밀번호가 유효하지 않습니다.")}
-                    </p>
-                </div>
             </div>
-        </div>
+        </form>
     );
 };
 
