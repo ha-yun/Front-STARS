@@ -72,11 +72,14 @@ export interface Data {
     fill: string;
 }
 
-export interface Favorite {
-    id: number;
+export type Favorite = {
+    favorite_id: number;
+    type: string;
     name: string;
     address: string;
-}
+    place_id: string;
+    user_id: string;
+};
 
 export interface UserFavoriteList {
     userId: string;
