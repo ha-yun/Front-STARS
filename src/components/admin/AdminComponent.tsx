@@ -155,9 +155,7 @@ export default function AdminComponent() {
                     }
                 );
                 setTouristInfoData(response);
-            }
-            // SSE를 통해 데이터가 넘어올텐데 이걸 처리하는 로직을 여기에다가 넣어야 하는 듯 함
-            else {
+            } else {
                 const event: EventSource = subscribeCongestionUpdate(
                     (data): void => {
                         // 주어진 타입으로 수정
@@ -178,6 +176,8 @@ export default function AdminComponent() {
                             fcst_ppltn_wrapper: ForecastPopulationWrapper; // 예측 인구 데이터 래퍼
                             ppltn_rates: number[]; // 연령별 인구 분포
                         };
+
+                        console.log(data);
 
                         // 관광지 정보 데이터 업데이트
                         setTouristInfoData((prevData) => {
@@ -304,6 +304,8 @@ export default function AdminComponent() {
                             ppltn_rates: number[]; // 연령별 인구 분포
                         };
 
+                        console.log(data);
+
                         setTouristSpotsData((prevData) => {
                             // 이전 데이터의 복사본 생성
                             const updatedData = [...prevData];
@@ -393,7 +395,7 @@ export default function AdminComponent() {
                             // 데이터를 WeatherResponse 타입으로 처리
                             const weatherResponse =
                                 data as unknown as WeatherResponse;
-
+                            console.log(data);
                             if (
                                 weatherResponse.data &&
                                 weatherResponse.data.length > 0
