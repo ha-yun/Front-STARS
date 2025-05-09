@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import UserInfoShow from "./UserInfoShow";
 import UserInfoEdit from "./UserInfoEdit";
 import { initialUserData } from "../../../data/UserInfoData";
+import { editUserProfile } from "../../../api/mypageApi"; // 실제 API import 추가
 
 // 모의 API 응답 타입
 interface ApiResponse<T> {
@@ -10,35 +11,6 @@ interface ApiResponse<T> {
     data?: T;
     message?: string;
 }
-
-// 모의 API 함수
-const updateUserInfo = (
-    userInfo: typeof initialUserData
-): Promise<ApiResponse<typeof initialUserData>> => {
-    return new Promise((resolve) => {
-        // 800ms 지연 후 응답
-        setTimeout(() => {
-            // 80% 확률로 성공
-            if (Math.random() < 0.8) {
-                resolve({
-                    success: true,
-                    data: {
-                        ...userInfo,
-                        password: "", // 응답에서는 보안 상 비밀번호 필드를 비움
-                        chk_password: "",
-                    },
-                    message: "사용자 정보가 성공적으로 업데이트 되었습니다.",
-                });
-            } else {
-                resolve({
-                    success: false,
-                    message:
-                        "사용자 정보 업데이트에 실패했습니다. 잠시 후 다시 시도해주세요.",
-                });
-            }
-        }, 800);
-    });
-};
 
 // 계정 삭제 모의 API 함수
 const deleteUserAccount = (userId: string): Promise<ApiResponse<null>> => {
@@ -107,10 +79,11 @@ const UserInfo = () => {
         setIsSubmitting(true);
 
         try {
-            // 사용자 정보 업데이트 API 호출
-            const response = await updateUserInfo(userInfoToSubmit);
+            // 실제 API 호출로 변경
+            const response = await editUserProfile(userInfoToSubmit);
 
-            if (response.success) {
+            // API 응답 구조에 따라 처리 로직 수정
+            if (response) {
                 // 성공 메시지 표시
                 alert(
                     response.message || "회원 정보가 성공적으로 수정되었습니다."

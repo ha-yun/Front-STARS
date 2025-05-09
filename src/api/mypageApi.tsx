@@ -31,7 +31,7 @@ export const editUserProfile = async (user: UserProfile) => {
         },
     };
 
-    const res = await jwtAxios.post(`${prefix}/profile`, user, header);
+    const res = await jwtAxios.post(`${prefix}/profile/edit`, user, header);
     return res.data;
 };
 

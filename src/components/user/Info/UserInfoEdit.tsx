@@ -1,6 +1,7 @@
 // UserInfoEdit.tsx
 import React, { useState, useEffect } from "react";
 import { initialUserData } from "../../../data/UserInfoData";
+import { getUserProfile } from "../../../api/mypageApi";
 
 // props 인터페이스 정의
 interface UserInfoEditProps {
@@ -33,44 +34,18 @@ const UserInfoEdit: React.FC<UserInfoEditProps> = ({
         errorMessage: "",
     });
 
-    // 모의 API 함수: 사용자 정보 가져오기
-    const fetchUserInfo = (): Promise<{
-        success: boolean;
-        data?: typeof initialUserData;
-        message?: string;
-    }> => {
-        return new Promise((resolve) => {
-            // 800ms 지연 후 응답
-            setTimeout(() => {
-                // 70% 확률로 성공
-                if (Math.random() < 0.7) {
-                    resolve({
-                        success: true,
-                        data: initialUserData,
-                        message: "사용자 정보를 성공적으로 불러왔습니다.",
-                    });
-                } else {
-                    resolve({
-                        success: false,
-                        message:
-                            "사용자 정보를 불러오는데 실패했습니다. 네트워크 연결을 확인해주세요.",
-                    });
-                }
-            }, 800);
-        });
-    };
-
     // 다시 시도 버튼용 사용자 정보 로드 함수
     const loadUserInfo = async () => {
         setIsLoading(true);
         setError(null);
 
         try {
-            const response = await fetchUserInfo();
+            const response = await getUserProfile();
 
-            if (response.success && response.data) {
+            if (response) {
+                // API 응답에서 사용자 정보를 설정
                 setUserInfo({
-                    ...response.data,
+                    ...response, // 전체 응답 데이터 사용
                     password: "",
                     chk_password: "",
                     _hasBeenEdited: false,
@@ -78,19 +53,10 @@ const UserInfoEdit: React.FC<UserInfoEditProps> = ({
 
                 // 초기 데이터를 부모 컴포넌트에 전달
                 if (onUserInfoSubmit) {
-                    onUserInfoSubmit(response.data);
+                    onUserInfoSubmit(response);
                 }
             } else {
-                setError(
-                    response.message || "사용자 정보를 불러오는데 실패했습니다."
-                );
-                // 에러 발생 시에도 기본 데이터로 초기화
-                setUserInfo({
-                    ...initialUserData,
-                    password: "",
-                    chk_password: "",
-                    _hasBeenEdited: false,
-                });
+                setError("사용자 정보를 불러오는데 실패했습니다.");
 
                 // 초기 데이터를 부모 컴포넌트에 전달
                 if (onUserInfoSubmit) {
@@ -99,13 +65,6 @@ const UserInfoEdit: React.FC<UserInfoEditProps> = ({
             }
         } catch (err) {
             setError("네트워크 오류가 발생했습니다. 다시 시도해주세요.");
-            // 예외 발생 시에도 기본 데이터로 초기화
-            setUserInfo({
-                ...initialUserData,
-                password: "",
-                chk_password: "",
-                _hasBeenEdited: false,
-            });
 
             // 초기 데이터를 부모 컴포넌트에 전달
             if (onUserInfoSubmit) {
@@ -124,11 +83,12 @@ const UserInfoEdit: React.FC<UserInfoEditProps> = ({
             setError(null);
 
             try {
-                const response = await fetchUserInfo();
+                const response = await getUserProfile();
 
-                if (response.success && response.data) {
+                if (response) {
+                    // API 응답에서 사용자 정보를 설정
                     setUserInfo({
-                        ...response.data,
+                        ...response, // 전체 응답 데이터 사용
                         password: "",
                         chk_password: "",
                         _hasBeenEdited: false,
@@ -136,20 +96,10 @@ const UserInfoEdit: React.FC<UserInfoEditProps> = ({
 
                     // 초기 데이터를 부모 컴포넌트에 전달
                     if (onUserInfoSubmit) {
-                        onUserInfoSubmit(response.data);
+                        onUserInfoSubmit(response);
                     }
                 } else {
-                    setError(
-                        response.message ||
-                            "사용자 정보를 불러오는데 실패했습니다."
-                    );
-                    // 에러 발생 시에도 기본 데이터로 초기화
-                    setUserInfo({
-                        ...initialUserData,
-                        password: "",
-                        chk_password: "",
-                        _hasBeenEdited: false,
-                    });
+                    setError("사용자 정보를 불러오는데 실패했습니다.");
 
                     // 초기 데이터를 부모 컴포넌트에 전달
                     if (onUserInfoSubmit) {
@@ -158,13 +108,6 @@ const UserInfoEdit: React.FC<UserInfoEditProps> = ({
                 }
             } catch (err) {
                 setError("네트워크 오류가 발생했습니다. 다시 시도해주세요.");
-                // 예외 발생 시에도 기본 데이터로 초기화
-                setUserInfo({
-                    ...initialUserData,
-                    password: "",
-                    chk_password: "",
-                    _hasBeenEdited: false,
-                });
 
                 // 초기 데이터를 부모 컴포넌트에 전달
                 if (onUserInfoSubmit) {
@@ -303,20 +246,6 @@ const UserInfoEdit: React.FC<UserInfoEditProps> = ({
                         다시 시도
                     </button>
                 </div>
-
-                <div className="p-2 md:p-4 mb-2 md:mb-4 opacity-50">
-                    {/* 폼 필드들이 비활성화된 상태로 표시 */}
-                    <div className="mb-3 md:mb-4">
-                        <label className="block text-gray-700 text-xs md:text-sm font-bold mb-1 md:mb-2">
-                            아이디(수정불가)
-                        </label>
-                        <input
-                            className="shadow appearance-none border rounded w-full py-1 md:py-2 px-2 md:px-3 bg-gray-300 text-gray-500 leading-tight focus:outline-none focus:shadow-outline text-sm"
-                            disabled
-                        />
-                    </div>
-                    {/* 다른 필드들도 유사하게 비활성화된 상태로 표시 */}
-                </div>
             </div>
         );
     }
@@ -337,6 +266,7 @@ const UserInfoEdit: React.FC<UserInfoEditProps> = ({
                         name="user_id"
                         type="text"
                         value={userInfo.user_id}
+                        // value="user1"
                         onChange={handleChange}
                         readOnly // 아이디는 수정 불가능하게 설정
                     />
@@ -470,8 +400,8 @@ const UserInfoEdit: React.FC<UserInfoEditProps> = ({
                             <input
                                 type="radio"
                                 name="gender"
-                                value="남"
-                                checked={userInfo.gender === "남"}
+                                value="male"
+                                checked={userInfo.gender === "male"}
                                 onChange={handleChange}
                                 className="mr-1 md:mr-2"
                             />
@@ -481,8 +411,8 @@ const UserInfoEdit: React.FC<UserInfoEditProps> = ({
                             <input
                                 type="radio"
                                 name="gender"
-                                value="여"
-                                checked={userInfo.gender === "여"}
+                                value="female"
+                                checked={userInfo.gender === "female"}
                                 onChange={handleChange}
                                 className="mr-1 md:mr-2"
                             />
