@@ -1,7 +1,7 @@
 import jwtAxios from "../utils/jwtUtil";
 import API_SERVER_HOST from "./apiConfig";
 
-const prefix = `${API_SERVER_HOST}/mypage`;
+const prefix = `${API_SERVER_HOST}/user/mypage`;
 
 type UserProfile = {
     user_id: string;

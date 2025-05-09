@@ -2,6 +2,7 @@
 
 // 사용자 정보 인터페이스 정의
 export interface UserInfo {
+    created_at: string;
     user_id: string;
     nickname: string;
     password: string;
@@ -9,7 +10,6 @@ export interface UserInfo {
     birth_year: number;
     mbti: string;
     gender: string;
-    join_date: string;
 }
 
 // 초기 더미 데이터
@@ -21,5 +21,5 @@ export const initialUserData: UserInfo = {
     birth_year: 2001,
     mbti: "INTP",
     gender: "남",
-    join_date: "2025.04.29",
+    created_at: "2025.04.29",
 };
