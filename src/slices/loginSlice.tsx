@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { loginPost } from "../api/authApi";
+import { loginPost, logoutPost } from "../api/authApi";
 import { getCookie, setCookie, removeCookie } from "../utils/cookieUtil";
 
 // 쿠키에 저장되는 멤버 타입 정의
@@ -11,6 +11,7 @@ interface UserCookie {
     gender?: string;
     accessToken?: string;
     refreshToken?: string;
+    role?: string;
     error?: string;
 }
 
@@ -34,6 +35,12 @@ export const loginPostAsync = createAsyncThunk(
         return loginPost(param);
     }
 );
+
+export const logoutPostAsync = createAsyncThunk("logoutPostAsync", async () => {
+    await logoutPost(); // 서버에 로그아웃 요청
+    removeCookie("user"); // 쿠키 삭제
+    return { ...initState }; // 상태 초기화
+});
 
 const loginSlice = createSlice({
     name: "LoginSlice",
@@ -64,15 +71,17 @@ const loginSlice = createSlice({
         builder
             .addCase(loginPostAsync.fulfilled, (_state, action) => {
                 const payload = action.payload as UserCookie;
-
+                console.log("payload", payload);
                 if (!payload.error) {
                     setCookie("user", JSON.stringify(payload));
                 }
 
                 return payload;
             })
-            .addCase(loginPostAsync.pending, () => {})
-            .addCase(loginPostAsync.rejected, () => {});
+            // 로그아웃 thunk 처리
+            .addCase(logoutPostAsync.fulfilled, () => {
+                return { ...initState };
+            });
     },
 });
 

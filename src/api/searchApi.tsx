@@ -3,6 +3,13 @@ import API_SERVER_HOST from "./apiConfig";
 
 const prefix = `${API_SERVER_HOST}/search`;
 
+export interface SearchResult {
+    id: number;
+    name: string;
+    address: string;
+    // ...
+}
+
 // 통합 이름 검색
 export const searchByKeyword = async (
     keyword: string
