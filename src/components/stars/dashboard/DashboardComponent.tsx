@@ -87,9 +87,9 @@ export default function DashboardComponent() {
                     return;
                 }
 
-                let opacity = 1;
+                const opacity = 1;
                 let y = 0;
-                let scale = 1;
+                const scale = 1;
 
                 if (cardCenter < containerTop + fadeMargin) {
                     const ratio = (cardCenter - containerTop) / fadeMargin;
@@ -189,7 +189,12 @@ export default function DashboardComponent() {
             <div className="absolute top-8 right-8 z-10 justify-between flex gap-2">
                 <div
                     className="bg-gray-50 hover:bg-indigo-600 text-indigo-600 hover:text-white font-medium rounded-2xl p-4 w-auto h-12 flex items-center justify-center text-lg shadow-lg transition cursor-pointer"
-                    onClick={() => window.fullpage_api?.moveSectionUp()}
+                    onClick={() => {
+                        scrollToTop(containerRef.current);
+                        setTimeout(() => {
+                            window.fullpage_api?.moveSectionUp();
+                        }, 500);
+                    }}
                 >
                     맵으로 가기
                 </div>
