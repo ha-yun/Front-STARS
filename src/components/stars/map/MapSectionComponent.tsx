@@ -1,12 +1,11 @@
-// src/components/MapSectionComponent.tsx
-
 import { useEffect, useRef, useState } from "react";
 import mapboxgl, { LngLatLike } from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { usePlace } from "../../../context/PlaceContext";
 import { places } from "../../../data/placesData";
-import FocusCard from "./FocusCard"; // 분리된 카드 컴포넌트
+import FocusCard from "./FocusCard";
 import SearchBar from "./SearchBar";
+import useCustomLogin from "../../../hooks/useCustomLogin";
 
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
 
@@ -28,7 +27,9 @@ export default function MapSectionComponent() {
         keyof typeof places | null
     >(null);
 
-    // 지도 초기화 + 마커 이벤트 등록
+    // 리덕스 로그인 상태 및 액션 사용
+    const { isLogin, doLogout, moveToLogin } = useCustomLogin();
+
     useEffect(() => {
         if (!mapContainer.current) return;
 
@@ -55,7 +56,7 @@ export default function MapSectionComponent() {
                     setSelectedPlace(place.id);
 
                     requestAnimationFrame(() => {
-                        setShowFocusCard(true); // 다음 frame에서 카드 표시
+                        setShowFocusCard(true);
                     });
                 });
             });
@@ -71,8 +72,23 @@ export default function MapSectionComponent() {
 
     return (
         <div className="relative w-screen app-full-height">
-            {/* 우측 상단 로그인 버튼 */}
-            <div className="absolute md:top-6 top-24 right-6 z-10">
+            {/* 우측 상단 로그인/로그아웃 버튼 */}
+            <div className="absolute md:top-6 top-24 right-6 z-10 flex gap-2">
+                {isLogin ? (
+                    <button
+                        className="bg-white shadow-md px-4 py-2 text-red-500 font-semibold hover:bg-red-500 hover:text-white transition"
+                        onClick={doLogout}
+                    >
+                        로그아웃
+                    </button>
+                ) : (
+                    <button
+                        className="bg-white shadow-md px-4 py-2 text-indigo-500 font-semibold hover:bg-indigo-500 hover:text-white transition"
+                        onClick={moveToLogin}
+                    >
+                        로그인
+                    </button>
+                )}
                 <button
                     className="bg-white shadow-md px-4 py-2 text-indigo-500 font-semibold hover:bg-indigo-500 hover:text-white transition"
                     onClick={() => window.fullpage_api?.moveSlideRight()}
