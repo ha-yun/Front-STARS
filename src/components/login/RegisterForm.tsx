@@ -1,6 +1,6 @@
-// components/RegisterForm.tsx
 import { useState, FormEvent } from "react";
 import { motion } from "framer-motion";
+import { signupUser } from "../../api/authApi";
 
 const mbtiOptions = [
     "INTJ",
@@ -27,12 +27,13 @@ interface RegisterFormProps {
 
 export default function RegisterForm({ onRegisterSuccess }: RegisterFormProps) {
     const [form, setForm] = useState({
-        username: "",
+        user_id: "",
         nickname: "",
         password: "",
         confirmPassword: "",
-        email: "",
         mbti: "",
+        birth_year: "",
+        gender: "",
     });
     const [isRegistered, setIsRegistered] = useState(false);
 
@@ -43,7 +44,7 @@ export default function RegisterForm({ onRegisterSuccess }: RegisterFormProps) {
         setForm((prev) => ({ ...prev, [name]: value }));
     };
 
-    const handleSubmit = (e: FormEvent) => {
+    const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
 
         if (form.password !== form.confirmPassword) {
@@ -51,12 +52,21 @@ export default function RegisterForm({ onRegisterSuccess }: RegisterFormProps) {
             return;
         }
 
-        setIsRegistered(true);
+        // confirmPassword는 API에 필요 없으니 제외
+        const { confirmPassword, ...signupParam } = form;
 
-        // 1.5초 후 로그인 폼으로 이동
-        setTimeout(() => {
-            onRegisterSuccess();
-        }, 1500);
+        try {
+            await signupUser(signupParam as any);
+            setIsRegistered(true);
+            setTimeout(() => {
+                onRegisterSuccess();
+            }, 1500);
+        } catch (err: any) {
+            alert(
+                "회원가입 실패: " +
+                    (err?.response?.data?.message || "오류 발생")
+            );
+        }
     };
 
     if (isRegistered) {
@@ -81,11 +91,11 @@ export default function RegisterForm({ onRegisterSuccess }: RegisterFormProps) {
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <input
                 type="text"
-                name="username"
+                name="user_id"
                 placeholder="아이디"
                 required
                 className="w-full px-4 py-2 bg-black/30 text-white rounded-md focus:outline-none"
-                value={form.username}
+                value={form.user_id}
                 onChange={handleChange}
             />
             <input
@@ -95,15 +105,6 @@ export default function RegisterForm({ onRegisterSuccess }: RegisterFormProps) {
                 required
                 className="w-full px-4 py-2 bg-black/30 text-white rounded-md focus:outline-none"
                 value={form.nickname}
-                onChange={handleChange}
-            />
-            <input
-                type="email"
-                name="email"
-                placeholder="이메일"
-                required
-                className="w-full px-4 py-2 bg-black/30 text-white rounded-md focus:outline-none"
-                value={form.email}
                 onChange={handleChange}
             />
             <input
@@ -139,6 +140,28 @@ export default function RegisterForm({ onRegisterSuccess }: RegisterFormProps) {
                         {type}
                     </option>
                 ))}
+            </select>
+            <input
+                type="number"
+                name="birth_year"
+                placeholder="출생년도 (예: 2000)"
+                required
+                className="w-full px-4 py-2 bg-black/30 text-white rounded-md focus:outline-none"
+                value={form.birth_year}
+                onChange={handleChange}
+            />
+            <select
+                name="gender"
+                required
+                value={form.gender}
+                onChange={handleChange}
+                className="w-full px-4 py-2 bg-black/30 text-white rounded-md focus:outline-none"
+            >
+                <option value="" disabled>
+                    성별 선택
+                </option>
+                <option value="M">남성</option>
+                <option value="F">여성</option>
             </select>
             <button
                 type="submit"
