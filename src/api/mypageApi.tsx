@@ -1,20 +1,17 @@
 import jwtAxios from "../utils/jwtUtil";
 import API_SERVER_HOST from "./apiConfig";
+import { Favorite } from "../data/adminData";
+import axios from "axios";
 
-const prefix = `${API_SERVER_HOST}/mypage`;
+const prefix = `${API_SERVER_HOST}/user/mypage`;
 
-type UserProfile = {
+export type UserProfile = {
     user_id: string;
     password: string;
     nickname: string;
     birth_year: number;
     mbti: string;
     gender: string;
-};
-
-type Favorite = {
-    type: string;
-    place_id: number;
 };
 
 export const getUserProfile = async () => {

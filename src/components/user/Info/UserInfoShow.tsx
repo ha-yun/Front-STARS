@@ -1,9 +1,10 @@
 // UserInfoShow.tsx
 import React, { useState, useEffect } from "react";
-import { initialUserData } from "../../../data/UserInfoData";
+import { initialUserData, UserInfo } from "../../../data/UserInfoData";
+import { getUserProfile } from "../../../api/mypageApi";
 
 const UserInfoShow = () => {
-    // 사용자 정보 상태
+    // 사용자 정보 상태, 이거 초기 상태 넣지 않고도 빨간줄 안띄우는 방법이 있나?
     const [userInfo, setUserInfo] = useState(initialUserData);
     // 로딩 상태
     const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -11,6 +12,7 @@ const UserInfoShow = () => {
     const [error, setError] = useState<string | null>(null);
 
     // 모의 API 함수: 사용자 정보 가져오기
+    // 나중에 지워야함
     const fetchUserInfo = (): Promise<{
         success: boolean;
         data?: typeof initialUserData;
@@ -20,7 +22,7 @@ const UserInfoShow = () => {
             // 800ms 지연 후 응답
             setTimeout(() => {
                 // 70% 확률로 성공
-                if (Math.random() < 2) {
+                if (Math.random() < 0.7) {
                     resolve({
                         success: true,
                         data: initialUserData,
@@ -43,7 +45,11 @@ const UserInfoShow = () => {
         setError(null);
 
         try {
-            const response = await fetchUserInfo();
+            // 더미데이터 호출
+            // const response = await fetchUserInfo();
+
+            // 실제로 호출할 API, res.data만 넘어오므로 예외처리 로직 다시 짜야함
+            const response = await getUserProfile();
 
             if (response.success && response.data) {
                 setUserInfo(response.data);
@@ -52,13 +58,12 @@ const UserInfoShow = () => {
                     response.message || "사용자 정보를 불러오는데 실패했습니다."
                 );
                 // 에러 발생 시에도 기본 데이터로 초기화
-                setUserInfo(initialUserData);
+                // setUserInfo(initialUserData);
             }
         } catch (err) {
             setError("네트워크 오류가 발생했습니다. 다시 시도해주세요.");
-            // 예외 발생 시에도 기본 데이터로 초기화
-            setUserInfo(initialUserData);
         } finally {
+            // 로딩 스켈레톤 삭제
             setIsLoading(false);
         }
     };
@@ -68,7 +73,7 @@ const UserInfoShow = () => {
         loadUserInfo();
     }, []);
 
-    // 로딩 중 표시
+    // 로딩 스켈레톤
     if (isLoading) {
         return (
             <div className="p-2 md:p-4 flex justify-center items-center">
@@ -102,25 +107,29 @@ const UserInfoShow = () => {
                         다시 시도
                     </button>
                 </div>
-
-                <div className="p-2 md:p-4 mb-2 md:mb-4 opacity-50">
+            </div>
+        );
+    } else {
+        return (
+            <div className="p-2 md:p-4">
+                <div className="p-2 md:p-4 mb-2 md:mb-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                        <p className="text-gray-400 mb-2 text-sm md:text-base">
+                        <p className="text-gray-800 mb-2 text-sm md:text-base">
                             <strong>아이디:</strong> {userInfo.user_id}
                         </p>
-                        <p className="text-gray-400 mb-2 text-sm md:text-base">
+                        <p className="text-gray-800 mb-2 text-sm md:text-base">
                             <strong>닉네임:</strong> {userInfo.nickname}
                         </p>
-                        <p className="text-gray-400 mb-2 text-sm md:text-base">
+                        <p className="text-gray-800 mb-2 text-sm md:text-base">
                             <strong>가입일:</strong> {userInfo.join_date}
                         </p>
-                        <p className="text-gray-400 mb-2 text-sm md:text-base">
+                        <p className="text-gray-800 mb-2 text-sm md:text-base">
                             <strong>생년월일:</strong> {userInfo.birth_year}
                         </p>
-                        <p className="text-gray-400 mb-2 text-sm md:text-base">
+                        <p className="text-gray-800 mb-2 text-sm md:text-base">
                             <strong>MBTI:</strong> {userInfo.mbti}
                         </p>
-                        <p className="text-gray-400 mb-2 text-sm md:text-base">
+                        <p className="text-gray-800 mb-2 text-sm md:text-base">
                             <strong>성별:</strong> {userInfo.gender}
                         </p>
                     </div>
@@ -128,33 +137,6 @@ const UserInfoShow = () => {
             </div>
         );
     }
-
-    return (
-        <div className="p-2 md:p-4">
-            <div className="p-2 md:p-4 mb-2 md:mb-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                    <p className="text-gray-800 mb-2 text-sm md:text-base">
-                        <strong>아이디:</strong> {userInfo.user_id}
-                    </p>
-                    <p className="text-gray-800 mb-2 text-sm md:text-base">
-                        <strong>닉네임:</strong> {userInfo.nickname}
-                    </p>
-                    <p className="text-gray-800 mb-2 text-sm md:text-base">
-                        <strong>가입일:</strong> {userInfo.join_date}
-                    </p>
-                    <p className="text-gray-800 mb-2 text-sm md:text-base">
-                        <strong>생년월일:</strong> {userInfo.birth_year}
-                    </p>
-                    <p className="text-gray-800 mb-2 text-sm md:text-base">
-                        <strong>MBTI:</strong> {userInfo.mbti}
-                    </p>
-                    <p className="text-gray-800 mb-2 text-sm md:text-base">
-                        <strong>성별:</strong> {userInfo.gender}
-                    </p>
-                </div>
-            </div>
-        </div>
-    );
 };
 
 export default UserInfoShow;
