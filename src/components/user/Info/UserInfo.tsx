@@ -92,6 +92,7 @@ const UserInfo = () => {
         setUserInfoToSubmit(userInfo);
     };
 
+    // 계정 정보 수정, 이게 왜 여기에있냐??
     const handleComplete = async () => {
         // 비밀번호가 유효하지 않으면 저장을 막음
         if (!isPasswordValid) {
@@ -144,12 +145,12 @@ const UserInfo = () => {
 
             try {
                 // 계정 삭제 API 호출
-                const response = await deleteUserAccount(
-                    "lightning0145@naver.com"
-                );
+                // const response = await deleteUserAccount(
+                //     "lightning0145@naver.com"
+                // );
 
                 // 실제 호출해야하는 API, 별다른 params 없음
-                // const response = await signoutUser();
+                const response = await signoutUser();
 
                 if (response.success) {
                     // 성공 메시지 표시

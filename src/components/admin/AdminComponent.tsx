@@ -74,7 +74,7 @@ export default function AdminComponent() {
     // 테스트용 실패확률
     const persent: number = 0;
 
-    const test = true;
+    const test = false;
 
     // 혼잡도 값에 대한 우선순위 매핑
     const congestionOrder = {

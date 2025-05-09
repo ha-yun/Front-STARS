@@ -75,9 +75,9 @@ const UserInfoEdit: React.FC<UserInfoEditProps> = ({
         setError(null);
 
         try {
-            const response = await fetchUserInfo();
+            // const response = await fetchUserInfo();
 
-            // const response = await getUserProfile();
+            const response = await getUserProfile();
 
             if (response.success && response.data) {
                 setUserInfo({
@@ -135,9 +135,9 @@ const UserInfoEdit: React.FC<UserInfoEditProps> = ({
             setError(null);
 
             try {
-                const response = await fetchUserInfo();
+                // const response = await fetchUserInfo();
 
-                // const response = await getUserProfile();
+                const response = await getUserProfile();
 
                 if (response.success && response.data) {
                     setUserInfo({
@@ -157,12 +157,12 @@ const UserInfoEdit: React.FC<UserInfoEditProps> = ({
                             "사용자 정보를 불러오는데 실패했습니다."
                     );
                     // 에러 발생 시에도 기본 데이터로 초기화
-                    setUserInfo({
-                        ...initialUserData,
-                        password: "",
-                        chk_password: "",
-                        _hasBeenEdited: false,
-                    });
+                    // setUserInfo({
+                    //     ...initialUserData,
+                    //     password: "",
+                    //     chk_password: "",
+                    //     _hasBeenEdited: false,
+                    // });
 
                     // 초기 데이터를 부모 컴포넌트에 전달
                     if (onUserInfoSubmit) {
@@ -172,12 +172,12 @@ const UserInfoEdit: React.FC<UserInfoEditProps> = ({
             } catch (err) {
                 setError("네트워크 오류가 발생했습니다. 다시 시도해주세요.");
                 // 예외 발생 시에도 기본 데이터로 초기화
-                setUserInfo({
-                    ...initialUserData,
-                    password: "",
-                    chk_password: "",
-                    _hasBeenEdited: false,
-                });
+                // setUserInfo({
+                //     ...initialUserData,
+                //     password: "",
+                //     chk_password: "",
+                //     _hasBeenEdited: false,
+                // });
 
                 // 초기 데이터를 부모 컴포넌트에 전달
                 if (onUserInfoSubmit) {

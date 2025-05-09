@@ -16,7 +16,7 @@ interface WeatherCardProps {
     fcst24hours: WeatherForecast[];
 }
 
-export const EnhancedWeatherCard = ({
+export const WeatherCard = ({
     temp,
     precipitation,
     precpt_type,

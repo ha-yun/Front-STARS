@@ -112,10 +112,10 @@ const UserFavorite = () => {
 
         try {
             // 더미 모의 API 호출 함수
-            const response = await fetchFavorites();
+            // const response = await fetchFavorites();
 
             // 실제 호출해야한 API, response 처리 로직을 다시 짜야할 수 있음
-            // const response = await getUserFavoriteList();
+            const response = await getUserFavoriteList();
 
             if (response.success && response.data) {
                 setFavorites(response.data);
@@ -166,10 +166,10 @@ const UserFavorite = () => {
 
             try {
                 // 모의 API, 실제 API로 바꿔야함
-                const response = await ddeleteFavorite(fav.favorite_id);
+                // const response = await ddeleteFavorite(fav.favorite_id);
 
                 // 실제 호출해야하는 API
-                // const response = await deleteFavorite(fav);
+                const response = await deleteFavorite(fav);
 
                 if (response.success) {
                     // 성공적으로 삭제되면 상태에서도 삭제

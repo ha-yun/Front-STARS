@@ -12,6 +12,7 @@ const UserInfoShow = () => {
     const [error, setError] = useState<string | null>(null);
 
     // 모의 API 함수: 사용자 정보 가져오기
+    // 나중에 지워야함
     const fetchUserInfo = (): Promise<{
         success: boolean;
         data?: typeof initialUserData;
@@ -45,10 +46,10 @@ const UserInfoShow = () => {
 
         try {
             // 더미데이터 호출
-            const response = await fetchUserInfo();
+            // const response = await fetchUserInfo();
 
             // 실제로 호출할 API, res.data만 넘어오므로 예외처리 로직 다시 짜야함
-            // const response = await getUserProfile();
+            const response = await getUserProfile();
 
             if (response.success && response.data) {
                 setUserInfo(response.data);
@@ -57,7 +58,7 @@ const UserInfoShow = () => {
                     response.message || "사용자 정보를 불러오는데 실패했습니다."
                 );
                 // 에러 발생 시에도 기본 데이터로 초기화
-                setUserInfo(initialUserData);
+                // setUserInfo(initialUserData);
             }
         } catch (err) {
             setError("네트워크 오류가 발생했습니다. 다시 시도해주세요.");

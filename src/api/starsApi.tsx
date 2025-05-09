@@ -3,7 +3,7 @@ import API_SERVER_HOST from "./apiConfig";
 
 const prefix = `${API_SERVER_HOST}/main`;
 const subPrefix = `${API_SERVER_HOST}/control/congestion/main`;
-const weatherPrefix = `${API_SERVER_HOST}/control/external/main`;
+const externalPrefix = `${API_SERVER_HOST}/control/external/main`;
 
 // 실시간 모든 관광지 혼잡도 수신
 export const subscribeCongestionUpdate = (
@@ -32,7 +32,7 @@ export const subscribeCongestionAlert = (
 export const subscribeWeatherUpdate = (
     onUpdate: (data: Record<string, unknown>) => void
 ): EventSource => {
-    const eventSource = new EventSource(`${weatherPrefix}/stream`);
+    const eventSource = new EventSource(`${externalPrefix}/stream`);
     eventSource.addEventListener("weather-update", (event) => {
         const weatherData = JSON.parse((event as MessageEvent).data);
         onUpdate(weatherData);
@@ -44,7 +44,7 @@ export const subscribeWeatherUpdate = (
 export const subscribeTrafficUpdate = (
     onUpdate: (data: Record<string, unknown>) => void
 ): EventSource => {
-    const eventSource = new EventSource(`${subPrefix}/stream`);
+    const eventSource = new EventSource(`${externalPrefix}/stream`);
     eventSource.addEventListener("traffic-update", (event) => {
         const trafficData = JSON.parse((event as MessageEvent).data);
         onUpdate(trafficData);
@@ -56,7 +56,7 @@ export const subscribeTrafficUpdate = (
 export const subscribeParkUpdate = (
     onUpdate: (data: Record<string, unknown>) => void
 ): EventSource => {
-    const eventSource = new EventSource(`${subPrefix}/stream`);
+    const eventSource = new EventSource(`${externalPrefix}/stream`);
     eventSource.addEventListener("park-update", (event) => {
         const parkData = JSON.parse((event as MessageEvent).data);
         onUpdate(parkData);
