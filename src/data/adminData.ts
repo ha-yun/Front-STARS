@@ -1,9 +1,9 @@
 // src/data/adminData.ts
 
 export interface TouristSpot {
-    name: string;
-    code: string;
-    status: string;
+    area_nm: string;
+    area_cd: string;
+    area_congest_lvl: string;
 }
 
 export interface WeatherCard {
@@ -82,66 +82,119 @@ export interface UserFavoriteList {
 }
 
 // 혼잡도가 높은 지역만 조회
+// 혼잡도가 높은 지역만 조회
 export const touristSpots: TouristSpot[] = [
-    { name: "여의도 한강공원", code: "POI072", status: "약간 붐빔" },
-    { name: "국회의사당", code: "POI073", status: "약간 붐빔" },
-    { name: "63스퀘어", code: "POI074", status: "붐빔" },
-    { name: "여의도 봄꽃축제거리", code: "POI075", status: "붐빔" },
-    { name: "IFC몰", code: "POI076", status: "약간 붐빔" },
+    {
+        area_nm: "여의도 한강공원",
+        area_cd: "POI072",
+        area_congest_lvl: "약간 붐빔",
+    },
+    { area_nm: "국회의사당", area_cd: "POI073", area_congest_lvl: "약간 붐빔" },
+    { area_nm: "63스퀘어", area_cd: "POI074", area_congest_lvl: "붐빔" },
+    {
+        area_nm: "여의도 봄꽃축제거리",
+        area_cd: "POI075",
+        area_congest_lvl: "붐빔",
+    },
+    { area_nm: "IFC몰", area_cd: "POI076", area_congest_lvl: "약간 붐빔" },
 
     // 강남 지역
-    { name: "강남역", code: "POI001", status: "붐빔" },
-    { name: "코엑스", code: "POI002", status: "약간 붐빔" },
-    { name: "삼성역", code: "POI003", status: "약간 붐빔" },
-    { name: "압구정 로데오거리", code: "POI004", status: "약간 붐빔" },
-    { name: "청담동 명품거리", code: "POI005", status: "붐빔" },
+    { area_nm: "강남역", area_cd: "POI001", area_congest_lvl: "붐빔" },
+    { area_nm: "코엑스", area_cd: "POI002", area_congest_lvl: "약간 붐빔" },
+    { area_nm: "삼성역", area_cd: "POI003", area_congest_lvl: "약간 붐빔" },
+    {
+        area_nm: "압구정 로데오거리",
+        area_cd: "POI004",
+        area_congest_lvl: "약간 붐빔",
+    },
+    { area_nm: "청담동 명품거리", area_cd: "POI005", area_congest_lvl: "붐빔" },
 
     // 명동/종로 지역
-    { name: "명동 쇼핑거리", code: "POI011", status: "붐빔" },
-    { name: "경복궁", code: "POI012", status: "약간 붐빔" },
-    { name: "창덕궁", code: "POI013", status: "약간 붐빔" },
-    { name: "광화문 광장", code: "POI014", status: "약간 붐빔" },
-    { name: "인사동", code: "POI015", status: "붐빔" },
+    { area_nm: "명동 쇼핑거리", area_cd: "POI011", area_congest_lvl: "붐빔" },
+    { area_nm: "경복궁", area_cd: "POI012", area_congest_lvl: "약간 붐빔" },
+    { area_nm: "창덕궁", area_cd: "POI013", area_congest_lvl: "약간 붐빔" },
+    {
+        area_nm: "광화문 광장",
+        area_cd: "POI014",
+        area_congest_lvl: "약간 붐빔",
+    },
+    { area_nm: "인사동", area_cd: "POI015", area_congest_lvl: "붐빔" },
 
     // 홍대/이태원 지역
-    { name: "홍대 걷고싶은거리", code: "POI021", status: "붐빔" },
-    { name: "연남동", code: "POI022", status: "약간 붐빔" },
-    { name: "경의선 숲길", code: "POI023", status: "약간 붐빔" },
-    { name: "이태원 거리", code: "POI024", status: "약간 붐빔" },
-    { name: "한강진역", code: "POI025", status: "붐빔" },
+    {
+        area_nm: "홍대 걷고싶은거리",
+        area_cd: "POI021",
+        area_congest_lvl: "붐빔",
+    },
+    { area_nm: "연남동", area_cd: "POI022", area_congest_lvl: "약간 붐빔" },
+    {
+        area_nm: "경의선 숲길",
+        area_cd: "POI023",
+        area_congest_lvl: "약간 붐빔",
+    },
+    {
+        area_nm: "이태원 거리",
+        area_cd: "POI024",
+        area_congest_lvl: "약간 붐빔",
+    },
+    { area_nm: "한강진역", area_cd: "POI025", area_congest_lvl: "붐빔" },
 
     // 한강 주변
-    { name: "반포 한강공원", code: "POI031", status: "약간 붐빔" },
-    { name: "뚝섬 한강공원", code: "POI032", status: "붐빔" },
-    { name: "망원 한강공원", code: "POI033", status: "약간 붐빔" },
-    { name: "잠실 한강공원", code: "POI034", status: "붐빔" },
-    { name: "난지 한강공원", code: "POI035", status: "약간 붐빔" },
+    {
+        area_nm: "반포 한강공원",
+        area_cd: "POI031",
+        area_congest_lvl: "약간 붐빔",
+    },
+    { area_nm: "뚝섬 한강공원", area_cd: "POI032", area_congest_lvl: "붐빔" },
+    {
+        area_nm: "망원 한강공원",
+        area_cd: "POI033",
+        area_congest_lvl: "약간 붐빔",
+    },
+    { area_nm: "잠실 한강공원", area_cd: "POI034", area_congest_lvl: "붐빔" },
+    {
+        area_nm: "난지 한강공원",
+        area_cd: "POI035",
+        area_congest_lvl: "약간 붐빔",
+    },
 
     // 북한산/도봉산 지역
-    { name: "북한산국립공원", code: "POI041", status: "붐빔" },
-    { name: "도봉산국립공원", code: "POI042", status: "약간 붐빔" },
-    { name: "북한산 둘레길", code: "POI043", status: "붐빔" },
+    { area_nm: "북한산국립공원", area_cd: "POI041", area_congest_lvl: "붐빔" },
+    {
+        area_nm: "도봉산국립공원",
+        area_cd: "POI042",
+        area_congest_lvl: "약간 붐빔",
+    },
+    { area_nm: "북한산 둘레길", area_cd: "POI043", area_congest_lvl: "붐빔" },
 
     // 서울 숲/동대문 지역
-    { name: "서울숲공원", code: "POI051", status: "약간 붐빔" },
-    { name: "동대문디자인플라자", code: "POI052", status: "약간 붐빔" },
-    { name: "창신동 봉제골목", code: "POI053", status: "붐빔" },
-    { name: "청계천", code: "POI054", status: "약간 붐빔" },
-    { name: "동대문 쇼핑타운", code: "POI055", status: "붐빔" },
+    { area_nm: "서울숲공원", area_cd: "POI051", area_congest_lvl: "약간 붐빔" },
+    {
+        area_nm: "동대문디자인플라자",
+        area_cd: "POI052",
+        area_congest_lvl: "약간 붐빔",
+    },
+    { area_nm: "창신동 봉제골목", area_cd: "POI053", area_congest_lvl: "붐빔" },
+    { area_nm: "청계천", area_cd: "POI054", area_congest_lvl: "약간 붐빔" },
+    { area_nm: "동대문 쇼핑타운", area_cd: "POI055", area_congest_lvl: "붐빔" },
 
     // 잠실/송파 지역
-    { name: "롯데월드", code: "POI061", status: "붐빔" },
-    { name: "석촌호수", code: "POI062", status: "약간 붐빔" },
-    { name: "올림픽공원", code: "POI063", status: "붐빔" },
-    { name: "방이동 먹자골목", code: "POI064", status: "약간 붐빔" },
-    { name: "가락시장", code: "POI065", status: "붐빔" },
+    { area_nm: "롯데월드", area_cd: "POI061", area_congest_lvl: "붐빔" },
+    { area_nm: "석촌호수", area_cd: "POI062", area_congest_lvl: "약간 붐빔" },
+    { area_nm: "올림픽공원", area_cd: "POI063", area_congest_lvl: "붐빔" },
+    {
+        area_nm: "방이동 먹자골목",
+        area_cd: "POI064",
+        area_congest_lvl: "약간 붐빔",
+    },
+    { area_nm: "가락시장", area_cd: "POI065", area_congest_lvl: "붐빔" },
 
     // 기타 지역
-    { name: "남산타워", code: "POI081", status: "붐빔" },
-    { name: "서울로7017", code: "POI082", status: "약간 붐빔" },
-    { name: "덕수궁", code: "POI083", status: "붐빔" },
-    { name: "창경궁", code: "POI084", status: "약간 붐빔" },
-    { name: "노을공원", code: "POI085", status: "붐빔" },
+    { area_nm: "남산타워", area_cd: "POI081", area_congest_lvl: "붐빔" },
+    { area_nm: "서울로7017", area_cd: "POI082", area_congest_lvl: "약간 붐빔" },
+    { area_nm: "덕수궁", area_cd: "POI083", area_congest_lvl: "붐빔" },
+    { area_nm: "창경궁", area_cd: "POI084", area_congest_lvl: "약간 붐빔" },
+    { area_nm: "노을공원", area_cd: "POI085", area_congest_lvl: "붐빔" },
 ];
 
 // 단순 5일치 날씨 조회
@@ -505,7 +558,7 @@ export const dummyData: PopulationResponse = {
 };
 
 // 날씨 예보 데이터 타입 정의
-interface WeatherForecast {
+export interface WeatherForecast {
     fcst_dt: string;
     pre_temp: number;
     pre_precipitation: string;
@@ -515,7 +568,7 @@ interface WeatherForecast {
 }
 
 // 날씨 데이터 타입 정의
-interface WeatherData {
+export interface WeatherData {
     temp: number;
     precipitation: string;
     precpt_type: string;
@@ -531,7 +584,7 @@ interface WeatherData {
 }
 
 // 전체 데이터 구조 정의
-interface WeatherResponse {
+export interface WeatherResponse {
     data: WeatherData[];
 }
 

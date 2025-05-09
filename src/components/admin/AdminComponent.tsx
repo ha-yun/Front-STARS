@@ -2,25 +2,55 @@ import { useNavigate } from "react-router-dom";
 import {
     dummyData,
     ForecastPopulationWrapper,
-    PopulationResponse,
-    touristInfo,
     touristSpots,
     weatherData,
+    WeatherResponse,
+    WeatherData,
 } from "../../data/adminData";
 import { WeatherCard } from "./cards/weatherCard";
 import { SpotCard } from "./cards/spotCard";
 import AdminHeader from "./AdminHeader";
 import CongestionTag from "./cards/CongestionTag";
 import { useState, useEffect } from "react";
-import { subscribeCongestionAlert } from "../../api/starsApi";
+import {
+    subscribeCongestionAlert,
+    subscribeCongestionUpdate,
+    subscribeWeatherUpdate,
+} from "../../api/starsApi";
 
 // 타입 가져오기
 import {
-    TouristInfo, // 간단히 표시할 정보
     TouristSpot,
-    WeatherCard as WeatherCardType,
     PopulationData, // 전체 정보
 } from "../../data/adminData";
+
+// 업데이트된 WeatherCardType 인터페이스
+interface WeatherCardType {
+    date: string;
+    hour: string;
+    icon: string;
+    status: string;
+    temperature: string;
+    maxTemp?: string;
+    minTemp?: string;
+    sensibleTemp?: string;
+    precipitation?: string;
+    precipitationType?: string;
+    precipitationMessage?: string;
+    areaName?: string;
+    dust: {
+        fineDust: string;
+        ultraFineDust: string;
+    };
+    forecast?: {
+        fcst_dt: string;
+        pre_temp: number;
+        pre_precipitation: string;
+        pre_precpt_type: string;
+        pre_rain_chance: number;
+        pre_sky_stts: string;
+    }[];
+}
 
 export default function AdminComponent() {
     const navigate = useNavigate();
@@ -42,7 +72,7 @@ export default function AdminComponent() {
     const [refreshing, setRefreshing] = useState<boolean>(false);
 
     // 테스트용 실패확률
-    const persent: number = 0.1;
+    const persent: number = 0;
 
     const test = true;
 
@@ -128,7 +158,7 @@ export default function AdminComponent() {
             }
             // SSE를 통해 데이터가 넘어올텐데 이걸 처리하는 로직을 여기에다가 넣어야 하는 듯 함
             else {
-                const event: EventSource = subscribeCongestionAlert(
+                const event: EventSource = subscribeCongestionUpdate(
                     (data): void => {
                         // 주어진 타입으로 수정
                         const updateData = data as {
@@ -234,24 +264,87 @@ export default function AdminComponent() {
         setSpotsLoading(true);
 
         try {
-            // API 통신 시뮬레이션 (1.5초 지연)
-            const response = await new Promise<TouristSpot[]>(
-                (resolve, reject) => {
-                    setTimeout(() => {
-                        if (Math.random() > persent) {
-                            resolve(touristSpots);
-                        } else {
-                            reject(
-                                new Error(
-                                    "관광지 정보를 불러오는데 실패했습니다."
-                                )
-                            );
-                        }
-                    }, 1000);
-                }
-            );
+            if (test) {
+                // API 통신 시뮬레이션 (1.5초 지연)
+                const response = await new Promise<TouristSpot[]>(
+                    (resolve, reject) => {
+                        setTimeout(() => {
+                            if (Math.random() > persent) {
+                                resolve(touristSpots);
+                            } else {
+                                reject(
+                                    new Error(
+                                        "관광지 정보를 불러오는데 실패했습니다."
+                                    )
+                                );
+                            }
+                        }, 1000);
+                    }
+                );
 
-            setTouristSpotsData(response);
+                setTouristSpotsData(response);
+            } else {
+                const event: EventSource = subscribeCongestionAlert(
+                    (data): void => {
+                        const updateData = data as {
+                            area_nm: string; // 지역명
+                            area_cd: string; // 지역 코드
+                            area_congest_lvl: string; // 지역 혼잡도 수준
+                            area_congest_msg: string; // 지역 혼잡도 메시지
+                            area_ppltn_min: number; // 지역 최소 인구
+                            area_ppltn_max: number; // 지역 최대 인구
+                            male_ppltn_rate: number; // 남성 인구 비율
+                            female_ppltn_rate: number; // 여성 인구 비율
+                            resnt_ppltn_rate: number; // 거주 인구 비율
+                            non_resnt_ppltn_rate: number; // 비거주 인구 비율
+                            replace_yn: string; // 대체 여부
+                            ppltn_time: string; // 인구 데이터 시간
+                            fcst_yn: string; // 예측 여부
+                            fcst_ppltn_wrapper: ForecastPopulationWrapper; // 예측 인구 데이터 래퍼
+                            ppltn_rates: number[]; // 연령별 인구 분포
+                        };
+
+                        setTouristSpotsData((prevData) => {
+                            // 이전 데이터의 복사본 생성
+                            const updatedData = [...prevData];
+
+                            // 일치하는 관광지 찾기
+                            const existingIndex = updatedData.findIndex(
+                                (item) => item.area_cd === updateData.area_cd
+                            );
+
+                            if (existingIndex !== -1) {
+                                // 기존 레코드 업데이트
+                                updatedData[existingIndex] = {
+                                    ...updatedData[existingIndex],
+                                    area_nm: updateData.area_nm,
+                                    area_cd: updateData.area_cd,
+                                    area_congest_lvl:
+                                        updateData.area_congest_lvl,
+                                };
+                            } else {
+                                // 없는 경우 새 레코드로 추가
+                                updatedData.push({
+                                    area_nm: updateData.area_nm,
+                                    area_cd: updateData.area_cd,
+                                    area_congest_lvl:
+                                        updateData.area_congest_lvl,
+                                });
+                            }
+
+                            return updatedData;
+                        });
+                        if (error) {
+                            setError(null);
+                        }
+                    }
+                );
+                return () => {
+                    if (event) {
+                        event.close();
+                    }
+                };
+            }
         } catch (err) {
             console.error("Failed to fetch tourist spots:", err);
             setError("정보를 불러오는데 실패했습니다");
@@ -266,39 +359,191 @@ export default function AdminComponent() {
 
     // 날씨 정보 데이터 로드 함수
     // 날씨 API를 보고 다시 만들던지 해야 할 수도 있음
+    // Updated fetchWeatherData function with proper type handling
+    // 날씨 정보 데이터 로드 함수
     const fetchWeatherData = async () => {
         setWeatherLoading(true);
+        setError(null);
 
         try {
-            // API 통신 시뮬레이션 (2.5초 지연)
-            const response = await new Promise<WeatherCardType[]>(
-                (resolve, reject) => {
-                    setTimeout(() => {
-                        // 95% 확률로 성공, 5% 확률로 실패 (테스트용)
-                        if (Math.random() > persent) {
-                            resolve(weatherData);
+            if (test) {
+                // 테스트 모드일 때는 더미 데이터 사용
+                const response = await new Promise<WeatherCardType[]>(
+                    (resolve, reject) => {
+                        setTimeout(() => {
+                            if (Math.random() > persent) {
+                                resolve(weatherData);
+                            } else {
+                                reject(
+                                    new Error(
+                                        "날씨 데이터를 불러오는데 실패했습니다."
+                                    )
+                                );
+                            }
+                        }, 1000);
+                    }
+                );
+                setWeatherInfoData(response);
+            } else {
+                // 실제 SSE 구현
+                const event = subscribeWeatherUpdate((data) => {
+                    try {
+                        // 데이터가 예상 구조를 가지고 있는지 확인
+                        if (typeof data === "object" && data !== null) {
+                            // 데이터를 WeatherResponse 타입으로 처리
+                            const weatherResponse =
+                                data as unknown as WeatherResponse;
+
+                            if (
+                                weatherResponse.data &&
+                                weatherResponse.data.length > 0
+                            ) {
+                                // API 응답을 WeatherCardType 형식으로 변환
+                                const transformedData: WeatherCardType[] =
+                                    weatherResponse.data.map((item) => {
+                                        // weather_time에서 날짜와 시간 추출
+                                        const dateTime = new Date(
+                                            item.weather_time
+                                        );
+                                        const formattedDate = `${String(dateTime.getMonth() + 1).padStart(2, "0")}-${String(dateTime.getDate()).padStart(2, "0")}`;
+                                        const formattedHour = `${String(dateTime.getHours()).padStart(2, "0")}:${String(dateTime.getMinutes()).padStart(2, "0")}`;
+
+                                        // 현재 일기 예보의 하늘 상태에 따라 날씨 아이콘 결정
+                                        let weatherIcon = "☀️"; // 기본값: 맑음
+                                        let currentSkyStatus = "맑음";
+
+                                        if (
+                                            item.fcst24hours &&
+                                            item.fcst24hours.length > 0
+                                        ) {
+                                            currentSkyStatus =
+                                                item.fcst24hours[0]
+                                                    ?.pre_sky_stts || "맑음";
+
+                                            if (
+                                                currentSkyStatus.includes(
+                                                    "맑음"
+                                                )
+                                            ) {
+                                                weatherIcon = "☀️";
+                                            } else if (
+                                                currentSkyStatus.includes(
+                                                    "구름"
+                                                )
+                                            ) {
+                                                weatherIcon =
+                                                    currentSkyStatus.includes(
+                                                        "많음"
+                                                    )
+                                                        ? "☁️"
+                                                        : "🌤️";
+                                            } else if (
+                                                currentSkyStatus.includes("비")
+                                            ) {
+                                                weatherIcon = "🌧️";
+                                            } else if (
+                                                currentSkyStatus.includes("눈")
+                                            ) {
+                                                weatherIcon = "❄️";
+                                            }
+                                        }
+
+                                        // 미세먼지 수준 결정
+                                        const fineDustLevel = getDustLevelText(
+                                            item.pm10
+                                        );
+                                        const ultraFineDustLevel =
+                                            getDustLevelText(item.pm25);
+
+                                        // 온도 관련 데이터
+                                        const currentTemp = item.temp;
+                                        const maxTemp = item.max_temp;
+                                        const minTemp = item.min_temp;
+                                        const sensibleTemp = item.sensible_temp;
+
+                                        // 강수 관련
+                                        const precipitation =
+                                            item.precipitation;
+                                        const precipitationType =
+                                            item.precpt_type;
+                                        const precipitationMessage =
+                                            item.pcp_msg;
+
+                                        // 지역 이름
+                                        const areaName = item.area_nm;
+
+                                        return {
+                                            date: formattedDate,
+                                            hour: formattedHour,
+                                            status: currentSkyStatus,
+                                            icon: weatherIcon,
+                                            temperature: `${currentTemp}°C`,
+                                            maxTemp: `${maxTemp}°C`,
+                                            minTemp: `${minTemp}°C`,
+                                            sensibleTemp: `${sensibleTemp}°C`,
+                                            precipitation: precipitation,
+                                            precipitationType:
+                                                precipitationType,
+                                            precipitationMessage:
+                                                precipitationMessage,
+                                            areaName: areaName,
+                                            dust: {
+                                                fineDust: fineDustLevel,
+                                                ultraFineDust:
+                                                    ultraFineDustLevel,
+                                            },
+                                            forecast: item.fcst24hours, // 24시간 예보 데이터도 포함
+                                        };
+                                    });
+
+                                // 변환된 데이터로 상태 업데이트
+                                setWeatherInfoData(transformedData);
+
+                                // 유효한 데이터를 가져왔으면 오류 초기화
+                                if (error) {
+                                    setError(null);
+                                }
+
+                                // 디버깅용 로그
+                                console.log(
+                                    "날씨 업데이트 수신:",
+                                    weatherResponse
+                                );
+                            }
                         } else {
-                            reject(
-                                new Error(
-                                    "날씨 데이터를 불러오는데 실패했습니다."
-                                )
+                            console.error(
+                                "수신된 데이터가 예상 형식과 일치하지 않습니다:",
+                                data
                             );
                         }
-                    }, 1000);
-                }
-            );
+                    } catch (err) {
+                        console.error("날씨 데이터 처리 중 오류:", err);
+                    }
+                });
 
-            setWeatherInfoData(response);
+                // 정리 함수 반환
+                return () => {
+                    if (event) {
+                        event.close();
+                    }
+                };
+            }
         } catch (err) {
-            console.error("Failed to fetch weather data:", err);
-            setError("정보를 불러오는데 실패했습니다");
-            // 초기화
+            console.error("날씨 데이터 가져오기 실패:", err);
+            setError("날씨 정보를 불러오는데 실패했습니다");
+            // 상태 초기화
             setWeatherInfoData([]);
-            // 에러 발생시 더미 데이터 사용
-            // setWeatherInfoData(weatherData);
         } finally {
             setWeatherLoading(false);
         }
+    };
+
+    // Helper function to determine dust level text based on values
+    const getDustLevelText = (value: number): string => {
+        if (value <= 15) return "좋음";
+        if (value <= 35) return "보통";
+        if (value <= 75) return "나쁨";
+        return "매우나쁨";
     };
 
     // 모든 데이터 새로고침 함수
@@ -320,7 +565,7 @@ export default function AdminComponent() {
 
     // 컴포넌트 마운트 시 데이터 로드
     useEffect(() => {
-        // 더미 API 호출
+        //API 호출
         fetchTouristInfo();
         fetchTouristSpots();
         fetchWeatherData();
