@@ -1,13 +1,15 @@
 import axios from "axios";
 import API_SERVER_HOST from "./apiConfig";
 
-const prefix = `${API_SERVER_HOST}/main`;
+const prefix = `${API_SERVER_HOST}`;
 
-// 실시간 교통혼잡도 수신
+// 실시간 모든 관광지 혼잡도 수신
 export const subscribeCongestionUpdate = (
     onUpdate: (data: Record<string, unknown>) => void
 ): EventSource => {
-    const eventSource = new EventSource(`${prefix}/congestion`);
+    const eventSource = new EventSource(
+        `${prefix}/control/congestion/main/congestion`
+    );
     eventSource.addEventListener("congestion-update", (event) => {
         const congestionData = JSON.parse((event as MessageEvent).data);
         onUpdate(congestionData);
@@ -19,7 +21,9 @@ export const subscribeCongestionUpdate = (
 export const subscribeCongestionAlert = (
     onAlert: (data: Record<string, unknown>) => void
 ): EventSource => {
-    const eventSource = new EventSource(`${prefix}/congestion`);
+    const eventSource = new EventSource(
+        `${prefix}/control/congestion/main/congestion`
+    );
     eventSource.addEventListener("congestion-alert", (event) => {
         const alertData = JSON.parse((event as MessageEvent).data);
         onAlert(alertData);
@@ -27,10 +31,13 @@ export const subscribeCongestionAlert = (
     return eventSource;
 };
 
+// 실시간 날씨 정보
 export const subscribeWeatherUpdate = (
     onUpdate: (data: Record<string, unknown>) => void
 ): EventSource => {
-    const eventSource = new EventSource(`${prefix}/stream`);
+    const eventSource = new EventSource(
+        `${prefix}/control/external/main/stream`
+    );
     eventSource.addEventListener("weather-update", (event) => {
         const weatherData = JSON.parse((event as MessageEvent).data);
         onUpdate(weatherData);
@@ -42,7 +49,9 @@ export const subscribeWeatherUpdate = (
 export const subscribeTrafficUpdate = (
     onUpdate: (data: Record<string, unknown>) => void
 ): EventSource => {
-    const eventSource = new EventSource(`${prefix}/stream`);
+    const eventSource = new EventSource(
+        `${prefix}/control/external/main/stream`
+    );
     eventSource.addEventListener("traffic-update", (event) => {
         const trafficData = JSON.parse((event as MessageEvent).data);
         onUpdate(trafficData);
@@ -54,7 +63,9 @@ export const subscribeTrafficUpdate = (
 export const subscribeParkUpdate = (
     onUpdate: (data: Record<string, unknown>) => void
 ): EventSource => {
-    const eventSource = new EventSource(`${prefix}/stream`);
+    const eventSource = new EventSource(
+        `${prefix}/control/external/main/stream`
+    );
     eventSource.addEventListener("park-update", (event) => {
         const parkData = JSON.parse((event as MessageEvent).data);
         onUpdate(parkData);
@@ -69,7 +80,7 @@ export const getAreaList = async () => {
             "Content-Type": "application/json",
         },
     };
-    const res = await axios.get(`${prefix}/area/list`, header);
+    const res = await axios.get(`${prefix}/place/main/area/list`, header);
     return res.data;
 };
 
@@ -80,7 +91,7 @@ export const getAttractionList = async () => {
             "Content-Type": "application/json",
         },
     };
-    const res = await axios.get(`${prefix}/attraction/list`, header);
+    const res = await axios.get(`${prefix}/place/main/attraction/list`, header);
     return res.data;
 };
 
@@ -91,7 +102,7 @@ export const getRestaurantList = async () => {
             "Content-Type": "application/json",
         },
     };
-    const res = await axios.get(`${prefix}/restaurant/list`, header);
+    const res = await axios.get(`${prefix}/place/main/restaurant/list`, header);
     return res.data;
 };
 
@@ -102,7 +113,7 @@ export const getCafeList = async () => {
             "Content-Type": "application/json",
         },
     };
-    const res = await axios.get(`${prefix}/cafe/list`, header);
+    const res = await axios.get(`${prefix}/place/main/cafe/list`, header);
     return res.data;
 };
 
@@ -113,7 +124,10 @@ export const getAccommodationList = async () => {
             "Content-Type": "application/json",
         },
     };
-    const res = await axios.get(`${prefix}/accommodation/list`, header);
+    const res = await axios.get(
+        `${prefix}/place/main/accommodation/list`,
+        header
+    );
     return res.data;
 };
 
@@ -124,7 +138,10 @@ export const getAttractionDetail = async (attractionId: string) => {
             "Content-Type": "application/json",
         },
     };
-    const res = await axios.get(`${prefix}/attraction/${attractionId}`, header);
+    const res = await axios.get(
+        `${prefix}/place/main/info/attraction/${attractionId}`,
+        header
+    );
     return res.data;
 };
 
@@ -135,7 +152,10 @@ export const getRestaurantDetail = async (restaurantId: string) => {
             "Content-Type": "application/json",
         },
     };
-    const res = await axios.get(`${prefix}/restaurant/${restaurantId}`, header);
+    const res = await axios.get(
+        `${prefix}/place/main/info/restaurant/${restaurantId}`,
+        header
+    );
     return res.data;
 };
 
@@ -146,7 +166,10 @@ export const getCafeDetail = async (cafeId: string) => {
             "Content-Type": "application/json",
         },
     };
-    const res = await axios.get(`${prefix}/cafe/${cafeId}`, header);
+    const res = await axios.get(
+        `${prefix}/place/main/info/cafe/${cafeId}`,
+        header
+    );
     return res.data;
 };
 
@@ -158,7 +181,7 @@ export const getAccommodationDetail = async (accommodationId: string) => {
         },
     };
     const res = await axios.get(
-        `${prefix}/accommodation/${accommodationId}`,
+        `${prefix}/place/main/info/accommodation/${accommodationId}`,
         header
     );
     return res.data;
@@ -171,7 +194,7 @@ export const getEventList = async () => {
             "Content-Type": "application/json",
         },
     };
-    const res = await axios.get(`${prefix}/events`, header);
+    const res = await axios.get(`${prefix}/place/main/events`, header);
     return res.data;
 };
 
@@ -182,6 +205,9 @@ export const getPlaceListByArea = async (areaId: string) => {
             "Content-Type": "application/json",
         },
     };
-    const res = await axios.get(`${prefix}/area/${areaId}`, header);
+    const res = await axios.get(
+        `${prefix}/place/main/place/list/${areaId}`,
+        header
+    );
     return res.data;
 };

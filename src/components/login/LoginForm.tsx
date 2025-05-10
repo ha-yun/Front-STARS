@@ -1,32 +1,48 @@
 import { useState, FormEvent } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import useCustomLogin from "../../hooks/useCustomLogin";
 
 interface LoginFormProps {
     onError: (msg: string) => void;
 }
 
 export default function LoginForm({ onError }: LoginFormProps) {
-    const [username, setUsername] = useState("");
+    const [user_id, setUserId] = useState("");
     const [password, setPassword] = useState("");
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [shake, setShake] = useState(false);
 
     const navigate = useNavigate();
+    const { doLogin } = useCustomLogin();
 
-    const handleSubmit = (e: FormEvent) => {
+    type LoginResult = {
+        error?: string;
+    };
+
+    const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
 
-        if (username === "admin" && password === "password") {
-            setIsLoggedIn(true);
+        try {
+            const result = (await doLogin({
+                user_id,
+                password,
+            })) as LoginResult;
 
-            setTimeout(() => {
-                navigate("/map");
-            }, 1500);
-        } else {
+            if (result && !result.error) {
+                setIsLoggedIn(true);
+                setTimeout(() => {
+                    navigate("/map");
+                }, 1500);
+            } else {
+                onError(result?.error || "로그인 실패");
+                setShake(true);
+                setTimeout(() => setShake(false), 500);
+            }
+        } catch {
             onError("아이디 또는 비밀번호가 올바르지 않습니다.");
             setShake(true);
-            setTimeout(() => setShake(false), 500); // 0.5초 뒤 흔들림 해제
+            setTimeout(() => setShake(false), 500);
         }
     };
 
@@ -53,12 +69,12 @@ export default function LoginForm({ onError }: LoginFormProps) {
         >
             <input
                 type="text"
-                name="username"
+                name="user_id"
                 placeholder="아이디"
                 required
                 className="w-full px-4 py-2 bg-black/30 text-white rounded-md focus:outline-none"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                value={user_id}
+                onChange={(e) => setUserId(e.target.value)}
             />
             <input
                 type="password"

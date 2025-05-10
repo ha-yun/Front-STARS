@@ -48,7 +48,7 @@ export default function Login() {
                 playsInline
                 className="absolute w-full h-full object-cover"
             >
-                <source src="../public/home-bg-video.mp4" type="video/mp4" />
+                <source src="/home-bg-video.mp4" type="video/mp4" />
             </video>
 
             {/* 블러 오버레이 */}
