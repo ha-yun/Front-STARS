@@ -1,7 +1,14 @@
 // UserFavorite.tsx
 import React, { useState, useEffect } from "react";
-import { Favorite } from "../../../data/adminData";
+import { Favorite, sampleFavorites } from "../../../data/adminData";
 import { getUserFavoriteList, deleteFavorite } from "../../../api/mypageApi";
+
+// API 응답 타입 정의, 모의 API용
+interface ApiResponse<T> {
+    success: boolean;
+    data?: T;
+    message?: string;
+}
 
 // 타입별 색상 정의
 const typeColors = {
@@ -46,16 +53,69 @@ const UserFavorite = () => {
     // 모바일 여부를 저장하는 상태
     const [isMobile, setIsMobile] = useState(false);
 
+    // 즐겨찾기 데이터를 가져오는 모의 API 함수
+    const fetchFavorites = (): Promise<ApiResponse<Favorite[]>> => {
+        return new Promise((resolve) => {
+            // 실제 axios 사용 시:
+            // return axios.get('/api/favorites');
+
+            // 1초 지연 후 응답 (네트워크 지연 시뮬레이션)
+            setTimeout(() => {
+                // 80% 확률로 성공
+                if (Math.random() < 1) {
+                    resolve({
+                        success: true,
+                        data: sampleFavorites,
+                        message: "즐겨찾기 목록을 성공적으로 불러왔습니다.",
+                    });
+                } else {
+                    resolve({
+                        success: false,
+                        message:
+                            "즐겨찾기 목록을 불러오는데 실패했습니다. 네트워크 연결을 확인해주세요.",
+                    });
+                }
+            }, 1000);
+        });
+    };
+
+    // 즐겨찾기 항목을 삭제하는 모의 API 함수
+    // 이것도 나중에 실제 API로 대체
+    const ddeleteFavorite = (id: number): Promise<ApiResponse<null>> => {
+        return new Promise((resolve) => {
+            // 실제 axios 사용 시:
+            // return axios.delete(`/api/favorites/${id}`);
+
+            // 800ms 지연 후 응답 (네트워크 지연 시뮬레이션)
+            setTimeout(() => {
+                // 90% 확률로 성공
+                if (Math.random() < 1) {
+                    resolve({
+                        success: true,
+                        message: "즐겨찾기가 성공적으로 삭제되었습니다.",
+                    });
+                } else {
+                    resolve({
+                        success: false,
+                        message:
+                            "즐겨찾기 삭제에 실패했습니다. 잠시 후 다시 시도해주세요.",
+                    });
+                }
+            }, 800);
+        });
+    };
+
     // 즐겨찾기 데이터 로드 함수
     const loadFavorites = async () => {
         setIsLoading(true);
         setError(null);
 
         try {
+            // 더미 모의 API 호출 함수
+            // const response = await fetchFavorites();
+
             // 실제 호출해야한 API, response 처리 로직을 다시 짜야할 수 있음
             const response = await getUserFavoriteList();
-
-            console.log(response);
 
             if (response) {
                 setFavorites(response);

@@ -3,7 +3,7 @@ import API_SERVER_HOST from "./apiConfig";
 
 const prefix = `${API_SERVER_HOST}`;
 
-// 실시간 교통혼잡도 수신
+// 실시간 모든 관광지 혼잡도 수신
 export const subscribeCongestionUpdate = (
     onUpdate: (data: Record<string, unknown>) => void
 ): EventSource => {

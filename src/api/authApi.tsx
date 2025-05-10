@@ -60,6 +60,7 @@ export const signupUser = async (user: SignupUser) => {
     return res.data;
 };
 
+// 회원탈퇴
 export const signoutUser = async (member_id: number) => {
     const header = {
         headers: {

@@ -4,7 +4,7 @@ import { Favorite } from "../data/adminData";
 
 const prefix = `${API_SERVER_HOST}/user/mypage`;
 
-type UserProfile = {
+export type UserProfile = {
     user_id: string;
     password: string;
     nickname: string;
