@@ -3,15 +3,37 @@
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { CountUp } from "countup.js";
-import { places } from "../../../data/placesData";
+// import { places } from "../../../data/placesData";
+
+// API
+import { getAttractionDetail } from "../../../api/starsApi";
 
 interface FocusCardProps {
-    placeId: keyof typeof places;
+    placeId: string;
     show: boolean;
     onClose: () => void;
     onDetail: () => void;
     // isFavorite: boolean;
     // 즐겨찾기 기능을 사용하지 않으니 임시로 주석처리
+}
+
+interface AttractionDetail {
+    seoul_attraction_id: string;
+    address: string;
+    lat: number;
+    lon: number;
+    phone: string;
+    homepage_url: string;
+    close_day: string;
+    use_time: string;
+    area_id: number;
+    area_name: string;
+    attraction_id: number;
+    attraction_name: string;
+    kakaomap_url: string;
+
+    events?: string[];
+    tags?: string[];
 }
 
 /**
@@ -25,18 +47,25 @@ const FocusCard: React.FC<FocusCardProps> = ({
     onClose,
     onDetail,
 }) => {
-    const place = places[placeId];
+    const [place, setPlace] = useState<AttractionDetail | null>(null);
     const visitorCountRef = useRef<HTMLSpanElement | null>(null);
     const [isFavorite, setIsFavorite] = useState(false);
 
+    useEffect(() => {
+        if (!show || !placeId) return;
+
+        getAttractionDetail(placeId).then((data) => {
+            setPlace(data);
+        });
+    }, [placeId, show]); // ✅ 삽입
+
     // CountUp 실행
     useEffect(() => {
-        // ✅ show가 true일 때만 실행
-        if (!show || !visitorCountRef.current || !place) return;
+        if (!show || !place || !visitorCountRef.current) return;
 
         const countUp = new CountUp(
             visitorCountRef.current,
-            place.todayVisitors,
+            Math.floor(Math.random() * 10000 + 1000),
             {
                 duration: 1,
                 useEasing: true,
@@ -44,12 +73,8 @@ const FocusCard: React.FC<FocusCardProps> = ({
             }
         );
 
-        if (!countUp.error) {
-            countUp.start();
-        } else {
-            console.error(countUp.error);
-        }
-    }, [placeId, show]);
+        if (!countUp.error) countUp.start();
+    }, [place, show]);
 
     return (
         <div
@@ -110,7 +135,7 @@ const FocusCard: React.FC<FocusCardProps> = ({
                     <div className="flex items-center justify-between mb-2">
                         {/* 즐겨찾기 토글 버튼 */}
                         <h3 className="md:text-xl text-lg text-gray-500 mb-1">
-                            {place.name} 방문자 수
+                            {place?.attraction_name} 방문자 수
                         </h3>
                         <button
                             onClick={() => setIsFavorite((prev) => !prev)}
@@ -155,7 +180,7 @@ const FocusCard: React.FC<FocusCardProps> = ({
                     >
                         <h3 className="text-xl font-medium mb-1">행사</h3>
                         <ul className="md:text-2xl text-sm space-y-1">
-                            {place.events.map((e, idx) => (
+                            {place?.events?.map((e: string, idx: number) => (
                                 <li key={idx}>{e}</li>
                             ))}
                         </ul>
@@ -170,7 +195,7 @@ const FocusCard: React.FC<FocusCardProps> = ({
                             관심 키워드
                         </h3>
                         <div className="flex flex-wrap justify-left">
-                            {place.tags.map((tag) => (
+                            {place?.tags?.map((tag: string) => (
                                 <span
                                     key={tag}
                                     className="bg-white/20 text-white m-1 md:text-l text-sm px-2 py-1 rounded-full"
