@@ -34,6 +34,7 @@ const useCustomLogin = () => {
 
     const doLogout = () => {
         dispatch(logoutPostAsync());
+        navigate({ pathname: "/" }, { replace: true });
     };
 
     const moveToPath = (path: string) => {
