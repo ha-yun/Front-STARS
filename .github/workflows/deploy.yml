@@ -47,7 +47,7 @@ jobs:
           node-version: 22
 
       - name: Create .env from secret
-        run: echo "${{ secrets.VITE_MAPBOX_ACCESS_TOKEN }}" > .env
+        run: echo "${{ secrets.SECRET_ACCESS_TOKEN }}" > .env
 
       - name: node.js 테스트
         run:  npm install
