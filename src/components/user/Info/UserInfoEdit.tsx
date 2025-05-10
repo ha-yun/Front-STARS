@@ -1,6 +1,7 @@
 // UserInfoEdit.tsx
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { UserInfo } from "../../../data/UserInfoData";
+import { editUserProfile, UserProfile } from "../../../api/mypageApi";
 
 // props 인터페이스 정의
 interface UserInfoEditProps {
@@ -11,6 +12,7 @@ interface UserInfoEditProps {
 
 // 확장된 사용자 정보 타입 (내부 상태 관리용)
 interface EditableUserInfo extends UserInfo {
+    new_password: string;
     _hasBeenEdited: boolean;
 }
 
@@ -19,28 +21,23 @@ const UserInfoEdit: React.FC<UserInfoEditProps> = ({
     onPasswordValidationChange,
     onUserInfoSubmit,
 }) => {
+    // useRef를 사용하여 초기 마운트 여부 체크
+    const isInitialMount = useRef(true);
+
     // 전달받은 사용자 정보로 초기화
-    const [editableUserInfo, setEditableUserInfo] = useState<EditableUserInfo>({
-        ...userInfo,
-        password: "",
-        chk_password: "",
-        _hasBeenEdited: false,
-    });
-
-    // 컴포넌트가 마운트되거나 userInfo props가 변경될 때 상태 업데이트
-    useEffect(() => {
-        setEditableUserInfo({
+    const [editableUserInfo, setEditableUserInfo] = useState<EditableUserInfo>(
+        () => ({
             ...userInfo,
-            password: "",
-            chk_password: "",
+            current_password: "", // 기존 암호
+            new_password: "", // 새 암호
+            chk_password: "", // 새 암호 검증
             _hasBeenEdited: false,
-        });
+        })
+    );
 
-        // 초기 데이터를 부모 컴포넌트에 전달
-        if (onUserInfoSubmit) {
-            onUserInfoSubmit(userInfo);
-        }
-    }, [userInfo, onUserInfoSubmit]);
+    // 비밀번호 변경을 원하는지 여부
+    const [wantToChangePassword, setWantToChangePassword] =
+        useState<boolean>(false);
 
     // 비밀번호 유효성 상태
     const [passwordValidation, setPasswordValidation] = useState({
@@ -50,19 +47,39 @@ const UserInfoEdit: React.FC<UserInfoEditProps> = ({
         errorMessage: "",
     });
 
+    // 제출 중 상태
+    const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+
+    // 최초 마운트 시에만 초기 데이터를 부모 컴포넌트에 전달
+    useEffect(() => {
+        if (isInitialMount.current && onUserInfoSubmit) {
+            isInitialMount.current = false;
+        }
+    }, [userInfo, onUserInfoSubmit]);
+
     // 비밀번호 유효성 검사 함수
     const validatePassword = (password: string, chkPassword: string) => {
+        // 비밀번호 변경을 원하지 않는 경우 항상 유효함
+        if (!wantToChangePassword) {
+            return {
+                match: true,
+                isEmpty: true,
+                isValid: true,
+                errorMessage: "",
+            };
+        }
+
         const validation = {
             match: password === chkPassword,
             isEmpty: password.length === 0 && chkPassword.length === 0,
-            isValid: true,
+            isValid: false,
             errorMessage: "",
         };
 
-        // 비밀번호가 비어있는 경우 유효하지 않은 것으로 처리
+        // 비밀번호가 비어있는 경우 (비밀번호 변경 원할 때만 오류)
         if (validation.isEmpty) {
             validation.isValid = false;
-            validation.errorMessage = "비밀번호를 입력해주세요.";
+            validation.errorMessage = "새 비밀번호를 입력해주세요.";
             return validation;
         }
 
@@ -83,25 +100,30 @@ const UserInfoEdit: React.FC<UserInfoEditProps> = ({
 
     // 비밀번호 변경 시 유효성 검사
     useEffect(() => {
-        const validation = validatePassword(
-            editableUserInfo.password,
-            editableUserInfo.chk_password
-        );
-        setPasswordValidation(validation);
+        if (wantToChangePassword) {
+            const validation = validatePassword(
+                editableUserInfo.new_password,
+                editableUserInfo.chk_password
+            );
+            setPasswordValidation(validation);
 
-        // 비밀번호 유효성 조건:
-        // 1. 비밀번호와 확인이 모두 비어있지 않아야 함 (isEmpty가 false)
-        // 2. 비밀번호가 정규식 조건을 만족해야 함 (isValid가 true)
-        // 3. 비밀번호와 확인이 일치해야 함 (match가 true)
-        const isValidForSubmit =
-            !validation.isEmpty && validation.isValid && validation.match;
+            // 비밀번호 유효성 조건:
+            // 1. 비밀번호가 유효하고 일치해야 함
+            const isValidForSubmit = validation.isValid && validation.match;
 
-        // 부모 컴포넌트에 유효성 상태 전달
-        if (onPasswordValidationChange) {
-            onPasswordValidationChange(isValidForSubmit);
+            // 부모 컴포넌트에 유효성 상태 전달
+            if (onPasswordValidationChange) {
+                onPasswordValidationChange(isValidForSubmit);
+            }
+        } else {
+            // 비밀번호 변경을 원하지 않는 경우 항상 유효함
+            if (onPasswordValidationChange) {
+                onPasswordValidationChange(true);
+            }
         }
     }, [
-        editableUserInfo.password,
+        wantToChangePassword,
+        editableUserInfo.new_password,
         editableUserInfo.chk_password,
         onPasswordValidationChange,
     ]);
@@ -118,18 +140,103 @@ const UserInfoEdit: React.FC<UserInfoEditProps> = ({
         };
 
         setEditableUserInfo(updatedUserInfo);
+    };
 
-        // 사용자 정보가 변경될 때마다 부모 컴포넌트에 전달
-        if (onUserInfoSubmit) {
-            // _hasBeenEdited 필드를 제외한 나머지 정보만 전달
-            const { _hasBeenEdited, ...userInfoToSubmit } = updatedUserInfo;
-            onUserInfoSubmit(userInfoToSubmit);
+    // 비밀번호 변경 체크박스 핸들러
+    const handlePasswordChangeToggle = () => {
+        setWantToChangePassword(!wantToChangePassword);
+
+        // 체크박스를 해제할 때 비밀번호 입력값 초기화
+        if (wantToChangePassword) {
+            setEditableUserInfo((prev) => ({
+                ...prev,
+                current_password: "",
+                new_password: "",
+                chk_password: "",
+            }));
+            // 비밀번호 유효성 상태 초기화
+            setPasswordValidation({
+                match: true,
+                isEmpty: true,
+                isValid: true,
+                errorMessage: "",
+            });
+        }
+    };
+
+    // 제출 핸들러
+    const handleSubmit = async () => {
+        // 비밀번호 변경을 원하는 경우에만 유효성 검사
+        if (
+            wantToChangePassword &&
+            (!passwordValidation.isValid || !passwordValidation.match)
+        ) {
+            alert("비밀번호가 유효하지 않거나 일치하지 않습니다.");
+            return;
+        }
+
+        // 비밀번호 변경을 원하는데 현재 비밀번호가 비어있을 경우
+        if (wantToChangePassword && editableUserInfo.current_password === "") {
+            alert("현재 비밀번호를 입력해주세요.");
+            return;
+        }
+
+        try {
+            setIsSubmitting(true);
+
+            // API 요구사항에 맞게 필요한 데이터만 추출
+            const userDataToSubmit: UserProfile = {
+                user_id: editableUserInfo.user_id,
+                nickname: editableUserInfo.nickname,
+                birth_year: editableUserInfo.birth_year,
+                mbti: editableUserInfo.mbti,
+                gender: editableUserInfo.gender,
+            };
+
+            // 비밀번호 변경을 원하는 경우에만 비밀번호 필드 추가
+            if (wantToChangePassword) {
+                userDataToSubmit.current_password =
+                    editableUserInfo.current_password;
+                userDataToSubmit.new_password = editableUserInfo.new_password;
+            }
+
+            console.log("전송 데이터:", userDataToSubmit); // 디버깅용
+
+            // API 호출하여 사용자 정보 업데이트
+            const response = await editUserProfile(userDataToSubmit);
+
+            if (response) {
+                console.log(response);
+                alert(
+                    response.message || "회원 정보가 성공적으로 수정되었습니다."
+                );
+
+                // 성공 시 부모 컴포넌트에 알림
+                if (onUserInfoSubmit) {
+                    onUserInfoSubmit(userInfo);
+                }
+            } else {
+                throw new Error(
+                    response?.message || "회원 정보 수정에 실패했습니다."
+                );
+            }
+        } catch (error) {
+            console.error("API 오류:", error);
+            alert(
+                error instanceof Error
+                    ? error.message
+                    : "회원 정보 수정 중 오류가 발생했습니다."
+            );
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
     // 비밀번호 입력 필드 스타일 계산
     const getPasswordFieldStyle = () => {
-        if (passwordValidation.isEmpty) return "";
+        if (!wantToChangePassword) return "border-gray-300"; // 비밀번호 변경을 원하지 않는 경우 기본 스타일
+        if (editableUserInfo.new_password.length === 0)
+            return "border-gray-300"; // 비어있으면 기본 스타일
         return !passwordValidation.isValid
             ? "border-red-500"
             : "border-green-500";
@@ -137,11 +244,20 @@ const UserInfoEdit: React.FC<UserInfoEditProps> = ({
 
     // 비밀번호 확인 필드 스타일 계산
     const getPasswordConfirmFieldStyle = () => {
-        if (passwordValidation.isEmpty) return "";
+        if (!wantToChangePassword) return "border-gray-300"; // 비밀번호 변경을 원하지 않는 경우 기본 스타일
+        if (editableUserInfo.chk_password.length === 0)
+            return "border-gray-300"; // 비어있으면 기본 스타일
         return !passwordValidation.match
             ? "border-red-500"
             : "border-green-500";
     };
+
+    // 전체 폼 유효성 상태
+    const isFormValid = wantToChangePassword
+        ? passwordValidation.isValid &&
+          passwordValidation.match &&
+          editableUserInfo.current_password !== ""
+        : true;
 
     return (
         <div className="p-2 md:p-4">
@@ -198,57 +314,99 @@ const UserInfoEdit: React.FC<UserInfoEditProps> = ({
                     />
                 </div>
 
+                {/* 비밀번호 변경 여부 체크박스 */}
                 <div className="mb-3 md:mb-4">
-                    <label
-                        className="block text-gray-700 text-xs md:text-sm font-bold mb-1 md:mb-2"
-                        htmlFor="password-input"
-                    >
-                        비밀번호
+                    <label className="flex items-center text-gray-700 text-xs md:text-sm font-bold">
+                        <input
+                            type="checkbox"
+                            className="mr-2 h-4 w-4"
+                            checked={wantToChangePassword}
+                            onChange={handlePasswordChangeToggle}
+                        />
+                        비밀번호 변경하기
                     </label>
-                    <input
-                        className={`shadow appearance-none border ${getPasswordFieldStyle()} rounded w-full py-1 md:py-2 px-2 md:px-3 bg-white text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-sm`}
-                        id="password-input"
-                        name="password"
-                        type="password"
-                        value={editableUserInfo.password}
-                        onChange={handleChange}
-                        placeholder="변경을 원하시면 새 비밀번호를 입력하세요"
-                    />
-                    {!passwordValidation.isEmpty &&
-                        !passwordValidation.isValid && (
-                            <p className="text-red-500 text-xs italic mt-1">
-                                {passwordValidation.errorMessage}
-                            </p>
-                        )}
-                    <p className="text-gray-500 text-xs mt-1">
-                        비밀번호는 8자 이상, 영문, 숫자, 특수문자를 모두
-                        포함해야 합니다.
-                    </p>
                 </div>
 
-                <div className="mb-3 md:mb-4">
-                    <label
-                        className="block text-gray-700 text-xs md:text-sm font-bold mb-1 md:mb-2"
-                        htmlFor="chk_password-input"
-                    >
-                        비밀번호 재입력
-                    </label>
-                    <input
-                        className={`shadow appearance-none border ${getPasswordConfirmFieldStyle()} rounded w-full py-1 md:py-2 px-2 md:px-3 bg-white text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-sm`}
-                        id="chk_password-input"
-                        name="chk_password"
-                        type="password"
-                        value={editableUserInfo.chk_password}
-                        onChange={handleChange}
-                        placeholder="새 비밀번호를 다시 입력하세요"
-                    />
-                    {!passwordValidation.isEmpty &&
-                        !passwordValidation.match && (
-                            <p className="text-red-500 text-xs italic mt-1">
-                                비밀번호가 일치하지 않습니다.
+                {/* 비밀번호 변경을 원할 때만 표시 */}
+                {wantToChangePassword && (
+                    <>
+                        <div className="mb-3 md:mb-4">
+                            <label
+                                className="block text-gray-700 text-xs md:text-sm font-bold mb-1 md:mb-2"
+                                htmlFor="current_password"
+                            >
+                                현재 비밀번호{" "}
+                                <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                                className="shadow appearance-none border rounded w-full py-1 md:py-2 px-2 md:px-3 bg-white text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-sm"
+                                id="current_password"
+                                name="current_password"
+                                type="password"
+                                value={editableUserInfo.current_password}
+                                onChange={handleChange}
+                                placeholder="현재 비밀번호를 입력해주세요"
+                                required={wantToChangePassword}
+                            />
+                        </div>
+
+                        <div className="mb-3 md:mb-4">
+                            <label
+                                className="block text-gray-700 text-xs md:text-sm font-bold mb-1 md:mb-2"
+                                htmlFor="new_password"
+                            >
+                                새 비밀번호{" "}
+                                <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                                className={`shadow appearance-none border ${getPasswordFieldStyle()} rounded w-full py-1 md:py-2 px-2 md:px-3 bg-white text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-sm`}
+                                id="new_password"
+                                name="new_password"
+                                type="password"
+                                value={editableUserInfo.new_password}
+                                onChange={handleChange}
+                                placeholder="새 비밀번호를 입력해주세요"
+                                required={wantToChangePassword}
+                            />
+                            {!passwordValidation.isValid &&
+                                editableUserInfo.new_password.length > 0 && (
+                                    <p className="text-red-500 text-xs italic mt-1">
+                                        {passwordValidation.errorMessage}
+                                    </p>
+                                )}
+                            <p className="text-gray-500 text-xs mt-1">
+                                비밀번호는 8자 이상, 영문, 숫자, 특수문자를 모두
+                                포함해야 합니다.
                             </p>
-                        )}
-                </div>
+                        </div>
+
+                        <div className="mb-3 md:mb-4">
+                            <label
+                                className="block text-gray-700 text-xs md:text-sm font-bold mb-1 md:mb-2"
+                                htmlFor="chk_password"
+                            >
+                                새 비밀번호 재입력{" "}
+                                <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                                className={`shadow appearance-none border ${getPasswordConfirmFieldStyle()} rounded w-full py-1 md:py-2 px-2 md:px-3 bg-white text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-sm`}
+                                id="chk_password"
+                                name="chk_password"
+                                type="password"
+                                value={editableUserInfo.chk_password}
+                                onChange={handleChange}
+                                placeholder="새 비밀번호를 다시 입력하세요"
+                                required={wantToChangePassword}
+                            />
+                            {!passwordValidation.match &&
+                                editableUserInfo.chk_password.length > 0 && (
+                                    <p className="text-red-500 text-xs italic mt-1">
+                                        비밀번호가 일치하지 않습니다.
+                                    </p>
+                                )}
+                        </div>
+                    </>
+                )}
 
                 <div className="mb-3 md:mb-4">
                     <label
@@ -313,27 +471,71 @@ const UserInfoEdit: React.FC<UserInfoEditProps> = ({
                     </div>
                 </div>
 
-                {/* 비밀번호 상태 요약 메시지 */}
-                <div
-                    className={`p-2 md:p-3 rounded mb-2 md:mb-4 ${
-                        !passwordValidation.isEmpty &&
-                        passwordValidation.isValid &&
-                        passwordValidation.match
-                            ? "bg-green-50 text-green-800 border border-green-200"
-                            : "bg-red-50 text-red-800 border border-red-200"
-                    }`}
-                >
-                    <p className="text-xs md:text-sm">
-                        {!passwordValidation.isEmpty &&
-                        passwordValidation.isValid &&
-                        passwordValidation.match
-                            ? "✅ 비밀번호가 유효하며 일치합니다."
-                            : "❌ " +
-                              (passwordValidation.isEmpty
-                                  ? "비밀번호를 입력해주세요."
-                                  : passwordValidation.errorMessage ||
-                                    "비밀번호가 유효하지 않습니다.")}
-                    </p>
+                {/* 비밀번호 상태 요약 메시지 (비밀번호 변경을 원할 때만 표시) */}
+                {wantToChangePassword && (
+                    <div
+                        className={`p-2 md:p-3 rounded mb-4 ${
+                            !isFormValid
+                                ? "bg-red-50 text-red-800 border border-red-200"
+                                : "bg-green-50 text-green-800 border border-green-200"
+                        }`}
+                    >
+                        <p className="text-xs md:text-sm">
+                            {isFormValid
+                                ? "✅ 비밀번호가 유효하며 일치합니다."
+                                : editableUserInfo.current_password === ""
+                                  ? "❌ 현재 비밀번호를 입력해주세요."
+                                  : "❌ " + passwordValidation.errorMessage}
+                        </p>
+                    </div>
+                )}
+
+                {/* 필수 입력 필드 안내 */}
+                <div className="mb-4 text-xs text-gray-500">
+                    <span className="text-red-500">*</span> 표시는 필수 입력
+                    항목입니다.
+                </div>
+
+                {/* 확인 버튼 */}
+                <div className="flex justify-center mt-6">
+                    <button
+                        className={`bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline ${
+                            !isFormValid || isSubmitting
+                                ? "opacity-50 cursor-not-allowed"
+                                : ""
+                        }`}
+                        type="button"
+                        onClick={handleSubmit}
+                        disabled={!isFormValid || isSubmitting}
+                    >
+                        {isSubmitting ? (
+                            <span className="flex items-center justify-center">
+                                <svg
+                                    className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <circle
+                                        className="opacity-25"
+                                        cx="12"
+                                        cy="12"
+                                        r="10"
+                                        stroke="currentColor"
+                                        strokeWidth="4"
+                                    ></circle>
+                                    <path
+                                        className="opacity-75"
+                                        fill="currentColor"
+                                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                    ></path>
+                                </svg>
+                                처리 중...
+                            </span>
+                        ) : (
+                            "정보 수정 완료"
+                        )}
+                    </button>
                 </div>
             </div>
         </div>
