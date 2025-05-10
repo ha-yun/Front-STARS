@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import UserInfoShow from "./UserInfoShow";
 import UserInfoEdit from "./UserInfoEdit";
+
 import { UserInfo as UserInfoType } from "../../../data/UserInfoData";
 import { editUserProfile, getUserProfile } from "../../../api/mypageApi";
 import { signoutUser } from "../../../api/authApi";
@@ -24,6 +25,35 @@ const initialUserData: UserInfoType = {
     mbti: "",
     gender: "",
     created_at: "",
+  
+// 모의 API 함수
+const updateUserInfo = (
+    userInfo: typeof initialUserData
+): Promise<ApiResponse<typeof initialUserData>> => {
+    return new Promise((resolve) => {
+        // 800ms 지연 후 응답
+        setTimeout(() => {
+            // 80% 확률로 성공
+            if (Math.random() < 1) {
+                resolve({
+                    success: true,
+                    data: {
+                        ...userInfo,
+                        password: "", // 응답에서는 보안 상 비밀번호 필드를 비움
+                        chk_password: "",
+                    },
+                    message: "사용자 정보가 성공적으로 업데이트 되었습니다.",
+                });
+            } else {
+                resolve({
+                    success: false,
+                    message:
+                        "사용자 정보 업데이트에 실패했습니다. 잠시 후 다시 시도해주세요.",
+                });
+            }
+        }, 800);
+    });
+
 };
 
 // 계정 삭제 모의 API 함수
@@ -32,7 +62,7 @@ const deleteUserAccount = (): Promise<ApiResponse<null>> => {
         // 800ms 지연 후 응답
         setTimeout(() => {
             // 90% 확률로 성공
-            if (Math.random() < 0.9) {
+            if (Math.random() < 1) {
                 resolve({
                     success: true,
                     message: "계정이 성공적으로 삭제되었습니다.",
@@ -117,6 +147,7 @@ const UserInfo = () => {
         setUserInfoToSubmit(userInfo);
     };
 
+    // 계정 정보 수정, 이게 왜 여기에있냐??
     const handleComplete = async () => {
         // 비밀번호가 유효하지 않으면 저장을 막음
         if (!isPasswordValid) {
@@ -166,12 +197,13 @@ const UserInfo = () => {
             setIsSubmitting(true);
 
             try {
-                // 지금 회원탈퇴 API 수정중이라 작동 안됨. 이거 member_id 가져올 방법 찾아야함
-                // 이 정보 로그인 할 때 받아올 수 있는데 그걸 여기까지 끌고올 방법 찾아야할듯
-                // const response = await signoutUser();
+                // 계정 삭제 API 호출
+                // const response = await deleteUserAccount(
+                //     "lightning0145@naver.com"
+                // );
 
-                // 일단 계정 삭제 모의함수로 대체
-                const response = await deleteUserAccount();
+                // 실제 호출해야하는 API, 별다른 params 없음
+                const response = await signoutUser();
 
                 if (response.success) {
                     // 성공 메시지 표시
@@ -247,43 +279,6 @@ const UserInfo = () => {
             <div className="flex flex-col sm:flex-row items-center justify-between mt-4 md:mt-6 gap-2 sm:gap-0">
                 {edited ? (
                     <>
-                        <button
-                            className={`w-full sm:w-auto py-2 px-4 rounded transition-colors ${
-                                isPasswordValid && !isSubmitting
-                                    ? "bg-green-500 hover:bg-green-600 text-white"
-                                    : "bg-green-300 text-white cursor-not-allowed"
-                            }`}
-                            onClick={handleComplete}
-                            disabled={!isPasswordValid || isSubmitting}
-                        >
-                            {isSubmitting ? (
-                                <span className="flex items-center justify-center">
-                                    <svg
-                                        className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                    >
-                                        <circle
-                                            className="opacity-25"
-                                            cx="12"
-                                            cy="12"
-                                            r="10"
-                                            stroke="currentColor"
-                                            strokeWidth="4"
-                                        ></circle>
-                                        <path
-                                            className="opacity-75"
-                                            fill="currentColor"
-                                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                                        ></path>
-                                    </svg>
-                                    저장 중...
-                                </span>
-                            ) : (
-                                "완료"
-                            )}
-                        </button>
                         <button
                             className={`w-full sm:w-auto bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600 transition-colors mt-2 sm:mt-0 ${
                                 isSubmitting
