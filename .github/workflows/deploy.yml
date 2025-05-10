@@ -40,6 +40,8 @@ jobs:
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
+        with:
+          mask-password: true   # 또는 아예 제거해도 기본값 true
 
       - name: node.js 설치
         uses: actions/setup-node@v2
@@ -47,7 +49,7 @@ jobs:
           node-version: 22
 
       - name: Create .env from secret
-        run: echo "${{ secrets.VITE_MAPBOX_ACCESS_TOKEN }}" > .env
+        run: echo "${{ secrets.SECRET_ACCESS_TOKEN }}" > .env
 
       - name: node.js 테스트
         run:  npm install
