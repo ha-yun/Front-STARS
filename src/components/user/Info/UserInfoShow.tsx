@@ -1,4 +1,5 @@
 // UserInfoShow.tsx
+
 import React, { useState, useEffect } from "react";
 import { initialUserData, UserInfo } from "../../../data/UserInfoData";
 import { getUserProfile } from "../../../api/mypageApi";

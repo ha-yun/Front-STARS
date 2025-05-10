@@ -1,9 +1,12 @@
 // UserInfo.tsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import UserInfoShow from "./UserInfoShow";
 import UserInfoEdit from "./UserInfoEdit";
-import { initialUserData } from "../../../data/UserInfoData";
+
+import { UserInfo as UserInfoType } from "../../../data/UserInfoData";
+import { editUserProfile, getUserProfile } from "../../../api/mypageApi";
 import { signoutUser } from "../../../api/authApi";
+import { useNavigate } from "react-router-dom";
 
 // 모의 API 응답 타입
 interface ApiResponse<T> {
@@ -12,6 +15,17 @@ interface ApiResponse<T> {
     message?: string;
 }
 
+const initialUserData: UserInfoType = {
+    member_id: "",
+    user_id: "",
+    nickname: "",
+    password: "",
+    chk_password: "",
+    birth_year: 0,
+    mbti: "",
+    gender: "",
+    created_at: "",
+  
 // 모의 API 함수
 const updateUserInfo = (
     userInfo: typeof initialUserData
@@ -39,10 +53,11 @@ const updateUserInfo = (
             }
         }, 800);
     });
+
 };
 
 // 계정 삭제 모의 API 함수
-const deleteUserAccount = (userId: string): Promise<ApiResponse<null>> => {
+const deleteUserAccount = (): Promise<ApiResponse<null>> => {
     return new Promise((resolve) => {
         // 800ms 지연 후 응답
         setTimeout(() => {
@@ -69,10 +84,50 @@ const UserInfo = () => {
     const [isPasswordValid, setIsPasswordValid] = useState<boolean>(false);
     // 로딩 상태
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+    // 로딩 상태 (사용자 정보 로딩)
+    const [isLoading, setIsLoading] = useState<boolean>(true);
+    // 에러 상태
+    const [error, setError] = useState<string | null>(null);
+    // 사용자 정보 데이터
+    const [userData, setUserData] = useState<UserInfoType | null>(null);
     // 사용자 정보 저장
-    const [userInfoToSubmit, setUserInfoToSubmit] = useState<
-        typeof initialUserData | null
-    >(null);
+    const [userInfoToSubmit, setUserInfoToSubmit] =
+        useState<UserInfoType>(initialUserData);
+    // 회원탈퇴시 지도로 보내기
+    const navigate = useNavigate();
+
+    // 사용자 정보 불러오는 함수
+    const loadUserInfo = async () => {
+        setIsLoading(true);
+        setError(null);
+
+        try {
+            const response = await getUserProfile();
+
+            if (response) {
+                setUserData(response);
+                // 초기 데이터를 저장 (제출용)
+                setUserInfoToSubmit(response);
+            } else {
+                setError("사용자 정보를 불러오는데 실패했습니다.");
+                // 오류 발생 시 기본 데이터 설정
+                setUserData(initialUserData);
+                setUserInfoToSubmit(initialUserData);
+            }
+        } catch (err) {
+            setError("네트워크 오류가 발생했습니다. 다시 시도해주세요.");
+            // 오류 발생 시 기본 데이터 설정
+            setUserData(initialUserData);
+            setUserInfoToSubmit(initialUserData);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    // 컴포넌트 마운트 시 사용자 정보 불러오기
+    useEffect(() => {
+        loadUserInfo();
+    }, []);
 
     const handleEditToggle = () => {
         setEdited(!edited);
@@ -87,7 +142,7 @@ const UserInfo = () => {
     };
 
     // 사용자 정보 저장을 위한 함수
-    const handleUserInfoSubmit = (userInfo: typeof initialUserData) => {
+    const handleUserInfoSubmit = (userInfo: UserInfoType) => {
         // 폼 제출 시 저장할 사용자 정보 설정
         setUserInfoToSubmit(userInfo);
     };
@@ -100,25 +155,23 @@ const UserInfo = () => {
             return;
         }
 
-        if (!userInfoToSubmit) {
-            alert("수정할 사용자 정보가 없습니다.");
-            return;
-        }
-
         // 로딩 상태 활성화
         setIsSubmitting(true);
 
         try {
-            // 사용자 정보 업데이트 API 호출
-            const response = await updateUserInfo(userInfoToSubmit);
+            // 실제 API 호출로 변경
+            const response = await editUserProfile(userInfoToSubmit);
 
-            if (response.success) {
+            // API 응답 구조에 따라 처리 로직 수정
+            if (response) {
                 // 성공 메시지 표시
                 alert(
                     response.message || "회원 정보가 성공적으로 수정되었습니다."
                 );
                 // 보기 모드로 전환
                 setEdited(false);
+                // 사용자 정보 다시 로드
+                loadUserInfo();
             } else {
                 // 실패 메시지 표시
                 alert(response.message || "회원 정보 수정에 실패했습니다.");
@@ -173,12 +226,51 @@ const UserInfo = () => {
         }
     };
 
+    // 로딩 스켈레톤
+    if (isLoading) {
+        return (
+            <div className="bg-white rounded-lg p-2 md:p-4">
+                <div className="animate-pulse flex flex-col items-center w-full">
+                    <div className="h-4 bg-gray-200 rounded w-32 mb-2"></div>
+                    <div className="h-10 bg-gray-200 rounded w-full mb-4"></div>
+                    <div className="h-4 bg-gray-200 rounded w-32 mb-2"></div>
+                    <div className="h-10 bg-gray-200 rounded w-full mb-4"></div>
+                    <div className="text-gray-500 text-sm">
+                        사용자 정보를 불러오는 중...
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    // 에러 표시
+    if (error) {
+        return (
+            <div className="bg-white rounded-lg p-2 md:p-4">
+                <div
+                    className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4"
+                    role="alert"
+                >
+                    <strong className="font-bold">오류 발생! </strong>
+                    <span className="block sm:inline">{error}</span>
+                    <button
+                        className="mt-2 bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded text-xs"
+                        onClick={loadUserInfo}
+                    >
+                        다시 시도
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="bg-white rounded-lg p-2 md:p-4">
             {!edited ? (
-                <UserInfoShow />
+                <UserInfoShow userInfo={userData || initialUserData} />
             ) : (
                 <UserInfoEdit
+                    userInfo={userData || initialUserData}
                     onPasswordValidationChange={handlePasswordValidationChange}
                     onUserInfoSubmit={handleUserInfoSubmit}
                 />

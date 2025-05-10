@@ -3,159 +3,149 @@ import { UserFavoriteList, Favorite } from "../../data/adminData";
 import AdminHeader from "./AdminHeader";
 
 // 더미 데이터
-const dummyListData: UserFavoriteList[] = [
+const dummyUserFavoriteLists: UserFavoriteList[] = [
     {
-        userId: "minseok",
+        userId: "user_001",
         favoriteList: [
             {
-                id: 1,
-                name: "에버랜드",
-                address: "경기도 용인시",
+                favorite_id: 1,
+                type: "restaurant",
+                name: "스시히로",
+                address: "서울특별시 강남구 테헤란로 123",
+                place_id: "place_123456",
+                user_id: "user_001",
             },
             {
-                id: 2,
-                name: "맛있는 식당",
-                address: "서울시 강남구",
+                favorite_id: 2,
+                type: "cafe",
+                name: "블루보틀",
+                address: "서울특별시 성동구 서울숲길 35",
+                place_id: "place_234567",
+                user_id: "user_001",
             },
             {
-                id: 3,
-                name: "스타벅스 강남점",
-                address: "서울시 강남구",
+                favorite_id: 3,
+                type: "cafe",
+                name: "찰스 바",
+                address: "서울특별시 용산구 이태원로 56",
+                place_id: "place_345678",
+                user_id: "user_001",
             },
         ],
     },
     {
-        userId: "jungu",
+        userId: "user_002",
         favoriteList: [
             {
-                id: 4,
-                name: "그랜드 호텔",
-                address: "제주도 서귀포시",
+                favorite_id: 4,
+                type: "park",
+                name: "북한산 국립공원",
+                address: "서울특별시 강북구 우이동",
+                place_id: "place_456789",
+                user_id: "user_002",
             },
             {
-                id: 5,
-                name: "롯데월드",
-                address: "서울시 송파구",
+                favorite_id: 5,
+                type: "shopping",
+                name: "코엑스몰",
+                address: "서울특별시 강남구 봉은사로 524",
+                place_id: "place_567890",
+                user_id: "user_002",
             },
             {
-                id: 6,
-                name: "광안리 해수욕장",
-                address: "부산시 수영구",
+                favorite_id: 6,
+                type: "restaurant",
+                name: "맛있는 삼겹살",
+                address: "서울특별시 마포구 서교동 123-45",
+                place_id: "place_678901",
+                user_id: "user_002",
             },
         ],
     },
     {
-        userId: "seungho",
+        userId: "user_003",
         favoriteList: [
             {
-                id: 7,
-                name: "장충동 왕족발보쌈",
-                address: "서울시 중구",
+                favorite_id: 7,
+                type: "hotel",
+                name: "신라호텔",
+                address: "서울특별시 중구 동호로 249",
+                place_id: "place_789012",
+                user_id: "user_003",
             },
             {
-                id: 8,
-                name: "물향기수목원",
-                address: "경기도 오산시",
+                favorite_id: 8,
+                type: "restaurant",
+                name: "진미식당",
+                address: "서울특별시 종로구 인사동길 12",
+                place_id: "place_890123",
+                user_id: "user_003",
+            },
+            {
+                favorite_id: 9,
+                type: "museum",
+                name: "국립중앙박물관",
+                address: "서울특별시 용산구 서빙고로 137",
+                place_id: "place_901234",
+                user_id: "user_003",
             },
         ],
     },
     {
-        userId: "jiwon",
+        userId: "user_004",
         favoriteList: [
             {
-                id: 9,
-                name: "경복궁",
-                address: "서울시 종로구",
+                favorite_id: 10,
+                type: "cinema",
+                name: "메가박스 코엑스",
+                address: "서울특별시 강남구 봉은사로 524",
+                place_id: "place_012345",
+                user_id: "user_004",
             },
             {
-                id: 10,
-                name: "남산타워",
-                address: "서울시 용산구",
-            },
-            {
-                id: 11,
-                name: "카페 드 파리",
-                address: "서울시 마포구",
+                favorite_id: 11,
+                type: "bookstore",
+                name: "교보문고 광화문점",
+                address: "서울특별시 종로구 종로 1",
+                place_id: "place_123450",
+                user_id: "user_004",
             },
         ],
     },
     {
-        userId: "yujin",
+        userId: "user_005",
         favoriteList: [
             {
-                id: 12,
-                name: "해운대 해수욕장",
-                address: "부산시 해운대구",
+                favorite_id: 12,
+                type: "gym",
+                name: "스포애니 성북점",
+                address: "서울특별시 성북구 동소문로 20길 37",
+                place_id: "place_234501",
+                user_id: "user_005",
             },
             {
-                id: 13,
-                name: "전주 한옥마을",
-                address: "전북 전주시",
+                favorite_id: 13,
+                type: "cafe",
+                name: "스타벅스 광화문점",
+                address: "서울특별시 종로구 세종대로 175",
+                place_id: "place_345012",
+                user_id: "user_005",
             },
             {
-                id: 14,
-                name: "설악산 국립공원",
-                address: "강원도 속초시",
+                favorite_id: 14,
+                type: "shopping",
+                name: "명동 지하상가",
+                address: "서울특별시 중구 명동길",
+                place_id: "place_450123",
+                user_id: "user_005",
             },
             {
-                id: 15,
-                name: "더문 카페",
-                address: "제주도 서귀포시",
-            },
-        ],
-    },
-    {
-        userId: "woojin",
-        favoriteList: [
-            {
-                id: 16,
-                name: "서울숲",
-                address: "서울시 성동구",
-            },
-            {
-                id: 17,
-                name: "한강공원",
-                address: "서울시 용산구",
-            },
-        ],
-    },
-    {
-        userId: "hyerin",
-        favoriteList: [
-            {
-                id: 18,
-                name: "감천문화마을",
-                address: "부산시 사하구",
-            },
-            {
-                id: 19,
-                name: "보라카이 펜션",
-                address: "강원도 강릉시",
-            },
-            {
-                id: 20,
-                name: "오설록 티 뮤지엄",
-                address: "제주도 서귀포시",
-            },
-        ],
-    },
-    {
-        userId: "minjae",
-        favoriteList: [
-            {
-                id: 21,
-                name: "명동 거리",
-                address: "서울시 중구",
-            },
-            {
-                id: 22,
-                name: "홍대 거리",
-                address: "서울시 마포구",
-            },
-            {
-                id: 23,
-                name: "쌍용동 맛집거리",
-                address: "충남 천안시",
+                favorite_id: 15,
+                type: "restaurant",
+                name: "서울식당",
+                address: "서울특별시 중구 명동길 12-1",
+                place_id: "place_501234",
+                user_id: "user_005",
             },
         ],
     },
@@ -200,11 +190,11 @@ const AdminUserFavorite = () => {
         try {
             // Axios 요청을 시뮬레이션 (2초 지연)
             await new Promise((resolve) => setTimeout(resolve, 2000));
-            setUserFavorites(dummyListData);
-            setFilteredUsers(dummyListData);
+            setUserFavorites(dummyUserFavoriteLists);
+            setFilteredUsers(dummyUserFavoriteLists);
             // 첫 번째 사용자 선택
-            if (dummyListData.length > 0) {
-                setSelectedUserId(dummyListData[0].userId);
+            if (dummyUserFavoriteLists.length > 0) {
+                setSelectedUserId(dummyUserFavoriteLists[0].userId);
             }
         } catch (error) {
             console.error("Error fetching data:", error);
@@ -393,7 +383,7 @@ const AdminUserFavorite = () => {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 {currentFavorites.map((item) => (
                                     <div
-                                        key={item.id}
+                                        key={item.favorite_id}
                                         className={`p-3 rounded-lg shadow ${getRandomColor(item.name)} hover:shadow-lg transition-shadow duration-300`}
                                     >
                                         <div className="flex items-center justify-between">
@@ -404,7 +394,7 @@ const AdminUserFavorite = () => {
                                             </div>
                                             <div className="flex">
                                                 <span className="text-gray-500 text-xs px-2 py-1 bg-white rounded-full">
-                                                    ID: {item.id}
+                                                    ID: {item.favorite_id}
                                                 </span>
                                             </div>
                                         </div>

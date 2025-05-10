@@ -65,7 +65,6 @@ export interface Data {
     fill: string;
 }
 
-// 유저 즐겨찾기, 관리자 즐겨찾기 틀
 export type Favorite = {
     favorite_id: number;
     type: string;

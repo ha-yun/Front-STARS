@@ -61,14 +61,14 @@ export const signupUser = async (user: SignupUser) => {
 };
 
 // 회원탈퇴
-export const signoutUser = async () => {
+export const signoutUser = async (member_id: number) => {
     const header = {
         headers: {
             "Content-Type": "application/json",
         },
     };
 
-    const res = await jwtAxios.delete(`${prefix}/signout/`, header);
+    const res = await jwtAxios.delete(`${prefix}/signout/${member_id}`, header);
 
     return res.data;
 };

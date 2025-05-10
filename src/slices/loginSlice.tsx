@@ -13,6 +13,7 @@ interface UserCookie {
     refreshToken?: string;
     role?: string;
     error?: string;
+    member_id?: string;
 }
 
 const initState: UserCookie = {
