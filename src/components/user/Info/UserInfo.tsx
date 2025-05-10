@@ -18,41 +18,12 @@ const initialUserData: UserInfoType = {
     member_id: "",
     user_id: "",
     nickname: "",
-    password: "",
+    current_password: "",
     chk_password: "",
     birth_year: 0,
     mbti: "",
     gender: "",
     created_at: "",
-};
-
-// 모의 API 함수
-const updateUserInfo = (
-    userInfo: typeof initialUserData
-): Promise<ApiResponse<typeof initialUserData>> => {
-    return new Promise((resolve) => {
-        // 800ms 지연 후 응답
-        setTimeout(() => {
-            // 80% 확률로 성공
-            if (Math.random() < 1) {
-                resolve({
-                    success: true,
-                    data: {
-                        ...userInfo,
-                        password: "", // 응답에서는 보안 상 비밀번호 필드를 비움
-                        chk_password: "",
-                    },
-                    message: "사용자 정보가 성공적으로 업데이트 되었습니다.",
-                });
-            } else {
-                resolve({
-                    success: false,
-                    message:
-                        "사용자 정보 업데이트에 실패했습니다. 잠시 후 다시 시도해주세요.",
-                });
-            }
-        }, 800);
-    });
 };
 
 // 계정 삭제 모의 API 함수
@@ -79,8 +50,8 @@ const deleteUserAccount = (): Promise<ApiResponse<null>> => {
 
 const UserInfo = () => {
     const [edited, setEdited] = useState<boolean>(false);
-    // 초기 상태에서는 비밀번호가 유효하지 않은 것으로 설정
-    const [isPasswordValid, setIsPasswordValid] = useState<boolean>(false);
+    // 초기 상태에서는 폼이 유효하지 않은 것으로 설정 (비밀번호 변경을 선택할 경우)
+    const [isFormValid, setIsFormValid] = useState<boolean>(true);
     // 로딩 상태
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
     // 로딩 상태 (사용자 정보 로딩)
@@ -128,59 +99,22 @@ const UserInfo = () => {
 
     const handleEditToggle = () => {
         setEdited(!edited);
-        // 수정 모드로 전환할 때 비밀번호 유효성 상태 초기화
-        setIsPasswordValid(false);
+        // 수정 모드로 전환할 때 폼 유효성 상태 초기화
+        setIsFormValid(true);
     };
 
-    // 비밀번호 유효성 상태 변경 핸들러
-    const handlePasswordValidationChange = (isValid: boolean) => {
-        setIsPasswordValid(isValid);
-        console.log("비밀번호 유효성 상태 변경:", isValid); // 디버깅용 로그 추가
+    // 폼 유효성 상태 변경 핸들러
+    const handleFormValidationChange = (isValid: boolean) => {
+        setIsFormValid(isValid);
+        console.log("폼 유효성 상태 변경:", isValid); // 디버깅용 로그 추가
     };
 
-    // 사용자 정보 저장을 위한 함수
-    const handleUserInfoSubmit = (userInfo: UserInfoType) => {
-        // 폼 제출 시 저장할 사용자 정보 설정
-        setUserInfoToSubmit(userInfo);
-    };
-
-    // 계정 정보 수정, 이게 왜 여기에있냐??
-    const handleComplete = async () => {
-        // 비밀번호가 유효하지 않으면 저장을 막음
-        if (!isPasswordValid) {
-            alert("비밀번호를 올바르게 입력해주세요.");
-            return;
-        }
-
-        // 로딩 상태 활성화
-        setIsSubmitting(true);
-
-        try {
-            // 실제 API 호출로 변경
-            const response = await editUserProfile(userInfoToSubmit);
-
-            // API 응답 구조에 따라 처리 로직 수정
-            if (response) {
-                // 성공 메시지 표시
-                alert(
-                    response.message || "회원 정보가 성공적으로 수정되었습니다."
-                );
-                // 보기 모드로 전환
-                setEdited(false);
-                // 사용자 정보 다시 로드
-                loadUserInfo();
-            } else {
-                // 실패 메시지 표시
-                alert(response.message || "회원 정보 수정에 실패했습니다.");
-            }
-        } catch (error) {
-            // 오류 메시지 표시
-            alert("네트워크 오류가 발생했습니다. 다시 시도해주세요.");
-            console.error("API 오류:", error);
-        } finally {
-            // 로딩 상태 비활성화
-            setIsSubmitting(false);
-        }
+    // 사용자 정보 저장 후 처리
+    const handleUserInfoSubmit = () => {
+        // 폼 제출 시 다시 원래대로 돌아오기 위한 코드
+        setEdited(false);
+        // 변경사항 적용 후 사용자 정보 다시 로드
+        loadUserInfo();
     };
 
     // 계정 삭제 핸들러
@@ -266,7 +200,7 @@ const UserInfo = () => {
             ) : (
                 <UserInfoEdit
                     userInfo={userData || initialUserData}
-                    onPasswordValidationChange={handlePasswordValidationChange}
+                    onPasswordValidationChange={handleFormValidationChange}
                     onUserInfoSubmit={handleUserInfoSubmit}
                 />
             )}

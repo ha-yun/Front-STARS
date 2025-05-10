@@ -6,7 +6,7 @@ export interface UserInfo {
     created_at: string;
     user_id: string;
     nickname: string;
-    password: string;
+    current_password: string;
     chk_password: string;
     birth_year: number;
     mbti: string;

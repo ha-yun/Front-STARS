@@ -6,11 +6,12 @@ const prefix = `${API_SERVER_HOST}/user/mypage`;
 
 export type UserProfile = {
     user_id: string;
-    password: string;
     nickname: string;
     birth_year: number;
     mbti: string;
     gender: string;
+    current_password?: string; // Optional for when not changing password
+    new_password?: string; // Optional for when not changing password
 };
 
 export const getUserProfile = async () => {
@@ -31,7 +32,17 @@ export const editUserProfile = async (user: UserProfile) => {
         },
     };
 
-    const res = await jwtAxios.post(`${prefix}/profile/edit`, user, header);
+    // Clone user object to avoid modifying the original
+    const userData = { ...user };
+
+    // If we don't have both current_password and new_password,
+    // delete them to indicate we're not changing the password
+    if (!userData.current_password || !userData.new_password) {
+        delete userData.current_password;
+        delete userData.new_password;
+    }
+
+    const res = await jwtAxios.post(`${prefix}/profile/edit`, userData, header);
     return res.data;
 };
 
