@@ -73,14 +73,24 @@ export default function MapSectionComponent() {
     return (
         <div className="relative w-screen app-full-height">
             {/* 우측 상단 로그인/로그아웃 버튼 */}
-            <div className="absolute md:top-6 top-24 right-6 z-10 flex gap-2">
+            <div className="absolute md:top-6 top-24 right-6 z-10">
                 {isLogin ? (
-                    <button
-                        className="bg-white shadow-md px-4 py-2 text-red-500 font-semibold hover:bg-red-500 hover:text-white transition"
-                        onClick={doLogout}
-                    >
-                        로그아웃
-                    </button>
+                    <div className=" flex gap-2">
+                        <button
+                            className="bg-white shadow-md px-4 py-2 text-red-500 font-semibold hover:bg-red-500 hover:text-white transition"
+                            onClick={doLogout}
+                        >
+                            로그아웃
+                        </button>
+                        <button
+                            className="bg-white shadow-md px-4 py-2 text-indigo-500 font-semibold hover:bg-indigo-500 hover:text-white transition"
+                            onClick={() =>
+                                window.fullpage_api?.moveSlideRight()
+                            }
+                        >
+                            MyPage →
+                        </button>
+                    </div>
                 ) : (
                     <button
                         className="bg-white shadow-md px-4 py-2 text-indigo-500 font-semibold hover:bg-indigo-500 hover:text-white transition"
@@ -89,12 +99,6 @@ export default function MapSectionComponent() {
                         로그인
                     </button>
                 )}
-                <button
-                    className="bg-white shadow-md px-4 py-2 text-indigo-500 font-semibold hover:bg-indigo-500 hover:text-white transition"
-                    onClick={() => window.fullpage_api?.moveSlideRight()}
-                >
-                    MyPage →
-                </button>
             </div>
             {/* 검색 바 */}
             <SearchBar onSearch={handleSearch} />

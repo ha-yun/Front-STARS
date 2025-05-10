@@ -1,18 +1,33 @@
 import { useDispatch, useSelector } from "react-redux";
 import { Navigate, createSearchParams, useNavigate } from "react-router-dom";
 import { loginPostAsync, logoutPostAsync } from "../slices/loginSlice";
+import type { AppDispatch } from "../store";
+import type { RootState } from "../store";
+
+// 로그인 파라미터 타입 예시
+interface LoginParam {
+    user_id: string;
+    password: string;
+}
+
+// 에러 타입 예시
+interface ErrorResponse {
+    response: {
+        data: {
+            error: string;
+        };
+    };
+}
 
 const useCustomLogin = () => {
     const navigate = useNavigate();
-    const dispatch = useDispatch();
+    const dispatch = useDispatch<AppDispatch>();
 
-    const loginState = useSelector((state) => state.loginSlice);
+    const loginState = useSelector((state: RootState) => state.loginSlice);
 
     const isLogin = !!loginState.user_id;
-    // 추후 어드민 페이지 구현 시 사용
-    //const isAdmin = loginState.role === "ROLE_ADMIN";
 
-    const doLogin = async (loginParam) => {
+    const doLogin = async (loginParam: LoginParam) => {
         const action = await dispatch(loginPostAsync(loginParam));
         return action.payload;
     };
@@ -21,7 +36,7 @@ const useCustomLogin = () => {
         dispatch(logoutPostAsync());
     };
 
-    const moveToPath = (path) => {
+    const moveToPath = (path: string) => {
         navigate({ pathname: path }, { replace: true });
     };
 
@@ -37,7 +52,7 @@ const useCustomLogin = () => {
         navigate({ pathname: "/member/modify" }, { replace: true });
     };
 
-    const exceptionHandle = (ex) => {
+    const exceptionHandle = (ex: ErrorResponse) => {
         const errorMsg = ex.response.data.error;
         const errorStr = createSearchParams({ error: errorMsg }).toString();
         if (errorMsg === "REQUIRE_LOGIN") {
@@ -45,7 +60,7 @@ const useCustomLogin = () => {
             navigate({ pathname: "/member/login", search: errorStr });
             return;
         }
-        if (ex.response.data.error === "ERROR_ACCESS_DENIED") {
+        if (errorMsg === "ERROR_ACCESS_DENIED") {
             alert("해당 메뉴를 사용할 수 있는 권한이 없습니다.");
             navigate({ pathname: "/member/login", search: errorStr });
             return;
