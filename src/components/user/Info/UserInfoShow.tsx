@@ -1,118 +1,40 @@
 // UserInfoShow.tsx
-import React, { useState, useEffect } from "react";
-import { getUserProfile } from "../../../api/mypageApi";
-import { UserInfo } from "../../../data/UserInfoData"; // 인터페이스를 정확히 임포트
+import React from "react";
+import { UserInfo } from "../../../data/UserInfoData";
 
-const UserInfoShow = () => {
-    // 사용자 정보 상태
-    const [userInfo, setUserInfo] = useState<UserInfo | undefined>(undefined); // undefined 타입 추가
-    // 로딩 상태
-    const [isLoading, setIsLoading] = useState<boolean>(true);
-    // 에러 상태
-    const [error, setError] = useState<string | null>(null);
+// props 인터페이스 정의
+interface UserInfoShowProps {
+    userInfo: UserInfo;
+}
 
-    // 사용자 정보 불러오는 함수
-    const loadUserInfo = async () => {
-        setIsLoading(true);
-        setError(null);
-
-        try {
-            // 실제로 호출할 API, res.data만 넘어오므로 예외처리 로직 다시 짜야함
-            const response = await getUserProfile();
-
-            console.log(response);
-
-            if (response) {
-                setUserInfo(response);
-            } else {
-                setError(
-                    response?.message ||
-                        "사용자 정보를 불러오는데 실패했습니다."
-                );
-                // 에러 발생 시에도 기본 데이터로 초기화
-                // setUserInfo(initialUserData);
-            }
-        } catch (err) {
-            setError("네트워크 오류가 발생했습니다. 다시 시도해주세요.");
-        } finally {
-            // 로딩 스켈레톤 삭제
-            setIsLoading(false);
-        }
-    };
-
-    // 컴포넌트 마운트 시 사용자 정보 불러오기
-    useEffect(() => {
-        loadUserInfo();
-    }, []);
-
-    // 로딩 스켈레톤
-    if (isLoading) {
-        return (
-            <div className="p-2 md:p-4 flex justify-center items-center">
-                <div className="animate-pulse flex flex-col items-center w-full">
-                    <div className="h-4 bg-gray-200 rounded w-32 mb-2"></div>
-                    <div className="h-10 bg-gray-200 rounded w-full mb-4"></div>
-                    <div className="h-4 bg-gray-200 rounded w-32 mb-2"></div>
-                    <div className="h-10 bg-gray-200 rounded w-full mb-4"></div>
-                    <div className="text-gray-500 text-sm">
-                        사용자 정보를 불러오는 중...
-                    </div>
+const UserInfoShow: React.FC<UserInfoShowProps> = ({ userInfo }) => {
+    return (
+        <div className="p-2 md:p-4">
+            <div className="p-2 md:p-4 mb-2 md:mb-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    <p className="text-gray-800 mb-2 text-sm md:text-base">
+                        <strong>아이디:</strong> {userInfo.user_id}
+                    </p>
+                    <p className="text-gray-800 mb-2 text-sm md:text-base">
+                        <strong>닉네임:</strong> {userInfo.nickname}
+                    </p>
+                    <p className="text-gray-800 mb-2 text-sm md:text-base">
+                        <strong>가입일:</strong> {userInfo.created_at}
+                    </p>
+                    <p className="text-gray-800 mb-2 text-sm md:text-base">
+                        <strong>생년월일:</strong> {userInfo.birth_year}
+                    </p>
+                    <p className="text-gray-800 mb-2 text-sm md:text-base">
+                        <strong>MBTI:</strong> {userInfo.mbti}
+                    </p>
+                    <p className="text-gray-800 mb-2 text-sm md:text-base">
+                        <strong>성별:</strong>{" "}
+                        {userInfo.gender === "male" ? "남자" : "여자"}
+                    </p>
                 </div>
             </div>
-        );
-    }
-
-    // 에러 표시
-    if (error) {
-        return (
-            <div className="p-2 md:p-4">
-                <div
-                    className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4"
-                    role="alert"
-                >
-                    <strong className="font-bold">오류 발생! </strong>
-                    <span className="block sm:inline">{error}</span>
-                    <button
-                        className="mt-2 bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded text-xs"
-                        onClick={loadUserInfo}
-                    >
-                        다시 시도
-                    </button>
-                </div>
-            </div>
-        );
-    } else if (userInfo) {
-        // null/undefined 체크 추가
-        return (
-            <div className="p-2 md:p-4">
-                <div className="p-2 md:p-4 mb-2 md:mb-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                        <p className="text-gray-800 mb-2 text-sm md:text-base">
-                            <strong>아이디:</strong> {userInfo.user_id}
-                        </p>
-                        <p className="text-gray-800 mb-2 text-sm md:text-base">
-                            <strong>닉네임:</strong> {userInfo.nickname}
-                        </p>
-                        <p className="text-gray-800 mb-2 text-sm md:text-base">
-                            <strong>가입일:</strong> {userInfo.created_at}
-                        </p>
-                        <p className="text-gray-800 mb-2 text-sm md:text-base">
-                            <strong>생년월일:</strong> {userInfo.birth_year}
-                        </p>
-                        <p className="text-gray-800 mb-2 text-sm md:text-base">
-                            <strong>MBTI:</strong> {userInfo.mbti}
-                        </p>
-                        <p className="text-gray-800 mb-2 text-sm md:text-base">
-                            <strong>성별:</strong>{" "}
-                            {userInfo.gender === "male" ? "남자" : "여자"}
-                        </p>
-                    </div>
-                </div>
-            </div>
-        );
-    } else {
-        return <div>사용자 정보가 없습니다.</div>;
-    }
+        </div>
+    );
 };
 
 export default UserInfoShow;

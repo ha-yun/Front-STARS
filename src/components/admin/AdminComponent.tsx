@@ -31,7 +31,9 @@ export default function AdminComponent() {
     const [refreshing, setRefreshing] = useState<boolean>(false);
 
     // 테스트용 실패확률
-    const persent: number = 0.2;
+    const persent: number = 0;
+
+    const test = true;
 
     // 혼잡도 값에 대한 우선순위 매핑
     const congestionOrder = {

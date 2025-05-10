@@ -60,14 +60,14 @@ export const signupUser = async (user: SignupUser) => {
     return res.data;
 };
 
-export const signoutUser = async (user_id: string) => {
+export const signoutUser = async (member_id: number) => {
     const header = {
         headers: {
             "Content-Type": "application/json",
         },
     };
 
-    const res = await jwtAxios.delete(`${prefix}/signout/${user_id}`, header);
+    const res = await jwtAxios.delete(`${prefix}/signout/${member_id}`, header);
 
     return res.data;
 };
