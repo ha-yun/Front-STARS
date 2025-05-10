@@ -4,8 +4,6 @@ import UserInfoShow from "./UserInfoShow";
 import UserInfoEdit from "./UserInfoEdit";
 import { UserInfo as UserInfoType } from "../../../data/UserInfoData";
 import { editUserProfile, getUserProfile } from "../../../api/mypageApi";
-import { signoutUser } from "../../../api/authApi";
-import { useNavigate } from "react-router-dom";
 
 // 모의 API 응답 타입
 interface ApiResponse<T> {
@@ -63,8 +61,6 @@ const UserInfo = () => {
     // 사용자 정보 저장
     const [userInfoToSubmit, setUserInfoToSubmit] =
         useState<UserInfoType>(initialUserData);
-    // 회원탈퇴시 지도로 보내기
-    const navigate = useNavigate();
 
     // 사용자 정보 불러오는 함수
     const loadUserInfo = async () => {
