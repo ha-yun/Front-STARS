@@ -1,7 +1,6 @@
 import jwtAxios from "../utils/jwtUtil";
 import API_SERVER_HOST from "./apiConfig";
 import { Favorite } from "../data/adminData";
-// import axios from "axios";
 
 const prefix = `${API_SERVER_HOST}/user/mypage`;
 
@@ -32,7 +31,7 @@ export const editUserProfile = async (user: UserProfile) => {
         },
     };
 
-    const res = await jwtAxios.post(`${prefix}/profile`, user, header);
+    const res = await jwtAxios.post(`${prefix}/profile/edit`, user, header);
     return res.data;
 };
 
