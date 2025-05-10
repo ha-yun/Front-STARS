@@ -9,7 +9,7 @@ import LoginPage from "../pages/login/LoginPage";
 export default function AppRoutes() {
     return (
         <Routes>
-            <Route path="/map" element={<FullPageLayout />} />
+            <Route path="/" element={<FullPageLayout />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/manage" element={<AdminPage />} />
             <Route path="/manage/:spotCode" element={<AdminDetail />} />
