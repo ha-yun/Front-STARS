@@ -4,6 +4,7 @@ import { getCookie, setCookie, removeCookie } from "../utils/cookieUtil";
 
 // 쿠키에 저장되는 멤버 타입 정의
 interface UserCookie {
+    member_id?: string;
     user_id: string;
     nickname?: string;
     birth_year?: string;
@@ -37,9 +38,9 @@ export const loginPostAsync = createAsyncThunk(
 );
 
 export const logoutPostAsync = createAsyncThunk("logoutPostAsync", async () => {
-    await logoutPost(); // 서버에 로그아웃 요청
     removeCookie("user"); // 쿠키 삭제
     return { ...initState }; // 상태 초기화
+    await logoutPost(); // 서버에 로그아웃 요청
 });
 
 const loginSlice = createSlice({
