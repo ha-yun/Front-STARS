@@ -5,8 +5,7 @@ import UserInfoEdit from "./UserInfoEdit";
 
 import { UserInfo as UserInfoType } from "../../../data/UserInfoData";
 import { editUserProfile, getUserProfile } from "../../../api/mypageApi";
-import { signoutUser } from "../../../api/authApi";
-import { useNavigate } from "react-router-dom";
+// import { signoutUser } from "../../../api/authApi";
 
 // 모의 API 응답 타입
 interface ApiResponse<T> {
@@ -25,7 +24,8 @@ const initialUserData: UserInfoType = {
     mbti: "",
     gender: "",
     created_at: "",
-  
+};
+
 // 모의 API 함수
 const updateUserInfo = (
     userInfo: typeof initialUserData
@@ -53,7 +53,6 @@ const updateUserInfo = (
             }
         }, 800);
     });
-
 };
 
 // 계정 삭제 모의 API 함수
@@ -93,8 +92,6 @@ const UserInfo = () => {
     // 사용자 정보 저장
     const [userInfoToSubmit, setUserInfoToSubmit] =
         useState<UserInfoType>(initialUserData);
-    // 회원탈퇴시 지도로 보내기
-    const navigate = useNavigate();
 
     // 사용자 정보 불러오는 함수
     const loadUserInfo = async () => {
@@ -197,13 +194,11 @@ const UserInfo = () => {
             setIsSubmitting(true);
 
             try {
-                // 계정 삭제 API 호출
-                // const response = await deleteUserAccount(
-                //     "lightning0145@naver.com"
-                // );
+                // 계정 삭제 API 호출, 일단 계정삭제가 안되므로 더미로 처리
+                const response = await deleteUserAccount();
 
                 // 실제 호출해야하는 API, 별다른 params 없음
-                const response = await signoutUser();
+                // const response = await signoutUser(13);
 
                 if (response.success) {
                     // 성공 메시지 표시
