@@ -9,4 +9,7 @@ const store = configureStore({
 
 // AppDispatch 타입 export
 export type AppDispatch = typeof store.dispatch;
+// RootState 타입 export 추가
+export type RootState = ReturnType<typeof store.getState>;
+
 export default store;
