@@ -1,7 +1,7 @@
 import jwtAxios from "../utils/jwtUtil";
 import API_SERVER_HOST from "./apiConfig";
 import { Favorite } from "../data/adminData";
-import axios from "axios";
+// import axios from "axios";
 
 const prefix = `${API_SERVER_HOST}/user/mypage`;
 
