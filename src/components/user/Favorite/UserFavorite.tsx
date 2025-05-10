@@ -117,8 +117,8 @@ const UserFavorite = () => {
             // 실제 호출해야한 API, response 처리 로직을 다시 짜야할 수 있음
             const response = await getUserFavoriteList();
 
-            if (response.success && response.data) {
-                setFavorites(response.data);
+            if (response) {
+                setFavorites(response);
             } else {
                 setError(
                     response.message ||

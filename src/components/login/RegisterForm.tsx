@@ -52,20 +52,31 @@ export default function RegisterForm({ onRegisterSuccess }: RegisterFormProps) {
             return;
         }
 
-        // confirmPassword는 API에 필요 없으니 제외
-        const { confirmPassword, ...signupParam } = form;
+        if (!form.user_id || !form.nickname || !form.password) {
+            alert("아이디, 닉네임, 비밀번호는 필수 입력 사항입니다.");
+            return;
+        }
+
+        const signupParam = { ...form };
+        delete signupParam.confirmPassword;
 
         try {
-            await signupUser(signupParam as any);
+            await signupUser(signupParam);
             setIsRegistered(true);
             setTimeout(() => {
                 onRegisterSuccess();
             }, 1500);
-        } catch (err: any) {
-            alert(
-                "회원가입 실패: " +
-                    (err?.response?.data?.message || "오류 발생")
-            );
+        } catch (err: unknown) {
+            if (
+                typeof err === "object" &&
+                err !== null &&
+                "response" in err &&
+                (err as any).response.data?.error
+            ) {
+                alert((err as any).response.data.error);
+            } else {
+                alert("회원가입 실패: " + err);
+            }
         }
     };
 
@@ -160,8 +171,8 @@ export default function RegisterForm({ onRegisterSuccess }: RegisterFormProps) {
                 <option value="" disabled>
                     성별 선택
                 </option>
-                <option value="M">남성</option>
-                <option value="F">여성</option>
+                <option value="male">남성</option>
+                <option value="female">여성</option>
             </select>
             <button
                 type="submit"

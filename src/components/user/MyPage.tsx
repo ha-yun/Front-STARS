@@ -87,7 +87,7 @@ export default function MyPage() {
                     className="bg-white shadow-md px-3 py-1 md:px-4 md:py-2 text-indigo-500 font-semibold hover:bg-indigo-500 hover:text-white transition text-sm md:text-base"
                     onClick={() => window.fullpage_api?.moveSlideLeft()}
                 >
-                    메인으로
+                    ← 메인으로
                 </button>
             </div>
 
