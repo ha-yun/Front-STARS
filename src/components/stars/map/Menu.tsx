@@ -24,11 +24,11 @@ const categoryMap: Record<string, string> = {
 };
 
 const categoryColorMap: Record<string, string> = {
-    숙박: "text-blue-700",
-    관광명소: "text-green-700",
-    카페: "text-pink-700",
-    음식점: "text-yellow-700",
-    문화행사: "text-purple-700",
+    숙박: "text-blue-600",
+    관광명소: "text-green-600",
+    카페: "text-yellow-600",
+    음식점: "text-red-600",
+    문화행사: "text-purple-600",
 };
 
 const reverseCategoryMap: Record<string, string> = Object.entries(
@@ -65,7 +65,7 @@ export default function Menu({ isOpen, searchData, hasSearched }: MenuProps) {
                     : "-translate-x-full pointer-events-none"
             }`}
         >
-            <div className="p-2 h-full flex flex-col overflow-y-auto min-h-[30vh] max-h-[80vh]">
+            <div className="p-2 h-full flex flex-col overflow-y-auto min-h-[30vh] max-h-[70vh]">
                 {/* 헤더 */}
                 <div className="flex p-2 justify-between items-center sticky top-0 z-10">
                     <div className="flex items-center">
@@ -121,7 +121,7 @@ export default function Menu({ isOpen, searchData, hasSearched }: MenuProps) {
                         dataToShow.map((item, idx) => (
                             <li
                                 key={`${item.place_id ?? `${item.name}-${item.address}`}-${idx}`}
-                                className="py-6 border-b mr-2 flex items-center"
+                                className="py-6 border-b md:mr-2 flex items-center"
                             >
                                 <div className="flex-[3] flex flex-col items-center justify-center text-center">
                                     <div className="font-semibold text-gray-800 text-lg">
