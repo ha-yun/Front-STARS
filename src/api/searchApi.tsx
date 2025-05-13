@@ -4,10 +4,10 @@ import API_SERVER_HOST from "./apiConfig";
 const prefix = `${API_SERVER_HOST}/place/search`;
 
 export interface SearchResult {
-    id: number;
+    place_id: number;
     name: string;
     address: string;
-    category: string;
+    type: string;
 }
 
 // 통합 이름 검색
