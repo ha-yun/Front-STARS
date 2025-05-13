@@ -1,44 +1,71 @@
-import { useState, useMemo } from "react";
-import { menuDummyData, MenuItem } from "../../../data/menuDummyData";
+import { useMemo, useState } from "react";
+
+interface SearchDataItem {
+    place_id: number;
+    name: string;
+    type: string;
+    address: string;
+}
 
 interface MenuProps {
     isOpen: boolean;
+    searchData?: SearchDataItem[];
+    hasSearched: boolean; // prop으로 받기
 }
 
-type DropdownType = "category" | "gender" | "age" | null;
+type DropdownType = "category" | null;
 
-export default function Menu({ isOpen }: MenuProps) {
+const categoryMap: Record<string, string> = {
+    accommodation: "숙박",
+    attraction: "관광명소",
+    cafe: "카페",
+    restaurant: "음식점",
+    culturalevent: "문화행사",
+};
+
+const categoryColorMap: Record<string, string> = {
+    숙박: "text-blue-700",
+    관광명소: "text-green-700",
+    카페: "text-pink-700",
+    음식점: "text-yellow-700",
+    문화행사: "text-purple-700",
+};
+
+const reverseCategoryMap: Record<string, string> = Object.entries(
+    categoryMap
+).reduce(
+    (acc, [key, value]) => {
+        acc[value] = key;
+        return acc;
+    },
+    {} as Record<string, string>
+);
+
+export default function Menu({ isOpen, searchData, hasSearched }: MenuProps) {
     const [openDropdown, setOpenDropdown] = useState<DropdownType>(null);
-
     const [selectedCategory, setSelectedCategory] =
         useState<string>("카테고리");
-    const [selectedGender, setSelectedGender] = useState<string>("성별");
-    const [selectedAge, setSelectedAge] = useState<string>("나이");
 
-    const filteredData = useMemo(() => {
-        return menuDummyData.filter((item) => {
-            const categoryMatch =
+    // 카테고리 필터링
+    const dataToShow = useMemo(() => {
+        if (!searchData || searchData.length === 0) return [];
+        return searchData.filter((item) => {
+            return (
                 selectedCategory === "카테고리" ||
-                item.category === selectedCategory;
-            const genderMatch =
-                selectedGender === "성별" ||
-                item.preferredGender === selectedGender;
-            const ageMatch =
-                selectedAge === "나이" ||
-                item.preferredAgeGroup === selectedAge;
-            return categoryMatch && genderMatch && ageMatch;
+                item.type === reverseCategoryMap[selectedCategory]
+            );
         });
-    }, [selectedCategory, selectedGender, selectedAge]);
+    }, [searchData, selectedCategory]);
 
     return (
         <div
-            className={`absolute md:top-28 top-24 h-4/5 md:w-96 w-11/12 bg-white shadow-lg rounded-2xl transition-transform duration-300 z-20 ${
+            className={`absolute md:top-28 top-24 max-h-[80vh] md:w-96 w-11/12 bg-white shadow-lg rounded-2xl transition-transform duration-300 z-20 ${
                 isOpen
                     ? "translate-x-6 opacity-100 pointer-events-auto"
                     : "-translate-x-full pointer-events-none"
             }`}
         >
-            <div className="p-4 h-full flex flex-col">
+            <div className="p-4 h-full flex flex-col overflow-y-auto min-h-[30vh] max-h-[80vh]">
                 {/* 헤더 */}
                 <div className="flex justify-between items-center mb-4 sticky top-0 z-10">
                     <div className="flex items-center">
@@ -51,9 +78,9 @@ export default function Menu({ isOpen }: MenuProps) {
                             추천 명소
                         </h2>
                     </div>
+
                     <div className="flex gap-2">
                         {renderDropdown(
-                            "카테고리",
                             openDropdown === "category",
                             () =>
                                 setOpenDropdown(
@@ -62,51 +89,14 @@ export default function Menu({ isOpen }: MenuProps) {
                                         : "category"
                                 ),
                             selectedCategory,
-                            (v) => setSelectedCategory(v),
+                            (v: string) => setSelectedCategory(v),
                             [
                                 "카테고리",
+                                "숙박",
+                                "관광명소",
                                 "카페",
-                                "학교",
-                                "공원",
-                                "행사",
                                 "음식점",
-                                "펍",
-                                "관광지",
-                                "테마파크",
-                                "쇼핑몰",
-                                "산책로",
-                            ]
-                        )}
-                        {renderDropdown(
-                            "성별",
-                            openDropdown === "gender",
-                            () =>
-                                setOpenDropdown(
-                                    openDropdown === "gender" ? null : "gender"
-                                ),
-                            selectedGender,
-                            (v) => setSelectedGender(v),
-                            ["성별", "남성", "여성"]
-                        )}
-                        {renderDropdown(
-                            "나이",
-                            openDropdown === "age",
-                            () =>
-                                setOpenDropdown(
-                                    openDropdown === "age" ? null : "age"
-                                ),
-                            selectedAge,
-                            (v) => setSelectedAge(v),
-                            [
-                                "나이",
-                                "10대",
-                                "20대",
-                                "30대",
-                                "40대",
-                                "50대",
-                                "60대",
-                                "70대",
-                                "80대",
+                                "문화행사",
                             ]
                         )}
                     </div>
@@ -114,32 +104,41 @@ export default function Menu({ isOpen }: MenuProps) {
 
                 {/* 리스트 */}
                 <ul className="overflow-y-auto">
-                    {filteredData.length === 0 ? (
-                        <li className="py-4 text-base text-gray-500 text-center">
+                    {!hasSearched ? (
+                        <>
+                            <li className="py-4 mt-6 text-xl text-gray-600 text-center">
+                                반가워요 또 찾아주셨네요.
+                            </li>
+                            <li className="py-4 text-base text-gray-400 text-center">
+                                장소를 입력하여 찾아주세요!
+                            </li>
+                        </>
+                    ) : dataToShow.length === 0 ? (
+                        <li className="py-4 mt-12 text-xl text-gray-500 text-center">
                             조건에 맞는 명소가 없습니다.
                         </li>
                     ) : (
-                        filteredData.map((item: MenuItem) => (
+                        dataToShow.map((item, idx) => (
                             <li
-                                key={item.id}
-                                className="py-6 border-b flex justify-center items-center"
+                                key={`${item.place_id ?? `${item.name}-${item.address}`}-${idx}`}
+                                className="py-6 border-b flex items-center"
                             >
-                                <div className="text-center flex-1">
-                                    <div className="font-semibold text-gray-800 text-xl">
+                                <div className="flex-[3] flex flex-col items-center justify-center text-center">
+                                    <div className="font-semibold text-gray-800 text-lg">
                                         {item.name}
                                     </div>
-                                    <div className="text-gray-600 text-lg mt-1">
+                                    <div className="text-gray-500 text-sm mt-1">
                                         {item.address}
                                     </div>
                                 </div>
-                                <div className="text-center items-center text-gray-500 flex-1 flex-col mr-2">
-                                    <div className="text-sm">
-                                        {item.category}
-                                    </div>
-                                    <div className="text-sm mt-1">
-                                        {item.preferredGender}{" "}
-                                        {item.preferredAgeGroup} 선호
-                                    </div>
+
+                                <div
+                                    className={`
+                                        flex-[1] flex items-center justify-center text-sm px-2 py-1 rounded
+                                        ${categoryColorMap[categoryMap[item.type] ?? item.type] ?? "text-gray-700"}
+                                    `}
+                                >
+                                    {categoryMap[item.type] ?? item.type}
                                 </div>
                             </li>
                         ))
@@ -150,9 +149,8 @@ export default function Menu({ isOpen }: MenuProps) {
     );
 }
 
-// 공통 드롭다운 함수
+// 공통 드롭다운 렌더링 함수
 function renderDropdown(
-    placeholder: string,
     isOpen: boolean,
     toggleOpen: () => void,
     selected: string,
