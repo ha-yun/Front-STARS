@@ -77,7 +77,7 @@ export default function AdminComponent() {
 
     // 혼잡도 값에 대한 우선순위 매핑
     const congestionOrder = {
-        원활: 1,
+        여유: 1,
         보통: 2,
         "약간 붐빔": 3,
         붐빔: 4,
@@ -162,43 +162,31 @@ export default function AdminComponent() {
                             "subscribeCongestionUpdate event received:",
                             data
                         );
-                        const updateData = data as {
-                            area_nm: string; // 지역명
-                            area_cd: string; // 지역 코드
-                            area_congest_lvl: string; // 지역 혼잡도 수준
-                            area_congest_msg: string; // 지역 혼잡도 메시지
-                            area_ppltn_min: number; // 지역 최소 인구
-                            area_ppltn_max: number; // 지역 최대 인구
-                            male_ppltn_rate: number; // 남성 인구 비율
-                            female_ppltn_rate: number; // 여성 인구 비율
-                            resnt_ppltn_rate: number; // 거주 인구 비율
-                            non_resnt_ppltn_rate: number; // 비거주 인구 비율
-                            replace_yn: string; // 대체 여부
-                            ppltn_time: string; // 인구 데이터 시간
-                            fcst_yn: string; // 예측 여부
-                            fcst_ppltn: ForecastPopulationWrapper; // 예측 인구 데이터 래퍼
-                            ppltn_rates: number[];
-                        }; // Use the correct type
+
+                        // const updateData = data as {
+                        //     area_nm: string; // 지역명
+                        //     area_cd: string; // 지역 코드
+                        //     area_congest_lvl: string; // 지역 혼잡도 수준
+                        //     area_congest_msg: string; // 지역 혼잡도 메시지
+                        //     area_ppltn_min: number; // 지역 최소 인구
+                        //     area_ppltn_max: number; // 지역 최대 인구
+                        //     male_ppltn_rate: number; // 남성 인구 비율
+                        //     female_ppltn_rate: number; // 여성 인구 비율
+                        //     resnt_ppltn_rate: number; // 거주 인구 비율
+                        //     non_resnt_ppltn_rate: number; // 비거주 인구 비율
+                        //     replace_yn: string; // 대체 여부
+                        //     ppltn_time: string; // 인구 데이터 시간
+                        //     fcst_yn: string; // 예측 여부
+                        //     fcst_ppltn: ForecastPopulationWrapper; // 예측 인구 데이터 래퍼
+                        //     ppltn_rates: number[];
+                        // };
+
+                        const updateData = data as unknown as PopulationData[];
 
                         console.log("updateData", updateData);
 
                         // 관광지 정보 데이터 업데이트 - 기존 데이터를 보존하면서 추가
-                        setTouristInfoData((prevData) => {
-                            // Check if we already have this data
-                            const existingIndex = prevData.findIndex(
-                                (item) => item.area_cd === updateData.area_cd
-                            );
-
-                            if (existingIndex !== -1) {
-                                // If exists, update the existing entry
-                                const updatedData = [...prevData];
-                                updatedData[existingIndex] = updateData;
-                                return updatedData;
-                            } else {
-                                // If new, add to the array
-                                return [...prevData, updateData];
-                            }
-                        });
+                        setTouristInfoData(updateData);
 
                         // 유효한 데이터를 받았으므로 오류 상태 초기화
                         if (error) {
@@ -225,10 +213,6 @@ export default function AdminComponent() {
             setLoading(false);
         }
     };
-
-    useEffect(() => {
-        console.log("touristInfoData updated:", touristInfoData);
-    }, [touristInfoData]);
 
     // 혼잡 현황 데이터 로드 함수
     const fetchTouristSpots = async () => {
@@ -608,7 +592,7 @@ export default function AdminComponent() {
     );
 
     return (
-        <div className="bg-gray-100 h-auto flex flex-col w-full overflow-y-auto">
+        <div className="bg-gray-100 flex flex-col w-full">
             {/* Header */}
             <AdminHeader path={"/login"} />
             {/* End of Header */}

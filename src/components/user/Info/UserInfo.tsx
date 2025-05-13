@@ -5,14 +5,8 @@ import UserInfoEdit from "./UserInfoEdit";
 
 import { UserInfo as UserInfoType } from "../../../data/UserInfoData";
 import { editUserProfile, getUserProfile } from "../../../api/mypageApi";
+import { signoutUser } from "../../../api/authApi";
 // import { signoutUser } from "../../../api/authApi";
-
-// 모의 API 응답 타입
-interface ApiResponse<T> {
-    success: boolean;
-    data?: T;
-    message?: string;
-}
 
 const initialUserData: UserInfoType = {
     member_id: "",
@@ -24,28 +18,6 @@ const initialUserData: UserInfoType = {
     mbti: "",
     gender: "",
     created_at: "",
-};
-
-// 계정 삭제 모의 API 함수
-const deleteUserAccount = (): Promise<ApiResponse<null>> => {
-    return new Promise((resolve) => {
-        // 800ms 지연 후 응답
-        setTimeout(() => {
-            // 90% 확률로 성공
-            if (Math.random() < 1) {
-                resolve({
-                    success: true,
-                    message: "계정이 성공적으로 삭제되었습니다.",
-                });
-            } else {
-                resolve({
-                    success: false,
-                    message:
-                        "계정 삭제에 실패했습니다. 관리자에게 문의해주세요.",
-                });
-            }
-        }, 800);
-    });
 };
 
 const UserInfo = () => {
@@ -128,11 +100,8 @@ const UserInfo = () => {
             setIsSubmitting(true);
 
             try {
-                // 계정 삭제 API 호출, 일단 계정삭제가 안되므로 더미로 처리
-                const response = await deleteUserAccount();
-
-                // 실제 호출해야하는 API, 별다른 params 없음
-                // const response = await signoutUser(13);
+                // 실제 호출해야하는 API, member_id 필요
+                const response = await signoutUser(userData?.member_id);
 
                 if (response.success) {
                     // 성공 메시지 표시

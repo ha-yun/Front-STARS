@@ -61,7 +61,7 @@ export const signupUser = async (user: SignupUser) => {
 };
 
 // 회원탈퇴
-export const signoutUser = async (member_id: number) => {
+export const signoutUser = async (member_id: string | undefined) => {
     const header = {
         headers: {
             "Content-Type": "application/json",
