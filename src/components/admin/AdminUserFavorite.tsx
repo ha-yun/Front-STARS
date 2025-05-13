@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { UserFavoriteList, Favorite } from "../../data/adminData";
 import AdminHeader from "./AdminHeader";
+import { getFavoriteList } from "../../api/adminApi";
 
 // 더미 데이터
 const dummyUserFavoriteLists: UserFavoriteList[] = [
     {
-        userId: "user_001",
-        favoriteList: [
+        user_id: "user_001",
+        content: [
             {
                 favorite_id: 1,
                 type: "restaurant",
@@ -33,122 +34,7 @@ const dummyUserFavoriteLists: UserFavoriteList[] = [
             },
         ],
     },
-    {
-        userId: "user_002",
-        favoriteList: [
-            {
-                favorite_id: 4,
-                type: "park",
-                name: "북한산 국립공원",
-                address: "서울특별시 강북구 우이동",
-                place_id: "place_456789",
-                user_id: "user_002",
-            },
-            {
-                favorite_id: 5,
-                type: "shopping",
-                name: "코엑스몰",
-                address: "서울특별시 강남구 봉은사로 524",
-                place_id: "place_567890",
-                user_id: "user_002",
-            },
-            {
-                favorite_id: 6,
-                type: "restaurant",
-                name: "맛있는 삼겹살",
-                address: "서울특별시 마포구 서교동 123-45",
-                place_id: "place_678901",
-                user_id: "user_002",
-            },
-        ],
-    },
-    {
-        userId: "user_003",
-        favoriteList: [
-            {
-                favorite_id: 7,
-                type: "hotel",
-                name: "신라호텔",
-                address: "서울특별시 중구 동호로 249",
-                place_id: "place_789012",
-                user_id: "user_003",
-            },
-            {
-                favorite_id: 8,
-                type: "restaurant",
-                name: "진미식당",
-                address: "서울특별시 종로구 인사동길 12",
-                place_id: "place_890123",
-                user_id: "user_003",
-            },
-            {
-                favorite_id: 9,
-                type: "museum",
-                name: "국립중앙박물관",
-                address: "서울특별시 용산구 서빙고로 137",
-                place_id: "place_901234",
-                user_id: "user_003",
-            },
-        ],
-    },
-    {
-        userId: "user_004",
-        favoriteList: [
-            {
-                favorite_id: 10,
-                type: "cinema",
-                name: "메가박스 코엑스",
-                address: "서울특별시 강남구 봉은사로 524",
-                place_id: "place_012345",
-                user_id: "user_004",
-            },
-            {
-                favorite_id: 11,
-                type: "bookstore",
-                name: "교보문고 광화문점",
-                address: "서울특별시 종로구 종로 1",
-                place_id: "place_123450",
-                user_id: "user_004",
-            },
-        ],
-    },
-    {
-        userId: "user_005",
-        favoriteList: [
-            {
-                favorite_id: 12,
-                type: "gym",
-                name: "스포애니 성북점",
-                address: "서울특별시 성북구 동소문로 20길 37",
-                place_id: "place_234501",
-                user_id: "user_005",
-            },
-            {
-                favorite_id: 13,
-                type: "cafe",
-                name: "스타벅스 광화문점",
-                address: "서울특별시 종로구 세종대로 175",
-                place_id: "place_345012",
-                user_id: "user_005",
-            },
-            {
-                favorite_id: 14,
-                type: "shopping",
-                name: "명동 지하상가",
-                address: "서울특별시 중구 명동길",
-                place_id: "place_450123",
-                user_id: "user_005",
-            },
-            {
-                favorite_id: 15,
-                type: "restaurant",
-                name: "서울식당",
-                address: "서울특별시 중구 명동길 12-1",
-                place_id: "place_501234",
-                user_id: "user_005",
-            },
-        ],
-    },
+    // ... 더미 데이터 유지
 ];
 
 // 로딩 스켈레톤 컴포넌트
@@ -189,12 +75,15 @@ const AdminUserFavorite = () => {
         setLoading(true);
         try {
             // Axios 요청을 시뮬레이션 (2초 지연)
-            await new Promise((resolve) => setTimeout(resolve, 2000));
-            setUserFavorites(dummyUserFavoriteLists);
-            setFilteredUsers(dummyUserFavoriteLists);
+            // await new Promise((resolve) => setTimeout(resolve, 2000));
+
+            const response = await getFavoriteList();
+            console.log(response);
+            setUserFavorites(response);
+            setFilteredUsers(response);
             // 첫 번째 사용자 선택
-            if (dummyUserFavoriteLists.length > 0) {
-                setSelectedUserId(dummyUserFavoriteLists[0].userId);
+            if (response.length > 0) {
+                setSelectedUserId(response[0].user_id);
             }
         } catch (error) {
             console.error("Error fetching data:", error);
@@ -214,13 +103,11 @@ const AdminUserFavorite = () => {
             if (selectedUserId) {
                 setFavoriteLoading(true);
                 try {
-                    // Axios 요청을 시뮬레이션 (1초 지연)
-                    await new Promise((resolve) => setTimeout(resolve, 1000));
                     const selectedUser = userFavorites.find(
-                        (user) => user.userId === selectedUserId
+                        (user) => user.user_id === selectedUserId
                     );
                     if (selectedUser) {
-                        setCurrentFavorites(selectedUser.favoriteList);
+                        setCurrentFavorites(selectedUser.content);
                     } else {
                         setCurrentFavorites([]);
                     }
@@ -241,7 +128,7 @@ const AdminUserFavorite = () => {
     useEffect(() => {
         if (searchTerm) {
             const filtered = userFavorites.filter((user) =>
-                user.userId.toLowerCase().includes(searchTerm.toLowerCase())
+                user.user_id.toLowerCase().includes(searchTerm.toLowerCase())
             );
             setFilteredUsers(filtered);
         } else {
@@ -249,8 +136,13 @@ const AdminUserFavorite = () => {
         }
     }, [searchTerm, userFavorites]);
 
-    // 색상 생성 (같은 ID는 같은 색상을 유지하기 위함)
-    const getRandomColor = (userId: string) => {
+    // 사용자 ID 기반 색상 생성 (사용자 목록용)
+    const getUserColor = (userId: string | undefined) => {
+        // userId가 undefined이면 기본 색상 반환
+        if (!userId) {
+            return "bg-gray-100";
+        }
+
         // 간단한 해시 함수 (userId 문자열을 숫자로 변환)
         let hash = 0;
         for (let i = 0; i < userId.length; i++) {
@@ -266,6 +158,57 @@ const AdminUserFavorite = () => {
         ];
         const index = Math.abs(hash) % colors.length;
         return colors[index];
+    };
+
+    // 타입별 색상 및 아이콘 반환 함수
+    const getTypeStylesAndIcon = (type: string) => {
+        switch (type.toLowerCase()) {
+            case "cafe":
+                return {
+                    bg: "bg-amber-50",
+                    border: "border-amber-200",
+                    text: "text-amber-800",
+                    tag: "bg-amber-100",
+                    tagText: "text-amber-800",
+                    icon: "☕",
+                };
+            case "restaurant":
+                return {
+                    bg: "bg-red-50",
+                    border: "border-red-200",
+                    text: "text-red-800",
+                    tag: "bg-red-100",
+                    tagText: "text-red-800",
+                    icon: "🍽️",
+                };
+            case "accommodation":
+                return {
+                    bg: "bg-purple-50",
+                    border: "border-purple-200",
+                    text: "text-purple-800",
+                    tag: "bg-purple-100",
+                    tagText: "text-purple-800",
+                    icon: "🏨",
+                };
+            case "attraction":
+                return {
+                    bg: "bg-blue-50",
+                    border: "border-blue-200",
+                    text: "text-blue-800",
+                    tag: "bg-blue-100",
+                    tagText: "text-blue-800",
+                    icon: "🎭",
+                };
+            default:
+                return {
+                    bg: "bg-gray-50",
+                    border: "border-gray-200",
+                    text: "text-gray-800",
+                    tag: "bg-gray-100",
+                    tagText: "text-gray-800",
+                    icon: "📍",
+                };
+        }
     };
 
     return (
@@ -310,31 +253,32 @@ const AdminUserFavorite = () => {
                             // 사용자 목록 표시
                             filteredUsers.map((user) => (
                                 <div
-                                    key={user.userId}
+                                    key={user.user_id}
                                     className={`p-3 border-b cursor-pointer text-black hover:bg-gray-100 transition-colors ${
-                                        selectedUserId === user.userId
+                                        selectedUserId === user.user_id
                                             ? "bg-blue-50"
                                             : ""
                                     }`}
                                     onClick={() =>
-                                        setSelectedUserId(user.userId)
+                                        setSelectedUserId(user.user_id)
                                     }
                                 >
                                     <div className="flex items-center">
                                         <div
-                                            className={`w-8 h-8 rounded-full mr-3 flex items-center justify-center ${getRandomColor(user.userId)}`}
+                                            className={`w-8 h-8 rounded-full mr-3 flex items-center justify-center ${getUserColor(user.user_id)}`}
                                         >
-                                            {user.userId
-                                                .charAt(0)
-                                                .toUpperCase()}
+                                            {user.user_id
+                                                ? user.user_id
+                                                      .charAt(0)
+                                                      .toUpperCase()
+                                                : "?"}
                                         </div>
                                         <div>
                                             <div className="font-medium">
-                                                @{user.userId}
+                                                @{user.user_id}
                                             </div>
                                             <div className="text-gray-500 text-sm">
-                                                즐겨찾기{" "}
-                                                {user.favoriteList.length}개
+                                                즐겨찾기 {user.content.length}개
                                             </div>
                                         </div>
                                     </div>
@@ -369,6 +313,33 @@ const AdminUserFavorite = () => {
                         </div>
                     </h2>
 
+                    {/* 타입별 필터 */}
+                    <div className="p-3 border-b flex flex-wrap gap-2">
+                        <span className="text-sm font-medium text-gray-700 self-center">
+                            타입:
+                        </span>
+                        {[
+                            "cafe",
+                            "restaurant",
+                            "accommodation",
+                            "attraction",
+                            "전체",
+                        ].map((type) => {
+                            const styles = getTypeStylesAndIcon(type);
+                            return (
+                                <button
+                                    key={type}
+                                    className={`px-3 py-1 rounded-full text-xs font-medium 
+                                    ${type === "전체" ? "bg-gray-200 text-gray-800" : `${styles.tag} ${styles.tagText}`}`}
+                                >
+                                    {type === "전체"
+                                        ? "전체"
+                                        : `${styles.icon} ${type}`}
+                                </button>
+                            );
+                        })}
+                    </div>
+
                     {/* 즐겨찾기 그리드 */}
                     <div className="p-4">
                         {loading || favoriteLoading ? (
@@ -381,28 +352,45 @@ const AdminUserFavorite = () => {
                         ) : currentFavorites.length > 0 ? (
                             // 즐겨찾기 목록 표시
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                {currentFavorites.map((item) => (
-                                    <div
-                                        key={item.favorite_id}
-                                        className={`p-3 rounded-lg shadow ${getRandomColor(item.name)} hover:shadow-lg transition-shadow duration-300`}
-                                    >
-                                        <div className="flex items-center justify-between">
-                                            <div>
-                                                <span className="text-gray-700 font-bold text-base">
-                                                    {item.name}
-                                                </span>
+                                {currentFavorites.map((item) => {
+                                    const typeStyles = getTypeStylesAndIcon(
+                                        item.type
+                                    );
+                                    return (
+                                        <div
+                                            key={item.favorite_id}
+                                            className={`p-3 rounded-lg shadow border ${typeStyles.bg} ${typeStyles.border} hover:shadow-lg transition-shadow duration-300`}
+                                        >
+                                            <div className="flex items-center justify-between">
+                                                <div className="flex items-center">
+                                                    <span className="mr-2">
+                                                        {typeStyles.icon}
+                                                    </span>
+                                                    <span
+                                                        className={`font-bold text-base ${typeStyles.text}`}
+                                                    >
+                                                        {item.name}
+                                                    </span>
+                                                </div>
+                                                <div className="flex">
+                                                    <span
+                                                        className={`text-xs px-2 py-1 rounded-full ${typeStyles.tag} ${typeStyles.tagText}`}
+                                                    >
+                                                        {item.type}
+                                                    </span>
+                                                </div>
                                             </div>
-                                            <div className="flex">
-                                                <span className="text-gray-500 text-xs px-2 py-1 bg-white rounded-full">
+                                            <p className="text-gray-600 text-sm mt-1">
+                                                {item.address}
+                                            </p>
+                                            <div className="mt-2 text-right">
+                                                <span className="text-gray-500 text-xs">
                                                     ID: {item.favorite_id}
                                                 </span>
                                             </div>
                                         </div>
-                                        <p className="text-gray-600 text-sm mt-1">
-                                            {item.address}
-                                        </p>
-                                    </div>
-                                ))}
+                                    );
+                                })}
                             </div>
                         ) : (
                             // 즐겨찾기 없음
