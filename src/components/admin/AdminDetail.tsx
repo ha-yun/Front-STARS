@@ -5,21 +5,9 @@ import SimpleInfoCard from "./cards/SimpleInfoCard";
 import AreaPopulationCard from "./cards/AreaPopulationCard";
 import PopulationRateCard from "./cards/PopulationRateCard";
 import ForecastPopulationCard from "./cards/ForecastPopulationCard";
-import {
-    ForecastPopulation,
-    Data,
-    PopulationResponse,
-    PopulationData,
-} from "../../data/adminData";
+import { ForecastPopulation, Data, PopulationData } from "../../data/adminData";
 import RodeCard from "./cards/RodeCard";
 import AdminHeader from "./AdminHeader";
-
-// API 응답 타입 정의, 더미 API용
-interface ApiResponse {
-    success: boolean;
-    message: string;
-    data: PopulationResponse;
-}
 
 const AdminDetail = () => {
     // URL 파라미터에서 spotCode 가져오기
@@ -153,20 +141,18 @@ const AdminDetail = () => {
         ]);
 
         // 24시간 인구 추이 예측 파싱
-        if (data.fcst_ppltn_wrapper && data.fcst_ppltn_wrapper.fcst_ppltn) {
-            const forecastChartData = data.fcst_ppltn_wrapper.fcst_ppltn.map(
-                (item) => {
-                    // 시간 포맷팅 (2025-04-18 17:00 -> 17:00)
-                    const timeString = item.fcst_time.split(" ")[1];
+        if (data.fcst_ppltn && data.fcst_ppltn.fcst_ppltn) {
+            const forecastChartData = data.fcst_ppltn.fcst_ppltn.map((item) => {
+                // 시간 포맷팅 (2025-04-18 17:00 -> 17:00)
+                const timeString = item.fcst_time.split(" ")[1];
 
-                    return {
-                        fcst_time: timeString,
-                        fcst_ppltn_min: item.fcst_ppltn_min,
-                        fcst_ppltn_max: item.fcst_ppltn_max,
-                        fcst_congest_lvl: item.fcst_congest_lvl,
-                    };
-                }
-            );
+                return {
+                    fcst_time: timeString,
+                    fcst_ppltn_min: item.fcst_ppltn_min,
+                    fcst_ppltn_max: item.fcst_ppltn_max,
+                    fcst_congest_lvl: item.fcst_congest_lvl,
+                };
+            });
             setForecastData(forecastChartData);
         }
     };
