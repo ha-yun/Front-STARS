@@ -7,17 +7,29 @@ import FocusCard from "./FocusCard";
 import SearchBar from "./SearchBar";
 import useCustomLogin from "../../../hooks/useCustomLogin";
 
+// API
+import { getAttractionList } from "../../../api/starsApi";
+
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
 
-interface MarkerPlace {
-    id: keyof typeof places;
-    coords: [number, number];
+interface Attraction {
+    attraction_id: number;
+    attraction_name: string;
+    address: string;
+    lat: number;
+    lon: number;
 }
 
-const markerPlaces: MarkerPlace[] = [
-    { id: "seoulPlaza", coords: [126.9779692, 37.566535] },
-    { id: "lotteTower", coords: [127.1025, 37.5131] },
-];
+// Dummy Data
+// interface MarkerPlace {
+//     id: keyof typeof places;
+//     coords: [number, number];
+// }
+//
+// const markerPlaces: MarkerPlace[] = [
+//     { id: "seoulPlaza", coords: [126.9779692, 37.566535] },
+//     { id: "lotteTower", coords: [127.1025, 37.5131] },
+// ];
 
 export default function MapSectionComponent() {
     const mapContainer = useRef<HTMLDivElement | null>(null);
@@ -40,27 +52,42 @@ export default function MapSectionComponent() {
             zoom: 10,
         });
 
-        markerPlaces.forEach((place) => {
-            const marker = new mapboxgl.Marker()
-                .setLngLat(place.coords)
-                .addTo(map);
-            const markerElement = marker.getElement();
-            markerElement.style.cursor = "pointer";
+        getAttractionList().then(
+            (
+                areaList: { area_name: string; attraction_list: Attraction[] }[]
+            ) => {
+                areaList.forEach((area) => {
+                    area.attraction_list.forEach((attraction) => {
+                        const { lat, lon, attraction_id } = attraction;
 
-            markerElement.addEventListener("click", () => {
-                setSelectedPlace(place.id);
-                setFocusedPlace(place.id);
-                map.flyTo({ center: place.coords, zoom: 16, pitch: 45 });
-                map.once("moveend", () => {
-                    setFocusedPlace(place.id);
-                    setSelectedPlace(place.id);
+                        // 마커 생성
+                        const marker = new mapboxgl.Marker()
+                            .setLngLat([lon, lat])
+                            .addTo(map);
 
-                    requestAnimationFrame(() => {
-                        setShowFocusCard(true);
+                        const markerElement = marker.getElement();
+                        markerElement.style.cursor = "pointer";
+
+                        markerElement.addEventListener("click", () => {
+                            setSelectedPlace(attraction_id.toString());
+                            setFocusedPlace(attraction_id.toString());
+
+                            map.flyTo({
+                                center: [lon, lat],
+                                zoom: 16,
+                                pitch: 45,
+                            });
+
+                            map.once("moveend", () => {
+                                requestAnimationFrame(() => {
+                                    setShowFocusCard(true);
+                                });
+                            });
+                        });
                     });
                 });
-            });
-        });
+            }
+        );
 
         return () => map.remove();
     }, [setSelectedPlace]);
