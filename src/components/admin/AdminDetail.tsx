@@ -142,17 +142,19 @@ const AdminDetail = () => {
 
         // 24시간 인구 추이 예측 파싱
         if (data.fcst_ppltn && data.fcst_ppltn.fcst_ppltn) {
-            const forecastChartData = data.fcst_ppltn.fcst_ppltn.map((item) => {
-                // 시간 포맷팅 (2025-04-18 17:00 -> 17:00)
-                const timeString = item.fcst_time.split(" ")[1];
+            const forecastChartData = data.fcst_ppltn.fcst_ppltn.map(
+                (item: ForecastPopulation) => {
+                    // 시간 포맷팅 (2025-04-18 17:00 -> 17:00)
+                    const timeString = item.fcst_time.split(" ")[1];
 
-                return {
-                    fcst_time: timeString,
-                    fcst_ppltn_min: item.fcst_ppltn_min,
-                    fcst_ppltn_max: item.fcst_ppltn_max,
-                    fcst_congest_lvl: item.fcst_congest_lvl,
-                };
-            });
+                    return {
+                        fcst_time: timeString,
+                        fcst_ppltn_min: item.fcst_ppltn_min,
+                        fcst_ppltn_max: item.fcst_ppltn_max,
+                        fcst_congest_lvl: item.fcst_congest_lvl,
+                    };
+                }
+            );
             setForecastData(forecastChartData);
         }
     };

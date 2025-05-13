@@ -77,7 +77,7 @@ export default function AdminComponent() {
 
     // 혼잡도 값에 대한 우선순위 매핑
     const congestionOrder = {
-        원활: 1,
+        여유: 1,
         보통: 2,
         "약간 붐빔": 3,
         붐빔: 4,
@@ -162,43 +162,31 @@ export default function AdminComponent() {
                             "subscribeCongestionUpdate event received:",
                             data
                         );
-                        const updateData = data as {
-                            area_nm: string; // 지역명
-                            area_cd: string; // 지역 코드
-                            area_congest_lvl: string; // 지역 혼잡도 수준
-                            area_congest_msg: string; // 지역 혼잡도 메시지
-                            area_ppltn_min: number; // 지역 최소 인구
-                            area_ppltn_max: number; // 지역 최대 인구
-                            male_ppltn_rate: number; // 남성 인구 비율
-                            female_ppltn_rate: number; // 여성 인구 비율
-                            resnt_ppltn_rate: number; // 거주 인구 비율
-                            non_resnt_ppltn_rate: number; // 비거주 인구 비율
-                            replace_yn: string; // 대체 여부
-                            ppltn_time: string; // 인구 데이터 시간
-                            fcst_yn: string; // 예측 여부
-                            fcst_ppltn: ForecastPopulationWrapper; // 예측 인구 데이터 래퍼
-                            ppltn_rates: number[];
-                        }; // Use the correct type
+
+                        // const updateData = data as {
+                        //     area_nm: string; // 지역명
+                        //     area_cd: string; // 지역 코드
+                        //     area_congest_lvl: string; // 지역 혼잡도 수준
+                        //     area_congest_msg: string; // 지역 혼잡도 메시지
+                        //     area_ppltn_min: number; // 지역 최소 인구
+                        //     area_ppltn_max: number; // 지역 최대 인구
+                        //     male_ppltn_rate: number; // 남성 인구 비율
+                        //     female_ppltn_rate: number; // 여성 인구 비율
+                        //     resnt_ppltn_rate: number; // 거주 인구 비율
+                        //     non_resnt_ppltn_rate: number; // 비거주 인구 비율
+                        //     replace_yn: string; // 대체 여부
+                        //     ppltn_time: string; // 인구 데이터 시간
+                        //     fcst_yn: string; // 예측 여부
+                        //     fcst_ppltn: ForecastPopulationWrapper; // 예측 인구 데이터 래퍼
+                        //     ppltn_rates: number[];
+                        // };
+
+                        const updateData = data as unknown as PopulationData[];
 
                         console.log("updateData", updateData);
 
                         // 관광지 정보 데이터 업데이트 - 기존 데이터를 보존하면서 추가
-                        setTouristInfoData((prevData) => {
-                            // Check if we already have this data
-                            const existingIndex = prevData.findIndex(
-                                (item) => item.area_cd === updateData.area_cd
-                            );
-
-                            if (existingIndex !== -1) {
-                                // If exists, update the existing entry
-                                const updatedData = [...prevData];
-                                updatedData[existingIndex] = updateData;
-                                return updatedData;
-                            } else {
-                                // If new, add to the array
-                                return [...prevData, updateData];
-                            }
-                        });
+                        setTouristInfoData(updateData);
 
                         // 유효한 데이터를 받았으므로 오류 상태 초기화
                         if (error) {
@@ -225,10 +213,6 @@ export default function AdminComponent() {
             setLoading(false);
         }
     };
-
-    useEffect(() => {
-        console.log("touristInfoData updated:", touristInfoData);
-    }, [touristInfoData]);
 
     // 혼잡 현황 데이터 로드 함수
     const fetchTouristSpots = async () => {
@@ -608,7 +592,7 @@ export default function AdminComponent() {
     );
 
     return (
-        <div className="bg-gray-100 h-auto flex flex-col w-full overflow-y-auto">
+        <div className="bg-gray-100 flex flex-col w-full h-screen">
             {/* Header */}
             <AdminHeader path={"/login"} />
             {/* End of Header */}
@@ -664,10 +648,10 @@ export default function AdminComponent() {
                 </button>
             </div>
 
-            {/* Main Container*/}
-            <div className="flex flex-col lg:flex-row p-2 md:p-4 space-y-4 lg:space-y-0 lg:space-x-4">
+            {/* Main Container - 남은 공간을 모두 차지하도록 flex-1 설정 */}
+            <div className="flex-1 flex flex-col lg:flex-row p-2 md:p-4 space-y-4 lg:space-y-0 lg:space-x-4 overflow-hidden">
                 {/* 주요 인구 혼잡 현황 섹션 - 왼쪽에 배치 (큰 화면) / 위에 배치 (작은 화면) */}
-                <div className="w-full lg:w-1/3 bg-white rounded-lg shadow-md order-1">
+                <div className="w-full lg:w-1/3 bg-white rounded-lg shadow-md order-1 flex flex-col">
                     <h2 className="text-lg md:text-xl p-3 font-bold text-black border-b flex justify-between items-center">
                         <span>주요 인구 혼잡 현황</span>
                         {spotsLoading && (
@@ -696,7 +680,7 @@ export default function AdminComponent() {
                             </span>
                         )}
                     </h2>
-                    <div className="p-2 overflow-x-auto lg:overflow-y-auto lg:max-h-[calc(100vh-200px)]">
+                    <div className="p-2 flex-1 overflow-x-auto lg:overflow-y-auto">
                         <div
                             className="flex flex-nowrap lg:flex-col space-x-3 lg:space-x-0 lg:space-y-3 pb-2"
                             style={{ minWidth: "max-content", width: "100%" }}
@@ -732,9 +716,9 @@ export default function AdminComponent() {
                 </div>
 
                 {/* 오른쪽 컨텐츠 컨테이너 */}
-                <div className="flex flex-col w-full lg:w-2/3 space-y-4 order-2">
+                <div className="flex-1 flex flex-col w-full lg:w-2/3 space-y-4 order-2 overflow-hidden">
                     {/* 날씨 정보 섹션 */}
-                    <div className="w-full border-2 rounded-lg shadow-md bg-white">
+                    <div className="w-full border rounded-lg shadow-md bg-white">
                         <h2 className="text-lg md:text-xl p-3 font-bold text-black border-b flex justify-between items-center">
                             <span>날씨 정보</span>
                             {weatherLoading && (
@@ -798,8 +782,8 @@ export default function AdminComponent() {
                         </div>
                     </div>
 
-                    {/* 관광지 정보 테이블 */}
-                    <div className="w-full bg-white rounded-lg shadow-md overflow-hidden border-2">
+                    {/* 관광지 정보 테이블 - flex-1로 남은 공간 차지 */}
+                    <div className="flex-1 w-full bg-white rounded-lg shadow-md overflow-hidden border flex flex-col">
                         <div
                             className="flex bg-gray-100 py-2 md:py-3 border-b font-medium text-sm md:text-lg w-full"
                             style={{ minWidth: "650px" }}
@@ -823,7 +807,7 @@ export default function AdminComponent() {
                                 혼잡도 {renderSortIcon("congestion")}
                             </div>
                         </div>
-                        <div className="overflow-y-auto max-h-[410px]">
+                        <div className="flex-1 overflow-y-auto overflow-x-hidden">
                             <div style={{ minWidth: "650px" }}>
                                 {loading ? (
                                     // 로딩 스켈레톤
