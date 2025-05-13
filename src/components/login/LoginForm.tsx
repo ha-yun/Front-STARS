@@ -32,7 +32,7 @@ export default function LoginForm({ onError }: LoginFormProps) {
             if (result && !result.error) {
                 setIsLoggedIn(true);
                 setTimeout(() => {
-                    navigate("/map");
+                    navigate("/", { replace: true });
                 }, 1500);
             } else {
                 onError(result?.error || "로그인 실패");
