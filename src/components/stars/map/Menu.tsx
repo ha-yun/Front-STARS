@@ -1,18 +1,19 @@
 import { useMemo, useState } from "react";
 
 interface SearchDataItem {
-    id?: number;
+    place_id: number;
     name: string;
-    category: string;
+    type: string;
     address: string;
 }
 
 interface MenuProps {
     isOpen: boolean;
     searchData?: SearchDataItem[];
+    hasSearched: boolean; // prop으로 받기
 }
 
-type DropdownType = "category" /* | "gender" | "age" */ | null;
+type DropdownType = "category" | null;
 
 const categoryMap: Record<string, string> = {
     accommodation: "숙박",
@@ -40,23 +41,22 @@ const reverseCategoryMap: Record<string, string> = Object.entries(
     {} as Record<string, string>
 );
 
-export default function Menu({ isOpen, searchData }: MenuProps) {
+export default function Menu({ isOpen, searchData, hasSearched }: MenuProps) {
     const [openDropdown, setOpenDropdown] = useState<DropdownType>(null);
     const [selectedCategory, setSelectedCategory] =
         useState<string>("카테고리");
 
-    // ✅ 필터링된 더미 데이터
-    // 필터 적용된 데이터 (검색결과가 있으면 그걸 기준으로 카테고리 필터)
+    // 카테고리 필터링
     const dataToShow = useMemo(() => {
         if (!searchData || searchData.length === 0) return [];
-
         return searchData.filter((item) => {
             return (
                 selectedCategory === "카테고리" ||
-                item.category === reverseCategoryMap[selectedCategory]
+                item.type === reverseCategoryMap[selectedCategory]
             );
         });
     }, [searchData, selectedCategory]);
+
     return (
         <div
             className={`absolute md:top-28 top-24 max-h-[80vh] md:w-96 w-11/12 bg-white shadow-lg rounded-2xl transition-transform duration-300 z-20 ${
@@ -99,46 +99,28 @@ export default function Menu({ isOpen, searchData }: MenuProps) {
                                 "문화행사",
                             ]
                         )}
-
-                        {/* 성별, 나이 필터 주석 처리 */}
-                        {/*
-                        {renderDropdown(... 성별 ...)}
-                        {renderDropdown(... 나이 ...)}
-                        */}
                     </div>
                 </div>
 
                 {/* 리스트 */}
                 <ul className="overflow-y-auto">
-                    {dataToShow.length === 0 ? (
-                        (!searchData || searchData.length === 0) &&
-                        selectedCategory === "카테고리" ? (
-                            [
-                                <li
-                                    key="guide-1"
-                                    className="py-4 mt-6 text-xl text-gray-600 text-center"
-                                >
-                                    반가워요 또 찾아주셨네요.
-                                </li>,
-                                <li
-                                    key="guide-2"
-                                    className="py-4 text-base text-gray-400 text-center"
-                                >
-                                    장소를 입력하여 찾아주세요!
-                                </li>,
-                            ]
-                        ) : (
-                            <li className="py-4 text-base text-gray-500 text-center">
-                                조건에 맞는 명소가 없습니다.
+                    {!hasSearched ? (
+                        <>
+                            <li className="py-4 mt-6 text-xl text-gray-600 text-center">
+                                반가워요 또 찾아주셨네요.
                             </li>
-                        )
+                            <li className="py-4 text-base text-gray-400 text-center">
+                                장소를 입력하여 찾아주세요!
+                            </li>
+                        </>
+                    ) : dataToShow.length === 0 ? (
+                        <li className="py-4 mt-12 text-xl text-gray-500 text-center">
+                            조건에 맞는 명소가 없습니다.
+                        </li>
                     ) : (
                         dataToShow.map((item, idx) => (
                             <li
-                                key={
-                                    item.id ??
-                                    `${item.name}-${item.address}-${idx}`
-                                }
+                                key={`${item.place_id ?? `${item.name}-${item.address}`}-${idx}`}
                                 className="py-6 border-b flex items-center"
                             >
                                 <div className="flex-[3] flex flex-col items-center justify-center text-center">
@@ -152,12 +134,11 @@ export default function Menu({ isOpen, searchData }: MenuProps) {
 
                                 <div
                                     className={`
-            flex-[1] flex items-center justify-center text-sm px-2 py-1 rounded
-            ${categoryColorMap[categoryMap[item.category] ?? item.category] ?? "text-gray-700"}
-        `}
+                                        flex-[1] flex items-center justify-center text-sm px-2 py-1 rounded
+                                        ${categoryColorMap[categoryMap[item.type] ?? item.type] ?? "text-gray-700"}
+                                    `}
                                 >
-                                    {categoryMap[item.category] ??
-                                        item.category}
+                                    {categoryMap[item.type] ?? item.type}
                                 </div>
                             </li>
                         ))
@@ -168,7 +149,7 @@ export default function Menu({ isOpen, searchData }: MenuProps) {
     );
 }
 
-// 공통 드롭다운 함수
+// 공통 드롭다운 렌더링 함수
 function renderDropdown(
     isOpen: boolean,
     toggleOpen: () => void,

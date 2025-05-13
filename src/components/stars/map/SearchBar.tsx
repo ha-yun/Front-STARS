@@ -15,6 +15,7 @@ export default function SearchBarWithMenu({ onSearch }: SearchBarProps) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [query, setQuery] = useState("");
     const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
+    const [hasSearched, setHasSearched] = useState(false);
     const wrapperRef = useRef<HTMLDivElement>(null);
 
     const toggleMenu = () => {
@@ -23,12 +24,11 @@ export default function SearchBarWithMenu({ onSearch }: SearchBarProps) {
 
     const handleSearch = async () => {
         if (!query) return;
-        // 두 API를 동시에 호출
+        setHasSearched(true); // 검색 시 true로 변경
         const [byKeyword, byAddress] = await Promise.all([
             searchByKeyword(query),
             searchByAddress(query),
         ]);
-        // 결과 합치기 (중복 제거)
         const merged = [...byKeyword, ...byAddress].filter(
             (item, idx, arr) =>
                 arr.findIndex(
@@ -89,7 +89,11 @@ export default function SearchBarWithMenu({ onSearch }: SearchBarProps) {
                     <FaSearch size={20} />
                 </button>
             </div>
-            <Menu isOpen={isMenuOpen} searchData={searchResults} />
+            <Menu
+                isOpen={isMenuOpen}
+                searchData={searchResults}
+                hasSearched={hasSearched}
+            />
         </div>
     );
 }

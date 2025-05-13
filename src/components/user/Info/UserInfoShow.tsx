@@ -1,7 +1,7 @@
 // UserInfoShow.tsx
 import React from "react";
 import { UserInfo } from "../../../data/UserInfoData";
-
+import { formatKoreanDate } from "../../../utils/dateUtil";
 // Props 인터페이스 정의
 interface UserInfoShowProps {
     userInfo: UserInfo;
@@ -19,10 +19,11 @@ const UserInfoShow: React.FC<UserInfoShowProps> = ({ userInfo }) => {
                         <strong>닉네임:</strong> {userInfo.nickname}
                     </p>
                     <p className="text-gray-800 mb-2 text-sm md:text-base">
-                        <strong>가입일:</strong> {userInfo.created_at}
+                        <strong>가입일:</strong>{" "}
+                        {formatKoreanDate(userInfo.created_at)}
                     </p>
                     <p className="text-gray-800 mb-2 text-sm md:text-base">
-                        <strong>생년월일:</strong> {userInfo.birth_year}
+                        <strong>출생년도:</strong> {userInfo.birth_year}
                     </p>
                     <p className="text-gray-800 mb-2 text-sm md:text-base">
                         <strong>MBTI:</strong> {userInfo.mbti}
