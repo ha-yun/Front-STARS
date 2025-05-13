@@ -7,7 +7,7 @@ export interface SearchResult {
     id: number;
     name: string;
     address: string;
-    // ...
+    category: string;
 }
 
 // 통합 이름 검색

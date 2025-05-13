@@ -21,12 +21,22 @@ const mbtiOptions = [
     "ESFP",
 ];
 
+interface RegisterFormState {
+    user_id: string;
+    nickname: string;
+    password: string;
+    confirmPassword?: string;
+    mbti: string;
+    birth_year: string;
+    gender: string;
+}
+
 interface RegisterFormProps {
     onRegisterSuccess: () => void;
 }
 
 export default function RegisterForm({ onRegisterSuccess }: RegisterFormProps) {
-    const [form, setForm] = useState({
+    const [form, setForm] = useState<RegisterFormState>({
         user_id: "",
         nickname: "",
         password: "",
