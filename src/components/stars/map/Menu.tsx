@@ -61,7 +61,7 @@ export default function Menu({ isOpen, searchData, hasSearched }: MenuProps) {
         <div
             className={`absolute md:top-28 top-24 max-h-[80vh] md:w-96 w-11/12 bg-white shadow-lg rounded-2xl transition-transform duration-300 z-20 ${
                 isOpen
-                    ? "translate-x-6 opacity-100 pointer-events-auto"
+                    ? "md:translate-x-6 translate-x-[18px] opacity-100 pointer-events-auto"
                     : "-translate-x-full pointer-events-none"
             }`}
         >
@@ -106,7 +106,7 @@ export default function Menu({ isOpen, searchData, hasSearched }: MenuProps) {
                 <ul className="overflow-y-auto">
                     {!hasSearched ? (
                         <>
-                            <li className="py-4 mt-8 text-xl text-gray-600 text-center">
+                            <li className="py-4 mt-4 text-xl text-gray-600 text-center">
                                 반가워요 또 찾아주셨네요.
                             </li>
                             <li className="py-4 text-base text-gray-400 text-center">
@@ -114,7 +114,7 @@ export default function Menu({ isOpen, searchData, hasSearched }: MenuProps) {
                             </li>
                         </>
                     ) : dataToShow.length === 0 ? (
-                        <li className="py-4 mt-14 text-xl text-gray-500 text-center">
+                        <li className="py-4 mt-8 text-xl text-gray-500 text-center">
                             조건에 맞는 명소가 없습니다.
                         </li>
                     ) : (
