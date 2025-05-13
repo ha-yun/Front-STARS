@@ -72,3 +72,14 @@ export const signoutUser = async (member_id: number) => {
 
     return res.data;
 };
+
+export const refreshToken = async () => {
+    const header = {
+        headers: {
+            "Content-Type": "application/json",
+        },
+    };
+
+    const res = await jwtAxios.get(`${prefix}/refresh`, header);
+    return res.data;
+};
