@@ -14,7 +14,6 @@ interface MenuProps {
 
 type DropdownType = "category" /* | "gender" | "age" */ | null;
 
-// ✅ 카테고리 매핑 (영문 → 한글)
 const categoryMap: Record<string, string> = {
     accommodation: "숙박",
     attraction: "관광명소",
@@ -82,7 +81,6 @@ export default function Menu({ isOpen, searchData }: MenuProps) {
 
                     <div className="flex gap-2">
                         {renderDropdown(
-                            "카테고리",
                             openDropdown === "category",
                             () =>
                                 setOpenDropdown(
@@ -91,7 +89,7 @@ export default function Menu({ isOpen, searchData }: MenuProps) {
                                         : "category"
                                 ),
                             selectedCategory,
-                            (v) => setSelectedCategory(v),
+                            (v: string) => setSelectedCategory(v),
                             [
                                 "카테고리",
                                 "숙박",
@@ -172,7 +170,6 @@ export default function Menu({ isOpen, searchData }: MenuProps) {
 
 // 공통 드롭다운 함수
 function renderDropdown(
-    placeholder: string,
     isOpen: boolean,
     toggleOpen: () => void,
     selected: string,
