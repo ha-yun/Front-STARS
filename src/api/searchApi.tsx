@@ -1,7 +1,7 @@
 import axios from "axios";
 import API_SERVER_HOST from "./apiConfig";
 
-const prefix = `${API_SERVER_HOST}/search`;
+const prefix = `${API_SERVER_HOST}/place/search`;
 
 export interface SearchResult {
     id: number;

@@ -1,6 +1,11 @@
 import { useState, useRef, useEffect } from "react";
 import { FaBars, FaSearch } from "react-icons/fa";
 import Menu from "./Menu";
+import {
+    searchByKeyword,
+    searchByAddress,
+    SearchResult,
+} from "../../../api/searchApi";
 
 interface SearchBarProps {
     onSearch?: (query: string) => void;
@@ -9,16 +14,30 @@ interface SearchBarProps {
 export default function SearchBarWithMenu({ onSearch }: SearchBarProps) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [query, setQuery] = useState("");
+    const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
     const wrapperRef = useRef<HTMLDivElement>(null);
 
     const toggleMenu = () => {
         setIsMenuOpen((prev) => !prev);
     };
 
-    const handleSearch = () => {
-        if (onSearch) {
-            onSearch(query);
-        }
+    const handleSearch = async () => {
+        if (!query) return;
+        // 두 API를 동시에 호출
+        const [byKeyword, byAddress] = await Promise.all([
+            searchByKeyword(query),
+            searchByAddress(query),
+        ]);
+        // 결과 합치기 (중복 제거)
+        const merged = [...byKeyword, ...byAddress].filter(
+            (item, idx, arr) =>
+                arr.findIndex(
+                    (v) => v.name === item.name && v.address === item.address
+                ) === idx
+        );
+        setSearchResults(merged);
+        setIsMenuOpen(true);
+        if (onSearch) onSearch(query);
     };
 
     useEffect(() => {
@@ -41,7 +60,7 @@ export default function SearchBarWithMenu({ onSearch }: SearchBarProps) {
         <div ref={wrapperRef}>
             {/* SearchBar */}
             <div
-                className={`absolute top-6 left-1/2 transform -translate-x-1/2 z-30 w-11/12 max-w-md bg-white shadow-md flex items-center rounded-full px-2 py-2 transition-all duration-300 ${
+                className={`absolute top-6 left-1/2 transform -translate-x-1/2 z-20 w-11/12 max-w-md bg-white shadow-md flex items-center rounded-full px-2 py-2 transition-all duration-300 ${
                     isMenuOpen
                         ? "bg-opacity-90"
                         : "bg-opacity-60 hover:bg-opacity-90"
@@ -59,6 +78,9 @@ export default function SearchBarWithMenu({ onSearch }: SearchBarProps) {
                     className="flex-1 min-w-0 bg-transparent outline-none text-gray-700 placeholder-gray-400"
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
+                    onKeyDown={(e) => {
+                        if (e.key === "Enter") handleSearch();
+                    }}
                 />
                 <button
                     className="flex-shrink-0 bg-transparent text-indigo-500 hover:text-indigo-700 transition focus:outline-none border-0"
@@ -67,7 +89,7 @@ export default function SearchBarWithMenu({ onSearch }: SearchBarProps) {
                     <FaSearch size={20} />
                 </button>
             </div>
-            <Menu isOpen={isMenuOpen} />
+            <Menu isOpen={isMenuOpen} searchData={searchResults} />
         </div>
     );
 }
