@@ -4,7 +4,7 @@ import axios, {
     AxiosError,
 } from "axios";
 import { getCookie, setCookie } from "./cookieUtil";
-import host from "../api/apiConfig";
+import { refreshToken as refreshTokenApi } from "../api/authApi";
 
 // axios 인스턴스 생성
 const jwtAxios = axios.create();
@@ -15,32 +15,10 @@ interface UserCookie {
     refreshToken: string;
 }
 
-// 응답 데이터 타입
-interface RefreshResponse {
-    accessToken: string;
-    refreshToken: string;
-}
-
 interface ErrorResponse {
     error?: string;
     [key: string]: unknown;
 }
-
-// JWT 갱신 요청
-const refreshJWT = async (
-    accessToken: string,
-    refreshToken: string
-): Promise<RefreshResponse> => {
-    const prefix = host;
-    const header = { headers: { Authorization: `Bearer ${accessToken}` } };
-
-    const res = await axios.get<RefreshResponse>(
-        `${prefix}/user/refresh?refreshToken=${refreshToken}`,
-        header
-    );
-
-    return res.data;
-};
 
 // 요청 인터셉터
 const beforeReq = (
@@ -84,7 +62,8 @@ const beforeRes = async (
             return Promise.reject("REQUIRE_LOGIN");
         }
 
-        const result = await refreshJWT(user.accessToken, user.refreshToken);
+        // authApi의 refreshToken 사용
+        const result = await refreshTokenApi();
 
         user.accessToken = result.accessToken;
         user.refreshToken = result.refreshToken;
