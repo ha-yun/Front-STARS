@@ -5,7 +5,6 @@ import {
     touristSpots,
     weatherData,
     WeatherResponse,
-    WeatherData,
 } from "../../data/adminData";
 import { WeatherCard } from "./cards/weatherCard";
 import { SpotCard } from "./cards/spotCard";
@@ -74,7 +73,7 @@ export default function AdminComponent() {
     // 테스트용 실패확률
     const persent: number = 0;
 
-    const test = true;
+    const test: boolean = false;
 
     // 혼잡도 값에 대한 우선순위 매핑
     const congestionOrder = {
@@ -159,6 +158,10 @@ export default function AdminComponent() {
                 const event: EventSource = subscribeCongestionUpdate(
                     (data): void => {
                         // 주어진 타입으로 수정
+                        console.log(
+                            "subscribeCongestionUpdate event received:",
+                            data
+                        );
                         const updateData = data as {
                             area_nm: string; // 지역명
                             area_cd: string; // 지역 코드
@@ -173,70 +176,34 @@ export default function AdminComponent() {
                             replace_yn: string; // 대체 여부
                             ppltn_time: string; // 인구 데이터 시간
                             fcst_yn: string; // 예측 여부
-                            fcst_ppltn_wrapper: ForecastPopulationWrapper; // 예측 인구 데이터 래퍼
-                            ppltn_rates: number[]; // 연령별 인구 분포
-                        };
+                            fcst_ppltn: ForecastPopulationWrapper; // 예측 인구 데이터 래퍼
+                            ppltn_rates: number[];
+                        }; // Use the correct type
 
-                        console.log(data);
+                        console.log("updateData", updateData);
 
-                        // 관광지 정보 데이터 업데이트
+                        // 관광지 정보 데이터 업데이트 - 기존 데이터를 보존하면서 추가
                         setTouristInfoData((prevData) => {
-                            // 이전 데이터의 복사본 생성
-                            const updatedData = [...prevData];
-
-                            // 일치하는 관광지 찾기
-                            const existingIndex = updatedData.findIndex(
+                            // Check if we already have this data
+                            const existingIndex = prevData.findIndex(
                                 (item) => item.area_cd === updateData.area_cd
                             );
 
                             if (existingIndex !== -1) {
-                                // 기존 레코드 업데이트
-                                updatedData[existingIndex] = {
-                                    ...updatedData[existingIndex],
-                                    area_nm: updateData.area_nm,
-                                    area_cd: updateData.area_cd,
-                                    ppltn_time: updateData.ppltn_time,
-                                    area_congest_lvl:
-                                        updateData.area_congest_lvl,
-                                };
+                                // If exists, update the existing entry
+                                const updatedData = [...prevData];
+                                updatedData[existingIndex] = updateData;
+                                return updatedData;
                             } else {
-                                // 없는 경우 새 레코드로 추가
-                                updatedData.push({
-                                    area_nm: updateData.area_nm,
-                                    area_cd: updateData.area_cd,
-                                    ppltn_time: updateData.ppltn_time,
-                                    area_congest_lvl:
-                                        updateData.area_congest_lvl,
-                                    area_congest_msg:
-                                        updateData.area_congest_msg,
-                                    // Add all the missing fields from PopulationData type
-                                    area_ppltn_min: updateData.area_ppltn_min,
-                                    area_ppltn_max: updateData.area_ppltn_max,
-                                    male_ppltn_rate: updateData.male_ppltn_rate,
-                                    female_ppltn_rate:
-                                        updateData.female_ppltn_rate,
-                                    resnt_ppltn_rate:
-                                        updateData.resnt_ppltn_rate,
-                                    non_resnt_ppltn_rate:
-                                        updateData.non_resnt_ppltn_rate,
-                                    replace_yn: updateData.replace_yn,
-                                    fcst_yn: updateData.fcst_yn,
-                                    fcst_ppltn_wrapper:
-                                        updateData.fcst_ppltn_wrapper,
-                                    ppltn_rates: updateData.ppltn_rates,
-                                });
+                                // If new, add to the array
+                                return [...prevData, updateData];
                             }
-
-                            return updatedData;
                         });
 
                         // 유효한 데이터를 받았으므로 오류 상태 초기화
                         if (error) {
                             setError(null);
                         }
-
-                        // 디버깅을 위한 업데이트 로그
-                        console.log("혼잡도 업데이트 수신:", data);
                     }
                 );
 
@@ -258,6 +225,10 @@ export default function AdminComponent() {
             setLoading(false);
         }
     };
+
+    useEffect(() => {
+        console.log("touristInfoData updated:", touristInfoData);
+    }, [touristInfoData]);
 
     // 혼잡 현황 데이터 로드 함수
     const fetchTouristSpots = async () => {
@@ -286,6 +257,8 @@ export default function AdminComponent() {
             } else {
                 const event: EventSource = subscribeCongestionAlert(
                     (data): void => {
+                        console.log("subscribeCongestionAlert event");
+                        console.log(data);
                         const updateData = data as {
                             area_nm: string; // 지역명
                             area_cd: string; // 지역 코드
@@ -304,7 +277,7 @@ export default function AdminComponent() {
                             ppltn_rates: number[]; // 연령별 인구 분포
                         };
 
-                        console.log(data);
+                        console.log("정제된 경고 데이터", data);
 
                         setTouristSpotsData((prevData) => {
                             // 이전 데이터의 복사본 생성
@@ -391,6 +364,7 @@ export default function AdminComponent() {
                 const event = subscribeWeatherUpdate((data) => {
                     try {
                         // 데이터가 예상 구조를 가지고 있는지 확인
+                        console.log("subscribeWeatherUpdate event");
                         if (typeof data === "object" && data !== null) {
                             // 데이터를 WeatherResponse 타입으로 처리
                             const weatherResponse =

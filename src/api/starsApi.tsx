@@ -14,6 +14,7 @@ export const subscribeCongestionUpdate = (
         const congestionData = JSON.parse((event as MessageEvent).data);
         onUpdate(congestionData);
     });
+    console.log("connect Congestion Update");
     return eventSource;
 };
 
@@ -28,6 +29,7 @@ export const subscribeCongestionAlert = (
         const alertData = JSON.parse((event as MessageEvent).data);
         onAlert(alertData);
     });
+    console.log("connect Congestion Alert");
     return eventSource;
 };
 
@@ -42,6 +44,7 @@ export const subscribeWeatherUpdate = (
         const weatherData = JSON.parse((event as MessageEvent).data);
         onUpdate(weatherData);
     });
+    console.log("connect Weather Update");
     return eventSource;
 };
 

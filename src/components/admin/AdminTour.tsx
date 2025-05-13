@@ -1,14 +1,23 @@
 import React, { useEffect, useState } from "react";
 import AdminHeader from "./AdminHeader";
-import { events } from "../../data/adminTourData";
+import { getEventList } from "../../api/starsApi";
 
 interface TourList {
     category: string;
     gu: string;
-    title: string;
+    event_name: string;
     start_date: string;
     end_date: string;
     is_free: boolean;
+}
+
+interface GetTourList {
+    category: string;
+    address: string;
+    event_name: string;
+    start_date: string;
+    end_date: string;
+    event_fee: string;
 }
 
 const AdminTour = () => {
@@ -17,7 +26,6 @@ const AdminTour = () => {
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const [filterCategory, setFilterCategory] = useState<string>("");
-    const [filterGu, setFilterGu] = useState<string>("");
     const [searchTerm, setSearchTerm] = useState<string>("");
 
     // 데이터 로드 함수
@@ -26,34 +34,17 @@ const AdminTour = () => {
         setError(null);
 
         try {
-            // API 통신 시뮬레이션 (2.5초 지연)
-            // @@@@@@@@@@ axios 여기에 넣으면 됩니다 @@@@@@@@@@@
-            const response = await new Promise<typeof events>(
-                (resolve, reject) => {
-                    setTimeout(() => {
-                        // 95% 확률로 성공, 5% 확률로 실패 (테스트용)
-                        if (Math.random() > 0.5) {
-                            resolve(events);
-                        } else {
-                            reject(
-                                new Error(
-                                    "문화 행사 데이터를 불러오는데 실패했습니다."
-                                )
-                            );
-                        }
-                    }, 1000);
-                }
-            );
+            const response: GetTourList[] = await getEventList();
 
             // 데이터 변환
             if (response && response.length > 0) {
-                const tourData = response.map((e) => ({
+                const tourData: TourList[] = response.map((e) => ({
                     category: e.category,
-                    gu: e.gu,
-                    title: e.title,
+                    gu: e.address,
+                    event_name: e.event_name,
                     start_date: e.start_date,
                     end_date: e.end_date,
-                    is_free: e.is_free !== "유료",
+                    is_free: e.event_fee === "",
                 }));
 
                 setList(tourData);
@@ -72,14 +63,6 @@ const AdminTour = () => {
     // 컴포넌트 마운트 시 데이터 로드
     useEffect(() => {
         fetchEvents();
-
-        // 15분마다 데이터 갱신
-        const interval = setInterval(() => {
-            fetchEvents();
-        }, 900000); // 15분 = 900,000ms
-
-        // 컴포넌트 언마운트 시 인터벌 정리
-        return () => clearInterval(interval);
     }, []);
 
     // 필터링 로직
@@ -87,47 +70,35 @@ const AdminTour = () => {
         const matchesCategory = filterCategory
             ? item.category === filterCategory
             : true;
-        const matchesGu = filterGu ? item.gu === filterGu : true;
         const matchesSearch = searchTerm
-            ? item.title.toLowerCase().includes(searchTerm.toLowerCase())
+            ? item.event_name.toLowerCase().includes(searchTerm.toLowerCase())
             : true;
 
-        return matchesCategory && matchesGu && matchesSearch;
+        return matchesCategory && matchesSearch;
     });
 
-    // 고유한 카테고리와 구 목록 추출
+    // 고유한 카테고리 목록 추출
     const categories = Array.from(new Set(list.map((item) => item.category)));
-    const gus = Array.from(new Set(list.map((item) => item.gu)));
-
-    // 테이블 헤더 및 열 이름 정의
-    const tableHeaders = [
-        "카테고리",
-        "지역구",
-        "제목",
-        "시작일",
-        "종료일",
-        "요금",
-    ];
 
     // 로딩 스켈레톤 컴포넌트
     const TableRowSkeleton = () => (
         <tr className="animate-pulse">
-            <td className="px-6 py-4 whitespace-nowrap">
-                <div className="h-4 bg-gray-200 rounded w-20"></div>
-            </td>
-            <td className="px-6 py-4 whitespace-nowrap">
+            <td className="px-2 md:px-4 py-3 whitespace-nowrap">
                 <div className="h-4 bg-gray-200 rounded w-16"></div>
             </td>
-            <td className="px-6 py-4 whitespace-nowrap">
-                <div className="h-4 bg-gray-200 rounded w-48"></div>
+            <td className="px-2 md:px-4 py-3 whitespace-nowrap">
+                <div className="h-4 bg-gray-200 rounded w-16"></div>
             </td>
-            <td className="px-6 py-4 whitespace-nowrap">
-                <div className="h-4 bg-gray-200 rounded w-24"></div>
+            <td className="px-2 md:px-4 py-3 whitespace-nowrap">
+                <div className="h-4 bg-gray-200 rounded w-32"></div>
             </td>
-            <td className="px-6 py-4 whitespace-nowrap">
-                <div className="h-4 bg-gray-200 rounded w-24"></div>
+            <td className="px-2 md:px-4 py-3 whitespace-nowrap">
+                <div className="h-4 bg-gray-200 rounded w-20"></div>
             </td>
-            <td className="px-6 py-4 whitespace-nowrap">
+            <td className="px-2 md:px-4 py-3 whitespace-nowrap">
+                <div className="h-4 bg-gray-200 rounded w-20"></div>
+            </td>
+            <td className="px-2 md:px-4 py-3 whitespace-nowrap">
                 <div className="h-6 bg-gray-200 rounded w-12"></div>
             </td>
         </tr>
@@ -157,7 +128,7 @@ const AdminTour = () => {
 
                 {/* 필터 섹션 */}
                 <div className="bg-white rounded-lg shadow p-3 w-full mb-4">
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                         {/* 카테고리 필터 */}
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -174,25 +145,6 @@ const AdminTour = () => {
                                 {categories.map((category, index) => (
                                     <option key={index} value={category}>
                                         {category}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-
-                        {/* 지역구 필터 */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                지역구
-                            </label>
-                            <select
-                                className="w-full p-1.5 text-sm bg-white text-black border border-gray-300 rounded-md"
-                                value={filterGu}
-                                onChange={(e) => setFilterGu(e.target.value)}
-                            >
-                                <option value="">전체 지역구</option>
-                                {gus.map((gu, index) => (
-                                    <option key={index} value={gu}>
-                                        {gu}
                                     </option>
                                 ))}
                             </select>
@@ -218,7 +170,6 @@ const AdminTour = () => {
                                 className="bg-gray-500 hover:bg-gray-700 text-white text-sm py-1.5 px-3 rounded"
                                 onClick={() => {
                                     setFilterCategory("");
-                                    setFilterGu("");
                                     setSearchTerm("");
                                 }}
                             >
@@ -314,17 +265,27 @@ const AdminTour = () => {
 
                     {/* 데이터 테이블 */}
                     <div className="overflow-x-auto">
-                        <table className="min-w-full divide-y divide-gray-200">
+                        <table className="w-full divide-y divide-gray-200 table-fixed">
                             <thead className="bg-gray-50">
                                 <tr>
-                                    {tableHeaders.map((header, index) => (
-                                        <th
-                                            key={index}
-                                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                                        >
-                                            {header}
-                                        </th>
-                                    ))}
+                                    <th className="w-16 md:w-24 px-2 md:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        카테고리
+                                    </th>
+                                    <th className="w-16 md:w-24 px-2 md:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        장소
+                                    </th>
+                                    <th className="w-32 md:w-48 px-2 md:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        제목
+                                    </th>
+                                    <th className="w-20 md:w-28 px-2 md:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        시작일
+                                    </th>
+                                    <th className="w-20 md:w-28 px-2 md:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        종료일
+                                    </th>
+                                    <th className="w-16 px-2 md:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        요금
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
@@ -339,22 +300,27 @@ const AdminTour = () => {
                                               key={index}
                                               className={`${index % 2 === 0 ? "bg-white" : "bg-gray-50"} hover:bg-gray-100 transition-colors`}
                                           >
-                                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                              <td className="px-2 md:px-4 py-3 text-sm text-gray-900 truncate">
                                                   {item.category}
                                               </td>
-                                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                              <td className="px-2 md:px-4 py-3 text-sm text-gray-900 truncate">
                                                   {item.gu}
                                               </td>
-                                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
-                                                  {item.title}
+                                              <td className="px-2 md:px-4 py-3 text-sm text-gray-900 font-medium truncate">
+                                                  <div
+                                                      className="truncate max-w-xs"
+                                                      title={item.event_name}
+                                                  >
+                                                      {item.event_name}
+                                                  </div>
                                               </td>
-                                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                              <td className="px-2 md:px-4 py-3 text-sm text-gray-900 truncate">
                                                   {formatDate(item.start_date)}
                                               </td>
-                                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                              <td className="px-2 md:px-4 py-3 text-sm text-gray-900 truncate">
                                                   {formatDate(item.end_date)}
                                               </td>
-                                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                              <td className="px-2 md:px-4 py-3 text-sm text-gray-900">
                                                   <span
                                                       className={`px-2 py-1 text-xs rounded-full ${
                                                           item.is_free

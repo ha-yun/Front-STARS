@@ -39,7 +39,7 @@ export interface PopulationData {
     replace_yn: string; // 대체 여부
     ppltn_time: string; // 인구 데이터 시간
     fcst_yn: string; // 예측 여부
-    fcst_ppltn_wrapper: ForecastPopulationWrapper; // 예측 인구 데이터 래퍼
+    fcst_ppltn: ForecastPopulationWrapper; // 예측 인구 데이터 래퍼
     ppltn_rates: number[]; // 연령별 인구 분포
 }
 
@@ -76,8 +76,8 @@ export type Favorite = {
 
 // 관리자 페이지 즐겨찾기 모아보기용
 export interface UserFavoriteList {
-    userId: string;
-    favoriteList: Favorite[];
+    user_id: string;
+    content: Favorite[];
 }
 
 // 혼잡도가 높은 지역만 조회
@@ -398,7 +398,7 @@ export const dummyData: PopulationResponse = {
             replace_yn: "N",
             ppltn_time: "2025-04-18 16:05",
             fcst_yn: "Y",
-            fcst_ppltn_wrapper: {
+            fcst_ppltn: {
                 fcst_ppltn: [
                     {
                         fcst_time: "2025-04-18 00:00",
@@ -437,7 +437,7 @@ export const dummyData: PopulationResponse = {
             replace_yn: "N",
             ppltn_time: "2025-04-18 15:55",
             fcst_yn: "Y",
-            fcst_ppltn_wrapper: {
+            fcst_ppltn: {
                 fcst_ppltn: [
                     {
                         fcst_time: "2025-04-18 00:00",
@@ -470,7 +470,7 @@ export const dummyData: PopulationResponse = {
             replace_yn: "N",
             ppltn_time: "2025-04-18 16:10",
             fcst_yn: "Y",
-            fcst_ppltn_wrapper: {
+            fcst_ppltn: {
                 fcst_ppltn: [
                     {
                         fcst_time: "2025-04-18 00:00",
@@ -503,7 +503,7 @@ export const dummyData: PopulationResponse = {
             replace_yn: "N",
             ppltn_time: "2025-04-18 16:15",
             fcst_yn: "Y",
-            fcst_ppltn_wrapper: {
+            fcst_ppltn: {
                 fcst_ppltn: [
                     {
                         fcst_time: "2025-04-18 00:00",
@@ -536,7 +536,7 @@ export const dummyData: PopulationResponse = {
             replace_yn: "N",
             ppltn_time: "2025-04-18 16:20",
             fcst_yn: "Y",
-            fcst_ppltn_wrapper: {
+            fcst_ppltn: {
                 fcst_ppltn: [
                     {
                         fcst_time: "2025-04-18 00:00",

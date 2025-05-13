@@ -1,7 +1,7 @@
 import jwtAxios from "../utils/jwtUtil";
 import API_SERVER_HOST from "./apiConfig";
 
-const prefix = `${API_SERVER_HOST}/admin`;
+const prefix = `${API_SERVER_HOST}/user/admin`;
 
 export const getUserList = async () => {
     const header = {
