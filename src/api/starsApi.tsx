@@ -202,7 +202,7 @@ export const getEventList = async () => {
 };
 
 // 지역별 장소 목록 조회
-export const getPlaceListByArea = async (areaId: string) => {
+export const getPlaceListByArea = async (areaId: number) => {
     const header = {
         headers: {
             "Content-Type": "application/json",
