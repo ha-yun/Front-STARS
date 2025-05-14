@@ -8,7 +8,7 @@ import CongestionTag from "./cards/CongestionTag";
 import { useState } from "react";
 
 // 타입 가져오기
-import { PopulationData } from "../../data/adminData";
+import { CombinedAreaData, PopulationData } from "../../data/adminData";
 
 export default function AdminComponent() {
     const navigate = useNavigate();
@@ -20,6 +20,8 @@ export default function AdminComponent() {
         touristInfoData,
         touristSpotsData,
         weatherInfoData,
+        combinedAreaData,
+        parkData,
         isLoading,
         spotsLoading,
         weatherLoading,
@@ -49,28 +51,61 @@ export default function AdminComponent() {
     };
 
     // 정렬된 데이터
-    const sortedTouristInfo = [...touristInfoData].sort((a, b) => {
-        if (sortField === "spotName") {
-            return sortDirection === "asc"
-                ? a.area_nm.localeCompare(b.area_nm)
-                : b.area_nm.localeCompare(a.area_nm);
+    // const sortedTouristInfo = [...touristInfoData].sort((a, b) => {
+    //     if (sortField === "spotName") {
+    //         return sortDirection === "asc"
+    //             ? a.area_nm.localeCompare(b.area_nm)
+    //             : b.area_nm.localeCompare(a.area_nm);
+    //     }
+    //
+    //     if (sortField === "congestion") {
+    //         const valueA =
+    //             congestionOrder[
+    //                 a.area_congest_lvl as keyof typeof congestionOrder
+    //             ] || 0;
+    //         const valueB =
+    //             congestionOrder[
+    //                 b.area_congest_lvl as keyof typeof congestionOrder
+    //             ] || 0;
+    //
+    //         return sortDirection === "asc" ? valueA - valueB : valueB - valueA;
+    //     }
+    //
+    //     return 0;
+    // });
+
+    const sortedTouristInfo: CombinedAreaData[] = [...combinedAreaData].sort(
+        (a, b) => {
+            if (sortField === "spotName") {
+                return sortDirection === "asc"
+                    ? a.area_nm.localeCompare(b.area_nm)
+                    : b.area_nm.localeCompare(a.area_nm);
+            }
+
+            if (sortField === "congestion") {
+                // population이 null일 수 있으므로 체크 필요
+                const valueA = a?.population?.area_congest_lvl
+                    ? congestionOrder[
+                          a.population
+                              .area_congest_lvl as keyof typeof congestionOrder
+                      ] || 0
+                    : 0;
+
+                const valueB = b?.population?.area_congest_lvl
+                    ? congestionOrder[
+                          b.population
+                              .area_congest_lvl as keyof typeof congestionOrder
+                      ] || 0
+                    : 0;
+
+                return sortDirection === "asc"
+                    ? valueA - valueB
+                    : valueB - valueA;
+            }
+
+            return 0;
         }
-
-        if (sortField === "congestion") {
-            const valueA =
-                congestionOrder[
-                    a.area_congest_lvl as keyof typeof congestionOrder
-                ] || 0;
-            const valueB =
-                congestionOrder[
-                    b.area_congest_lvl as keyof typeof congestionOrder
-                ] || 0;
-
-            return sortDirection === "asc" ? valueA - valueB : valueB - valueA;
-        }
-
-        return 0;
-    });
+    );
 
     // 정렬 표시 아이콘 렌더링 (유니코드 문자 사용)
     const renderSortIcon = (field: string) => {
@@ -84,15 +119,15 @@ export default function AdminComponent() {
     };
 
     // 관광지 클릭 핸들러 - 선택한 관광지 정보와 함께 디테일 페이지로 이동
-    const handleSpotClick = (info: PopulationData) => {
+    const handleSpotClick = (info: CombinedAreaData) => {
         // 페이지 이동 전 스크롤 위치 초기화
         window.scrollTo(0, 0);
         console.log(info);
 
         // 선택한 관광지 정보와 함께 상세 페이지로 이동
-        navigate(`/manage/${info.area_cd}`, {
+        navigate(`/manage/${info.area_id}`, {
             state: {
-                selectedSpot: info,
+                combinedAreaData: info,
             },
         });
     };
@@ -312,7 +347,7 @@ export default function AdminComponent() {
                                             key={idx}
                                             className="w-40 flex-auto"
                                         >
-                                            <WeatherCard key={idx} {...data} />
+                                            {/*<WeatherCard key={idx} {...data} />*/}
                                         </div>
                                     ))
                                 ) : (
@@ -371,15 +406,16 @@ export default function AdminComponent() {
                                                 {info.area_nm}
                                             </div>
                                             <div className="w-1/4 text-center text-black overflow-hidden text-ellipsis px-1">
-                                                {info.area_cd}
+                                                {info.population?.area_cd}
                                             </div>
                                             <div className="w-1/4 text-center text-black overflow-hidden text-ellipsis px-1">
-                                                {info.ppltn_time}
+                                                {info.population?.ppltn_time}
                                             </div>
                                             <div className="w-1/4 text-center overflow-hidden flex justify-center">
                                                 <CongestionTag
                                                     level={
-                                                        info.area_congest_lvl
+                                                        info.population!
+                                                            .area_congest_lvl
                                                     }
                                                     size="sm"
                                                 />

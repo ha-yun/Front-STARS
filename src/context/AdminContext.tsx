@@ -5,6 +5,7 @@ import React, {
     useState,
     useEffect,
     ReactNode,
+    useMemo,
 } from "react";
 import {
     subscribeCongestionUpdate,
@@ -16,20 +17,27 @@ import {
 import {
     PopulationData,
     TouristSpot,
-    WeatherResponse,
-    WeatherCardType,
+    WeatherData,
+    ParkInfo,
+    CombinedAreaData,
 } from "../data/adminData";
+// test용 더미데이터, SSE 통신은 고려하지 않음
+import { dummyTouristData } from "../data/dummy/population";
+import { dummyWeatherData } from "../data/dummy/weather";
 
 // 컨텍스트에서 제공할 데이터 타입 정의
 interface AdminDataContextType {
     touristInfoData: PopulationData[];
     touristSpotsData: TouristSpot[];
-    weatherInfoData: WeatherCardType[];
+    weatherInfoData: WeatherData[];
+    parkData: ParkInfo[];
+    combinedAreaData: CombinedAreaData[];
+    findAreaData: (areaId: number) => CombinedAreaData | undefined;
     isLoading: boolean;
     spotsLoading: boolean;
     weatherLoading: boolean;
     error: string | null;
-    refreshAllData: () => Promise<void>;
+    refreshAllData: () => Promise<void>; // 새로고침, 근데 이걸 넘길 필요가 있나?
     refreshing: boolean;
 }
 
@@ -47,16 +55,15 @@ interface AdminDataProviderProps {
 // 컨텍스트 제공자 컴포넌트
 export const AdminDataProvider: React.FC<AdminDataProviderProps> = ({
     children,
-    test = false,
+    test = true,
 }) => {
     // 데이터 상태 및 로딩 상태
     const [touristInfoData, setTouristInfoData] = useState<PopulationData[]>(
         []
     );
     const [touristSpotsData, setTouristSpotsData] = useState<TouristSpot[]>([]);
-    const [weatherInfoData, setWeatherInfoData] = useState<WeatherCardType[]>(
-        []
-    );
+    const [weatherInfoData, setWeatherInfoData] = useState<WeatherData[]>([]);
+    const [parkData, setParkData] = useState<ParkInfo[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [spotsLoading, setSpotsLoading] = useState<boolean>(true);
     const [weatherLoading, setWeatherLoading] = useState<boolean>(true);
@@ -72,13 +79,94 @@ export const AdminDataProvider: React.FC<AdminDataProviderProps> = ({
         parkUpdate?: EventSource;
     }>({});
 
-    // 혼잡도 레벨과 스카이 상태에 따른 아이콘/색상 반환 함수
-    const getDustLevelText = (value: number): string => {
-        if (value <= 15) return "좋음";
-        if (value <= 35) return "보통";
-        if (value <= 75) return "나쁨";
-        return "매우나쁨";
+    // // 혼잡도 레벨과 스카이 상태에 따른 아이콘/색상 반환 함수
+    // const getDustLevelText = (value: number): string => {
+    //     if (value <= 15) return "좋음";
+    //     if (value <= 35) return "보통";
+    //     if (value <= 75) return "나쁨";
+    //     return "매우나쁨";
+    // };
+
+    // 지역 ID로 통합 데이터 조회 함수
+    const findAreaData = (area_id: number): CombinedAreaData | undefined => {
+        return combinedAreaData.find((data) => data.area_id === area_id);
     };
+
+    // 기존에는 area_cd를 이용해서 관리하고 있었는데
+    // weather과 통합하기 위해서 area_id를 사용하는 구조로 변경해야함
+    const combinedAreaData = useMemo<CombinedAreaData[]>(() => {
+        // area_id를 기준으로 인구 데이터와 날씨 데이터 병합
+        const combinedMap = new Map<number, CombinedAreaData>();
+
+        // 인구 데이터 처리
+        touristInfoData.forEach((populationData) => {
+            const areaId = populationData.area_id;
+
+            if (!combinedMap.has(areaId)) {
+                combinedMap.set(areaId, {
+                    area_id: areaId,
+                    area_nm: populationData.area_nm,
+                    population: null,
+                    weather: null,
+                });
+            }
+
+            const entry = combinedMap.get(areaId)!;
+            entry.population = {
+                area_id: 0,
+                area_nm: "",
+                fcst_yn: "",
+                get_time: 0,
+                replace_yn: "",
+                area_cd: populationData.area_cd,
+                area_congest_lvl: populationData.area_congest_lvl,
+                area_congest_msg: populationData.area_congest_msg,
+                area_ppltn_min: populationData.area_ppltn_min,
+                area_ppltn_max: populationData.area_ppltn_max,
+                male_ppltn_rate: populationData.male_ppltn_rate,
+                female_ppltn_rate: populationData.female_ppltn_rate,
+                resnt_ppltn_rate: populationData.resnt_ppltn_rate,
+                non_resnt_ppltn_rate: populationData.non_resnt_ppltn_rate,
+                ppltn_rates: populationData.ppltn_rates,
+                ppltn_time: populationData.ppltn_time,
+                fcst_ppltn: populationData.fcst_ppltn,
+            };
+        });
+
+        // 날씨 데이터 처리
+        weatherInfoData.forEach((weatherItem) => {
+            const areaId = weatherItem.area_id;
+
+            if (!combinedMap.has(areaId)) {
+                combinedMap.set(areaId, {
+                    area_id: areaId,
+                    area_nm: weatherItem.area_nm,
+                    population: null,
+                    weather: null,
+                });
+            }
+
+            const entry = combinedMap.get(areaId)!;
+            entry.weather = {
+                area_id: 0,
+                area_nm: "",
+                get_time: 0,
+                temp: weatherItem.temp,
+                max_temp: weatherItem.max_temp,
+                min_temp: weatherItem.min_temp,
+                sensible_temp: weatherItem.sensible_temp,
+                precipitation: weatherItem.precipitation,
+                precpt_type: weatherItem.precpt_type,
+                pcp_msg: weatherItem.pcp_msg,
+                pm10: weatherItem.pm10,
+                pm25: weatherItem.pm25,
+                weather_time: weatherItem.weather_time,
+                fcst24hours: weatherItem.fcst24hours,
+            };
+        });
+
+        return Array.from(combinedMap.values());
+    }, [touristInfoData, weatherInfoData]);
 
     // 관광지 정보 데이터 로드 함수
     const fetchTouristInfo = async () => {
@@ -103,7 +191,7 @@ export const AdminDataProvider: React.FC<AdminDataProviderProps> = ({
                     const updateData = data as unknown as PopulationData[];
 
                     // for debug
-                    // console.log("updateData", updateData);
+                    console.log("updateData", updateData);
 
                     setTouristInfoData(updateData);
                     if (error) {
@@ -113,6 +201,8 @@ export const AdminDataProvider: React.FC<AdminDataProviderProps> = ({
 
                 // 이벤트 소스 저장
                 eventSources.current.congestionUpdate = event;
+            } else {
+                setTouristInfoData(dummyTouristData);
             }
         } catch (err) {
             console.error("Failed to fetch tourist info:", err);
@@ -177,113 +267,15 @@ export const AdminDataProvider: React.FC<AdminDataProviderProps> = ({
 
                 // 새 이벤트 소스 생성
                 const event = subscribeWeatherUpdate((data) => {
-                    try {
-                        console.log("subscribeWeatherUpdate event", data);
-
-                        if (typeof data === "object" && data !== null) {
-                            // 데이터를 WeatherResponse 타입으로 처리
-                            const weatherResponse =
-                                data as unknown as WeatherResponse;
-
-                            if (
-                                weatherResponse.data &&
-                                weatherResponse.data.length > 0
-                            ) {
-                                // API 응답을 WeatherCardType 형식으로 변환
-                                const transformedData: WeatherCardType[] =
-                                    weatherResponse.data.map((item) => {
-                                        // weather_time에서 날짜와 시간 추출
-                                        const dateTime = new Date(
-                                            item.weather_time
-                                        );
-                                        const formattedDate = `${String(dateTime.getMonth() + 1).padStart(2, "0")}-${String(dateTime.getDate()).padStart(2, "0")}`;
-                                        const formattedHour = `${String(dateTime.getHours()).padStart(2, "0")}:${String(dateTime.getMinutes()).padStart(2, "0")}`;
-
-                                        // 현재 일기 예보의 하늘 상태에 따라 날씨 아이콘 결정
-                                        let weatherIcon = "☀️"; // 기본값: 맑음
-                                        let currentSkyStatus = "맑음";
-
-                                        if (
-                                            item.fcst24hours &&
-                                            item.fcst24hours.length > 0
-                                        ) {
-                                            currentSkyStatus =
-                                                item.fcst24hours[0]
-                                                    ?.pre_sky_stts || "맑음";
-
-                                            if (
-                                                currentSkyStatus.includes(
-                                                    "맑음"
-                                                )
-                                            ) {
-                                                weatherIcon = "☀️";
-                                            } else if (
-                                                currentSkyStatus.includes(
-                                                    "구름"
-                                                )
-                                            ) {
-                                                weatherIcon =
-                                                    currentSkyStatus.includes(
-                                                        "많음"
-                                                    )
-                                                        ? "☁️"
-                                                        : "🌤️";
-                                            } else if (
-                                                currentSkyStatus.includes("비")
-                                            ) {
-                                                weatherIcon = "🌧️";
-                                            } else if (
-                                                currentSkyStatus.includes("눈")
-                                            ) {
-                                                weatherIcon = "❄️";
-                                            }
-                                        }
-
-                                        // 미세먼지 수준 결정
-                                        const fineDustLevel = getDustLevelText(
-                                            item.pm10
-                                        );
-                                        const ultraFineDustLevel =
-                                            getDustLevelText(item.pm25);
-
-                                        return {
-                                            date: formattedDate,
-                                            hour: formattedHour,
-                                            status: currentSkyStatus,
-                                            icon: weatherIcon,
-                                            temperature: `${item.temp}°C`,
-                                            maxTemp: `${item.max_temp}°C`,
-                                            minTemp: `${item.min_temp}°C`,
-                                            sensibleTemp: `${item.sensible_temp}°C`,
-                                            precipitation: item.precipitation,
-                                            precipitationType: item.precpt_type,
-                                            precipitationMessage: item.pcp_msg,
-                                            areaName: item.area_nm,
-                                            dust: {
-                                                fineDust: fineDustLevel,
-                                                ultraFineDust:
-                                                    ultraFineDustLevel,
-                                            },
-                                            forecast: item.fcst24hours,
-                                        };
-                                    });
-
-                                // 변환된 데이터로 상태 업데이트
-                                setWeatherInfoData(transformedData);
-
-                                // 유효한 데이터를 가져왔으면 오류 초기화
-                                if (error) {
-                                    setError(null);
-                                }
-                            }
-                        }
-                    } catch (err) {
-                        console.error("날씨 데이터 처리 중 오류:", err);
-                    }
+                    console.log("도착한 날씨데이터: ", data);
+                    setWeatherInfoData(data as unknown as WeatherData[]);
                 });
 
                 // 이벤트 소스 저장
                 eventSources.current.weatherUpdate = event;
+            } else {
+                // 더미데이터로 교체
+                setWeatherInfoData(dummyWeatherData);
             }
         } catch (err) {
             console.error("날씨 데이터 가져오기 실패:", err);
@@ -295,7 +287,7 @@ export const AdminDataProvider: React.FC<AdminDataProviderProps> = ({
     };
 
     // 트래픽 정보 구독 설정
-    const setupTrafficUpdate = () => {
+    const fetchTrafficUpdate = () => {
         if (!test) {
             // 기존 이벤트 소스가 있다면 닫기
             if (eventSources.current.trafficUpdate) {
@@ -314,7 +306,7 @@ export const AdminDataProvider: React.FC<AdminDataProviderProps> = ({
     };
 
     // 주차 정보 구독 설정
-    const setupParkUpdate = () => {
+    const fetchParkUpdate = () => {
         if (!test) {
             // 기존 이벤트 소스가 있다면 닫기
             if (eventSources.current.parkUpdate) {
@@ -323,8 +315,8 @@ export const AdminDataProvider: React.FC<AdminDataProviderProps> = ({
 
             // 새 이벤트 소스 생성
             const event = subscribeParkUpdate((data) => {
-                console.log("Park data update received:", data);
                 // 필요한 상태 업데이트 로직 추가
+                setParkData(data as unknown as ParkInfo[]);
             });
 
             // 이벤트 소스 저장
@@ -356,8 +348,8 @@ export const AdminDataProvider: React.FC<AdminDataProviderProps> = ({
         fetchTouristInfo();
         fetchTouristSpots();
         fetchWeatherData();
-        setupTrafficUpdate();
-        setupParkUpdate();
+        fetchTrafficUpdate();
+        fetchParkUpdate();
 
         // 정기적인 새로고침 설정 (10분)
         const interval = setInterval(() => {
@@ -380,6 +372,9 @@ export const AdminDataProvider: React.FC<AdminDataProviderProps> = ({
         touristInfoData,
         touristSpotsData,
         weatherInfoData,
+        parkData,
+        combinedAreaData,
+        findAreaData,
         isLoading: loading,
         spotsLoading,
         weatherLoading,

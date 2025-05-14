@@ -1,12 +1,17 @@
 // src/components/admin/AdminDetail.tsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useLocation, useParams } from "react-router-dom";
 import PieCard from "./cards/PieCard";
 import SimpleInfoCard from "./cards/SimpleInfoCard";
 import AreaPopulationCard from "./cards/AreaPopulationCard";
 import PopulationRateCard from "./cards/PopulationRateCard";
 import ForecastPopulationCard from "./cards/ForecastPopulationCard";
-import { ForecastPopulation, Data, PopulationData } from "../../data/adminData";
+import {
+    ForecastPopulation,
+    Data,
+    PopulationData,
+    CombinedAreaData,
+} from "../../data/adminData";
 import RodeCard from "./cards/RodeCard";
 import AdminHeader from "./AdminHeader";
 import { useAdminData } from "../../context/AdminContext";
@@ -16,7 +21,10 @@ const AdminDetail = () => {
     const { spotCode } = useParams<{ spotCode: string }>();
     // Navi로 이동할 때 같이 보낸 데이터 받아오기
     const location = useLocation();
-    const selectedSpot: PopulationData = location.state?.selectedSpot;
+    // 해당 데이터를 가공해서 처리
+    const spotData: CombinedAreaData = location.state?.combinedAreaData;
+
+    console.log("받은 데이터: ", spotData);
 
     // 전역 상태에서 데이터 가져오기
     const { touristInfoData, refreshAllData, refreshing } = useAdminData();
@@ -29,18 +37,20 @@ const AdminDetail = () => {
     const [lastUpdated, setLastUpdated] = useState<Date | null>(new Date());
 
     // 현재 선택된 지역 코드에 해당하는 데이터 찾기
-    const areaData =
-        selectedSpot ||
-        touristInfoData.find((item) => item.area_cd === spotCode) ||
-        null;
+    // const areaData =
+    //     selectedSpot ||
+    //     touristInfoData.find((item) => item.area_cd === spotCode) ||
+    //     null;
 
     // 차트 데이터 처리
-    React.useEffect(() => {
-        if (areaData) {
-            processChartData(areaData);
+    useEffect(() => {
+        if (spotData) {
+            if (spotData.population) {
+                processChartData(spotData.population);
+            }
             setLastUpdated(new Date());
         }
-    }, [areaData, touristInfoData]);
+    }, [spotData, touristInfoData]);
 
     // 차트 데이터 가공 함수
     const processChartData = (data: PopulationData) => {
@@ -232,7 +242,7 @@ const AdminDetail = () => {
     };
 
     // 데이터가 없는 경우
-    if (!areaData) {
+    if (!spotData) {
         return (
             <div className="bg-gray-100 min-h-screen flex flex-col w-full">
                 <AdminHeader path={"/manage"} />
@@ -262,17 +272,18 @@ const AdminDetail = () => {
                     {/* SimpleInfoCard */}
                     <SimpleInfoCard
                         info={{
-                            area_name: areaData.area_nm,
-                            area_code: areaData.area_cd,
-                            area_congest_lvl: areaData.area_congest_lvl,
+                            area_name: spotData.area_nm,
+                            area_code: spotData.population!.area_cd,
+                            area_congest_lvl:
+                                spotData.population!.area_congest_lvl,
                         }}
                     />
 
                     {/* AreaPopulationCard */}
                     <AreaPopulationCard
                         population={{
-                            area_ppltn_min: areaData.area_ppltn_min,
-                            area_ppltn_max: areaData.area_ppltn_max,
+                            area_ppltn_min: spotData.population!.area_ppltn_min,
+                            area_ppltn_max: spotData.population!.area_ppltn_max,
                         }}
                     />
 

@@ -58,26 +58,6 @@ export const WeatherCard = (props: WeatherCardType) => {
                     {props.precipitationMessage}
                 </div>
             </div>
-
-            {/* Fine dust information */}
-            <div className="border-t border-gray-200 p-2 bg-gray-50">
-                <div className="flex justify-between items-center mb-1 text-sm">
-                    <div className="font-medium text-black">미세먼지:</div>
-                    <div
-                        className={`font-medium ${getDustColor(props.dust.fineDust)}`}
-                    >
-                        {props.dust.fineDust}
-                    </div>
-                </div>
-                <div className="flex justify-between items-center text-sm">
-                    <div className="font-medium text-black">초미세먼지:</div>
-                    <div
-                        className={`font-medium ${getDustColor(props.dust.ultraFineDust)}`}
-                    >
-                        {props.dust.ultraFineDust}
-                    </div>
-                </div>
-            </div>
         </div>
     );
 };
