@@ -117,8 +117,8 @@ const AdminDetail = () => {
         ]);
 
         // 24시간 인구 추이 예측 파싱
-        if (data.fcst_ppltn && data.fcst_ppltn.fcst_ppltn) {
-            const forecastChartData = data.fcst_ppltn.fcst_ppltn.map(
+        if (data.fcst_ppltn) {
+            const forecastChartData = data.fcst_ppltn.map(
                 (item: ForecastPopulation) => {
                     // 시간 포맷팅 (2025-04-18 17:00 -> 17:00)
                     const timeString = item.fcst_time.split(" ")[1];
