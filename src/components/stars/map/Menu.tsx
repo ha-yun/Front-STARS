@@ -24,11 +24,11 @@ const categoryMap: Record<string, string> = {
 };
 
 const categoryColorMap: Record<string, string> = {
-    숙박: "text-blue-700",
-    관광명소: "text-green-700",
-    카페: "text-pink-700",
-    음식점: "text-yellow-700",
-    문화행사: "text-purple-700",
+    숙박: "text-blue-600",
+    관광명소: "text-green-600",
+    카페: "text-yellow-600",
+    음식점: "text-red-600",
+    문화행사: "text-purple-600",
 };
 
 const reverseCategoryMap: Record<string, string> = Object.entries(
@@ -61,11 +61,11 @@ export default function Menu({ isOpen, searchData, hasSearched }: MenuProps) {
         <div
             className={`absolute md:top-28 top-24 max-h-[80vh] md:w-96 w-11/12 bg-white shadow-lg rounded-2xl transition-transform duration-300 z-20 ${
                 isOpen
-                    ? "translate-x-6 opacity-100 pointer-events-auto"
+                    ? "md:translate-x-6 translate-x-[18px] opacity-100 pointer-events-auto"
                     : "-translate-x-full pointer-events-none"
             }`}
         >
-            <div className="p-2 h-full flex flex-col overflow-y-auto min-h-[30vh] max-h-[80vh]">
+            <div className="p-2 h-full flex flex-col overflow-y-auto min-h-[30vh] max-h-[70vh]">
                 {/* 헤더 */}
                 <div className="flex p-2 justify-between items-center sticky top-0 z-10">
                     <div className="flex items-center">
@@ -106,7 +106,7 @@ export default function Menu({ isOpen, searchData, hasSearched }: MenuProps) {
                 <ul className="overflow-y-auto">
                     {!hasSearched ? (
                         <>
-                            <li className="py-4 mt-8 text-xl text-gray-600 text-center">
+                            <li className="py-4 mt-4 text-xl text-gray-600 text-center">
                                 반가워요 또 찾아주셨네요.
                             </li>
                             <li className="py-4 text-base text-gray-400 text-center">
@@ -114,14 +114,14 @@ export default function Menu({ isOpen, searchData, hasSearched }: MenuProps) {
                             </li>
                         </>
                     ) : dataToShow.length === 0 ? (
-                        <li className="py-4 mt-14 text-xl text-gray-500 text-center">
+                        <li className="py-4 mt-8 text-xl text-gray-500 text-center">
                             조건에 맞는 명소가 없습니다.
                         </li>
                     ) : (
                         dataToShow.map((item, idx) => (
                             <li
                                 key={`${item.place_id ?? `${item.name}-${item.address}`}-${idx}`}
-                                className="py-6 border-b mr-2 flex items-center"
+                                className="py-6 border-b md:mr-2 flex items-center"
                             >
                                 <div className="flex-[3] flex flex-col items-center justify-center text-center">
                                     <div className="font-semibold text-gray-800 text-lg">
