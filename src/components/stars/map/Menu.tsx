@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import useCustomLogin from "../../../hooks/useCustomLogin";
 
 interface SearchDataItem {
     place_id: number;
@@ -45,6 +46,7 @@ export default function Menu({ isOpen, searchData, hasSearched }: MenuProps) {
     const [openDropdown, setOpenDropdown] = useState<DropdownType>(null);
     const [selectedCategory, setSelectedCategory] =
         useState<string>("카테고리");
+    const { isLogin, doLogout, moveToLogin } = useCustomLogin();
 
     // 카테고리 필터링
     const dataToShow = useMemo(() => {
@@ -144,6 +146,23 @@ export default function Menu({ isOpen, searchData, hasSearched }: MenuProps) {
                         ))
                     )}
                 </ul>
+                <div className="fixed bottom-4 right-4">
+                    {!isLogin ? (
+                        <span
+                            className="underline text-indigo-500 font-semibold cursor-pointer hover:text-indigo-700 transition px-2 py-1"
+                            onClick={moveToLogin}
+                        >
+                            로그인/회원가입
+                        </span>
+                    ) : (
+                        <span
+                            className="underline text-red-500 font-semibold cursor-pointer hover:text-red-700 transition px-2 py-1"
+                            onClick={doLogout}
+                        >
+                            로그아웃
+                        </span>
+                    )}
+                </div>
             </div>
         </div>
     );
