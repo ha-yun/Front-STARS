@@ -18,7 +18,7 @@ export const subscribeCongestionUpdate = (
     return eventSource;
 };
 
-// 실시간 혼잡도 알림 수신
+// 실시간 혼잡도 알림 수신 3,4단계
 export const subscribeCongestionAlert = (
     onAlert: (data: Record<string, unknown>) => void
 ): EventSource => {

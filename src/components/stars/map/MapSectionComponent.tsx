@@ -6,9 +6,9 @@ import { places } from "../../../data/placesData";
 import FocusCard from "./FocusCard";
 import SearchBar from "./SearchBar";
 import useCustomLogin from "../../../hooks/useCustomLogin";
-
-// API
 import { getAttractionList } from "../../../api/starsApi";
+import AlertModal from "../../alert/AlertModal";
+import useCongestionAlert from "../../../hooks/useCongestionAlert";
 
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
 
@@ -20,17 +20,6 @@ interface Attraction {
     lon: number;
 }
 
-// Dummy Data
-// interface MarkerPlace {
-//     id: keyof typeof places;
-//     coords: [number, number];
-// }
-//
-// const markerPlaces: MarkerPlace[] = [
-//     { id: "seoulPlaza", coords: [126.9779692, 37.566535] },
-//     { id: "lotteTower", coords: [127.1025, 37.5131] },
-// ];
-
 export default function MapSectionComponent() {
     const mapContainer = useRef<HTMLDivElement | null>(null);
     const { setSelectedPlace, setTriggerCountUp } = usePlace();
@@ -41,6 +30,8 @@ export default function MapSectionComponent() {
 
     // 리덕스 로그인 상태 및 액션 사용
     const { isLogin, doLogout, moveToLogin } = useCustomLogin();
+    // AlertModal 관련 상태 및 함수
+    const { alerts, dismissAlert } = useCongestionAlert();
 
     useEffect(() => {
         if (!mapContainer.current) return;
@@ -140,6 +131,7 @@ export default function MapSectionComponent() {
                     }}
                 />
             )}
+            <AlertModal alerts={alerts} onDismiss={dismissAlert} />
         </div>
     );
 }
