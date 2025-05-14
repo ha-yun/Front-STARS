@@ -6,7 +6,7 @@ export interface TouristSpot {
     area_congest_lvl: string;
 }
 
-export interface WeatherCard {
+export interface WeatherCardType {
     date: string;
     hour: string;
     status: string;
@@ -197,7 +197,7 @@ export const touristSpots: TouristSpot[] = [
 ];
 
 // 단순 5일치 날씨 조회
-export const weatherData: WeatherCard[] = [
+export const weatherData: WeatherCardType[] = [
     {
         date: "04-22",
         hour: "오늘",

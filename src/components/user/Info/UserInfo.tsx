@@ -6,6 +6,7 @@ import UserInfoEdit from "./UserInfoEdit";
 import { UserInfo as UserInfoType } from "../../../data/UserInfoData";
 import { editUserProfile, getUserProfile } from "../../../api/mypageApi";
 import { signoutUser } from "../../../api/authApi";
+import useCustomLogin from "../../../hooks/useCustomLogin";
 // import { signoutUser } from "../../../api/authApi";
 
 const initialUserData: UserInfoType = {
@@ -35,6 +36,7 @@ const UserInfo = () => {
     // 사용자 정보 저장
     const [userInfoToSubmit, setUserInfoToSubmit] =
         useState<UserInfoType>(initialUserData);
+    const { doLogout, moveToPath } = useCustomLogin();
 
     // 사용자 정보 불러오는 함수
     const loadUserInfo = async () => {
@@ -91,6 +93,7 @@ const UserInfo = () => {
 
     // 계정 삭제 핸들러
     const handleDeleteAccount = async () => {
+        console.log(userData);
         if (
             window.confirm(
                 "정말로 계정을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다."
@@ -103,12 +106,14 @@ const UserInfo = () => {
                 // 실제 호출해야하는 API, member_id 필요
                 const response = await signoutUser(userData?.member_id);
 
-                if (response.success) {
+                if (response === "회원 탈퇴가 완료되었습니다.") {
                     // 성공 메시지 표시
                     alert(
                         response.message || "계정이 성공적으로 삭제되었습니다."
                     );
-                    // 여기서 로그아웃 또는 다른 페이지로 리다이렉트 로직을 추가할 수 있습니다.
+                    // 정상 탈퇴시 로그아웃(토큰 삭제) 및 리디렉션
+                    doLogout();
+                    moveToPath("/");
                 } else {
                     // 실패 메시지 표시
                     alert(response.message || "계정 삭제에 실패했습니다.");
