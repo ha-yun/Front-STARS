@@ -49,7 +49,7 @@ export default function AlertModal({
     };
 
     return (
-        <div className="fixed top-20 right-4 z-10 flex flex-col gap-1">
+        <div className="fixed md:top-4 top-24 right-4 z-10 flex flex-col gap-1">
             {alerts.map((alert) => {
                 const isExpanded = expanded.includes(alert.id);
                 return (
