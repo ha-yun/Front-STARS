@@ -89,7 +89,6 @@ export default function AlertModal({
                                 </span>
                             </div>
                             <button
-                                type="button"
                                 className="w-7 h-7 flex items-center justify-center rounded-full text-gray-600 hover:text-gray-900 transition-colors duration-150 cursor-pointer bg-transparent"
                                 onClick={(e) => {
                                     e.stopPropagation(); // prevent toggle
@@ -107,7 +106,6 @@ export default function AlertModal({
                         >
                             {alert.area_congest_msg}
                             <div
-                                type="button"
                                 className="underline text-gray-600 text-sm"
                                 onClick={(e) => {
                                     e.stopPropagation();
