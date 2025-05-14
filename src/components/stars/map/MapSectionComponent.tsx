@@ -56,7 +56,7 @@ export default function MapSectionComponent() {
                 markerElement.style.cursor = "pointer";
 
                 markerElement.addEventListener("click", () => {
-                    setSelectedAreaId(area_id.toString()); // ✅ 전역 상태에 저장
+                    setSelectedAreaId(area_id); // ✅ 전역 상태에 저장
                     map.flyTo({ center: [lon, lat], zoom: 14, pitch: 45 });
 
                     map.once("moveend", () => {

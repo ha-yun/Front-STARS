@@ -4,7 +4,7 @@ import { CountUp } from "countup.js";
 import { getAreaList, getPlaceListByArea } from "../../../api/starsApi";
 
 interface AreaFocusCardProps {
-    areaId: string;
+    areaId: number;
     show: boolean;
     onClose: () => void;
     onDetail: () => void;
