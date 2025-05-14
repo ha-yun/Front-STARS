@@ -5,6 +5,7 @@ export type AlertType = "danger" | "warning" | "info" | "success";
 export interface CongestionAlert {
     id: number;
     area_nm: string;
+    area_id: number;
     area_congest_lvl: string;
     area_congest_msg: string;
     ppltn_time: string;
@@ -14,6 +15,7 @@ export interface CongestionAlert {
 interface AlertModalProps {
     alerts: CongestionAlert[];
     onDismiss: (id: number) => void;
+    onViewArea?: (areaId: number) => void;
 }
 
 const baseAlertClass = "p-3 border rounded-lg cursor-pointer";
@@ -32,8 +34,13 @@ const getBadgeClass = (level: string) => {
     return "bg-gray-100 text-gray-800";
 };
 
-export default function AlertModal({ alerts, onDismiss }: AlertModalProps) {
+export default function AlertModal({
+    alerts,
+    onDismiss,
+    onViewArea,
+}: AlertModalProps) {
     const [expanded, setExpanded] = useState<number[]>([]);
+    console.log(alerts);
 
     const toggleExpand = (id: number) => {
         setExpanded((prev) =>
@@ -42,7 +49,7 @@ export default function AlertModal({ alerts, onDismiss }: AlertModalProps) {
     };
 
     return (
-        <div className="fixed top-4 right-4 z-50 flex flex-col gap-1">
+        <div className="fixed top-20 right-4 z-10 flex flex-col gap-1">
             {alerts.map((alert) => {
                 const isExpanded = expanded.includes(alert.id);
                 return (
@@ -99,6 +106,16 @@ export default function AlertModal({ alerts, onDismiss }: AlertModalProps) {
                             }`}
                         >
                             {alert.area_congest_msg}
+                            <div
+                                type="button"
+                                className="underline text-gray-600 text-sm"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    onViewArea?.(alert.area_id);
+                                }}
+                            >
+                                보러가기
+                            </div>
                         </div>
                     </div>
                 );

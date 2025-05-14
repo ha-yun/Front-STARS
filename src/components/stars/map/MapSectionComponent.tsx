@@ -4,8 +4,8 @@ import "mapbox-gl/dist/mapbox-gl.css";
 import { usePlace } from "../../../context/PlaceContext";
 import SearchBar from "./SearchBar";
 import useCustomLogin from "../../../hooks/useCustomLogin";
-
-// API
+import AlertModal from "../../alert/AlertModal";
+import useCongestionAlert from "../../../hooks/useCongestionAlert";
 import { getAreaList } from "../../../api/starsApi";
 import AreaFocusCard from "./AreaFoucsCard"; // 관광특구 카드
 
@@ -22,6 +22,7 @@ interface Area {
 
 export default function MapSectionComponent() {
     const mapContainer = useRef<HTMLDivElement | null>(null);
+    const mapRef = useRef<mapboxgl.Map | null>(null); // 추가
     const {
         selectedAreaId,
         setSelectedAreaId,
@@ -29,7 +30,8 @@ export default function MapSectionComponent() {
         setTriggerCountUp,
     } = usePlace();
     const [showFocusCard, setShowFocusCard] = useState(false);
-
+    // AlertModal 관련 상태 및 함수
+    const { alerts, dismissAlert } = useCongestionAlert();
     const { isLogin, doLogout, moveToLogin } = useCustomLogin();
 
     useEffect(() => {
@@ -42,6 +44,7 @@ export default function MapSectionComponent() {
             zoom: 11.3,
             minZoom: 11.3,
         });
+        mapRef.current = map; // 추가
 
         // 관광특구 마커 생성
         getAreaList().then((areaList: Area[]) => {
@@ -56,7 +59,7 @@ export default function MapSectionComponent() {
                 markerElement.style.cursor = "pointer";
 
                 markerElement.addEventListener("click", () => {
-                    setSelectedAreaId(area_id); // ✅ 전역 상태에 저장
+                    setSelectedAreaId(area_id);
                     map.flyTo({ center: [lon, lat], zoom: 14, pitch: 45 });
 
                     map.once("moveend", () => {
@@ -70,6 +73,26 @@ export default function MapSectionComponent() {
 
         return () => map.remove();
     }, [setSelectedAreaId]);
+
+    const handleViewArea = (areaId: number) => {
+        console.log(areaId + "번 지역으로 이동");
+        getAreaList().then((areaList: Area[]) => {
+            const area = areaList.find((a) => a.area_id === areaId);
+            if (area && mapRef.current) {
+                mapRef.current.flyTo({
+                    center: [area.lon, area.lat],
+                    zoom: 14,
+                    pitch: 45,
+                });
+                setSelectedAreaId(areaId);
+                mapRef.current.once("moveend", () => {
+                    requestAnimationFrame(() => {
+                        setShowFocusCard(true);
+                    });
+                });
+            }
+        });
+    };
 
     return (
         <div className="relative w-screen app-full-height">
@@ -121,6 +144,11 @@ export default function MapSectionComponent() {
                     }}
                 />
             )}
+            <AlertModal
+                alerts={alerts}
+                onDismiss={dismissAlert}
+                onViewArea={handleViewArea}
+            />
         </div>
     );
 }

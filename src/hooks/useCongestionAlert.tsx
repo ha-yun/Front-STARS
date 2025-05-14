@@ -26,6 +26,7 @@ export default function useCongestionAlert() {
                     const newAlert: CongestionAlert = {
                         id: exists ? exists.id : ++alertId,
                         area_nm: item.area_nm as string,
+                        area_id: item.area_id as number,
                         area_congest_lvl: item.area_congest_lvl as string,
                         area_congest_msg: item.area_congest_msg as string,
                         ppltn_time: item.ppltn_time as string,
