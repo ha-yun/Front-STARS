@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import useCustomLogin from "../../hooks/useCustomLogin";
 
 interface Props {
     path: string;
@@ -8,6 +9,7 @@ interface Props {
 export default function AdminHeader({ path }: Props) {
     const navigate = useNavigate();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const { doLogout, moveToPath } = useCustomLogin();
 
     const toggleMenu = () => {
         setIsMenuOpen(!isMenuOpen);
@@ -72,7 +74,10 @@ export default function AdminHeader({ path }: Props) {
                                     className="w-full text-left px-4 py-2 text-sm bg-white text-gray-700 hover:bg-indigo-50 hover:text-indigo-700"
                                     onClick={() => {
                                         setIsMenuOpen(false);
-                                        navigate(item.path);
+                                        if (item.path === "/login") {
+                                            doLogout();
+                                            moveToPath("/");
+                                        } else navigate(item.path);
                                     }}
                                 >
                                     {item.label}

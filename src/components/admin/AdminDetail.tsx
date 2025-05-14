@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+// src/components/admin/AdminDetail.tsx
+import React, { useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
 import PieCard from "./cards/PieCard";
 import SimpleInfoCard from "./cards/SimpleInfoCard";
@@ -8,63 +9,38 @@ import ForecastPopulationCard from "./cards/ForecastPopulationCard";
 import { ForecastPopulation, Data, PopulationData } from "../../data/adminData";
 import RodeCard from "./cards/RodeCard";
 import AdminHeader from "./AdminHeader";
+import { useAdminData } from "../../context/AdminContext";
 
 const AdminDetail = () => {
     // URL 파라미터에서 spotCode 가져오기
     const { spotCode } = useParams<{ spotCode: string }>();
     // Navi로 이동할 때 같이 보낸 데이터 받아오기
     const location = useLocation();
-    const selectedSpot: PopulationData = location.state.selectedSpot;
+    const selectedSpot: PopulationData = location.state?.selectedSpot;
 
-    // 상태 관리
-    const [loading, setLoading] = useState<boolean>(true);
-    const [error, setError] = useState<string | null>(null);
-    const [refreshing, setRefreshing] = useState<boolean>(false);
-    const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+    // 전역 상태에서 데이터 가져오기
+    const { touristInfoData, refreshAllData, refreshing } = useAdminData();
 
-    // 데이터 상태
-    const [areaData, setAreaData] = useState<PopulationData | null>(null);
+    // 로컬 상태 관리
     const [gender, setGender] = useState<Data[]>([]);
     const [resnt, setResnt] = useState<Data[]>([]);
     const [ppltnRate, setPpltnRate] = useState<Data[]>([]);
     const [forecastData, setForecastData] = useState<ForecastPopulation[]>([]);
+    const [lastUpdated, setLastUpdated] = useState<Date | null>(new Date());
 
-    console.log("Current spotCode:", spotCode);
-    console.log(selectedSpot);
+    // 현재 선택된 지역 코드에 해당하는 데이터 찾기
+    const areaData =
+        selectedSpot ||
+        touristInfoData.find((item) => item.area_cd === spotCode) ||
+        null;
 
-    // 데이터 가져오기 함수
-    const fetchAreaData = async (isRefresh = false) => {
-        if (isRefresh) {
-            setRefreshing(true);
-        } else {
-            setLoading(true);
-        }
-        setError(null);
-
-        try {
-            // Detail로 넘어올 때 useLocation을 이용해 해당 지역 데이터를 미리 받아옴
-            setAreaData(selectedSpot);
-            processChartData(selectedSpot);
+    // 차트 데이터 처리
+    React.useEffect(() => {
+        if (areaData) {
+            processChartData(areaData);
             setLastUpdated(new Date());
-        } catch (err) {
-            console.error("Error fetching area data:", err);
-            setError(
-                err instanceof Error
-                    ? err.message
-                    : "알 수 없는 오류가 발생했습니다."
-            );
-
-            // 첫 로드 시 오류인 경우에만 더미 데이터 사용 (개발 중에만)
-            // if (!isRefresh && !areaData) {
-            //     setAreaData(dummyData);
-            //     processChartData(dummyData);
-            //     setLastUpdated(new Date());
-            // }
-        } finally {
-            setLoading(false);
-            setRefreshing(false);
         }
-    };
+    }, [areaData, touristInfoData]);
 
     // 차트 데이터 가공 함수
     const processChartData = (data: PopulationData) => {
@@ -159,33 +135,19 @@ const AdminDetail = () => {
         }
     };
 
-    // 첫 로드 시 데이터 가져오기 및 자동 새로고침 설정
-    useEffect(() => {
-        if (spotCode) {
-            fetchAreaData(false);
-
-            // 1분마다 데이터 자동 갱신 (60000ms)
-            const refreshInterval = setInterval(() => {
-                fetchAreaData(true);
-            }, 60000);
-
-            // 컴포넌트 언마운트 시 interval 정리
-            return () => clearInterval(refreshInterval);
-        }
-    }, [spotCode]);
-
     // 수동 새로고침 핸들러
     const handleRefresh = () => {
-        fetchAreaData(true);
+        refreshAllData();
     };
 
     // 로딩 스피너 컴포넌트
-    const LoadingSpinner = ({ message = "데이터를 불러오는 중..." }) => (
-        <div className="flex flex-col items-center justify-center">
-            <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-            <p className="mt-4 text-lg font-medium text-gray-700">{message}</p>
-        </div>
-    );
+    // 데이터 로딩을 상위 컴포넌트에서 다 해결하기 때문에 굳이 있을 필요 없음
+    // const LoadingSpinner = ({ message = "데이터를 불러오는 중..." }) => (
+    //     <div className="flex flex-col items-center justify-center">
+    //         <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+    //         <p className="mt-4 text-lg font-medium text-gray-700">{message}</p>
+    //     </div>
+    // );
 
     // 에러 메시지 컴포넌트
     const ErrorMessage = ({
@@ -269,33 +231,6 @@ const AdminDetail = () => {
         );
     };
 
-    // 로딩 UI
-    if (loading) {
-        return (
-            <div className="bg-gray-100 min-h-screen flex flex-col w-full">
-                <AdminHeader path={"/manage"} />
-                <div className="flex-grow flex items-center justify-center">
-                    <LoadingSpinner message="지역 데이터를 불러오는 중..." />
-                </div>
-            </div>
-        );
-    }
-
-    // 에러 UI
-    if (error && !areaData) {
-        return (
-            <div className="bg-gray-100 min-h-screen flex flex-col w-full">
-                <AdminHeader path={"/manage"} />
-                <div className="flex-grow flex items-center justify-center">
-                    <ErrorMessage
-                        message={error}
-                        onRetry={() => fetchAreaData(false)}
-                    />
-                </div>
-            </div>
-        );
-    }
-
     // 데이터가 없는 경우
     if (!areaData) {
         return (
@@ -304,7 +239,7 @@ const AdminDetail = () => {
                 <div className="flex-grow flex items-center justify-center">
                     <ErrorMessage
                         message="데이터를 찾을 수 없습니다"
-                        onRetry={() => fetchAreaData(false)}
+                        onRetry={() => refreshAllData()}
                     />
                 </div>
             </div>
@@ -318,7 +253,7 @@ const AdminDetail = () => {
             <AdminHeader path={"/manage"} />
             {/* End of Header */}
 
-            {/* Main Container - 반응형 그리드 사용 */}
+            {/* Main Container*/}
             <div className="p-6 flex-grow">
                 {/* 업데이트 인디케이터 */}
                 <UpdateIndicator />
