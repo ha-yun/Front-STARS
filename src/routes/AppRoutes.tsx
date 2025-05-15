@@ -7,6 +7,7 @@ import AdminDetail from "../components/admin/AdminDetail";
 import AdminTour from "../components/admin/AdminTour";
 import AdminUserFavorite from "../components/admin/AdminUserFavorite";
 import LoginPage from "../pages/login/LoginPage";
+import AdminTraffic from "../components/admin/AdminTraffic";
 
 export default function AppRoutes() {
     return (
@@ -22,6 +23,7 @@ export default function AppRoutes() {
                 <Route path=":spotCode" element={<AdminDetail />} />
                 <Route path="tour" element={<AdminTour />} />
                 <Route path="user" element={<AdminUserFavorite />} />
+                <Route path="traffic" element={<AdminTraffic />} />
             </Route>
         </Routes>
     );

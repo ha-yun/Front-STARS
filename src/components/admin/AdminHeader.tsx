@@ -19,6 +19,7 @@ export default function AdminHeader({ path }: Props) {
         { label: "대시보드", path: "/manage" },
         { label: "축제 현황", path: "/manage/tour" },
         { label: "사용자 즐겨찾기", path: "/manage/user" },
+        { label: "도로 혼잡도", path: "/manage/traffic" },
         { label: "로그아웃(메인으로)", path: "/login" },
     ];
 
