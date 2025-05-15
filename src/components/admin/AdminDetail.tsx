@@ -27,15 +27,14 @@ const AdminDetail = () => {
     console.log("받은 데이터: ", spotData);
 
     // 전역 상태에서 데이터 가져오기
-    const { touristInfoData, refreshAllData, refreshing } = useAdminData();
+    const { touristInfoData, refreshAllData } = useAdminData();
 
     // 로컬 상태 관리
     const [gender, setGender] = useState<Data[]>([]);
     const [resnt, setResnt] = useState<Data[]>([]);
     const [ppltnRate, setPpltnRate] = useState<Data[]>([]);
-    const [weather, setWeather] = useState<WeatherData[]>([]);
+    const [weather, setWeather] = useState<WeatherData | null>();
     const [forecastData, setForecastData] = useState<ForecastPopulation[]>([]);
-    const [lastUpdated, setLastUpdated] = useState<Date | null>(new Date());
 
     // 현재 선택된 지역 코드에 해당하는 데이터 찾기
     // const areaData =
@@ -50,15 +49,8 @@ const AdminDetail = () => {
             if (spotData.population) {
                 processChartData(spotData.population);
                 // 지금 weather를 인식하고 있지 못하고 있음 -> 경우별로 케이스를 확실하게 나누는 방법밖에
-                if (Array.isArray(spotData.weather)) {
-                    setWeather(spotData.weather);
-                } else if (spotData.weather) {
-                    setWeather([spotData.weather]);
-                } else {
-                    setWeather([]); // 정의되어 있지 않음
-                }
+                setWeather(spotData.weather || null);
             }
-            setLastUpdated(new Date());
         }
     }, [spotData, touristInfoData]);
 
@@ -155,11 +147,6 @@ const AdminDetail = () => {
         }
     };
 
-    // 수동 새로고침 핸들러
-    const handleRefresh = () => {
-        refreshAllData();
-    };
-
     // 에러 메시지 컴포넌트
     const ErrorMessage = ({
         message,
@@ -198,50 +185,6 @@ const AdminDetail = () => {
         </div>
     );
 
-    // 업데이트 인디케이터 컴포넌트
-    const UpdateIndicator = () => {
-        // 시간 포맷팅 함수
-        const formatTime = (date: Date) => {
-            return date.toLocaleTimeString([], {
-                hour: "2-digit",
-                minute: "2-digit",
-                second: "2-digit",
-            });
-        };
-
-        return (
-            <div className="flex items-center justify-end mb-4 text-sm text-gray-600">
-                {lastUpdated && (
-                    <span className="mr-2">
-                        마지막 업데이트: {formatTime(lastUpdated)}
-                    </span>
-                )}
-                <button
-                    onClick={handleRefresh}
-                    disabled={refreshing}
-                    className="flex items-center bg-white border-gray-400 text-blue-600 hover:text-blue-800 disabled:text-gray-400 transition-colors"
-                >
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className={`h-4 w-4 mr-1 ${refreshing ? "animate-spin" : ""}`}
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                    >
-                        <path d="M23 4v6h-6"></path>
-                        <path d="M1 20v-6h6"></path>
-                        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10"></path>
-                        <path d="M20.49 15a9 9 0 0 1-14.85 3.36L1 14"></path>
-                    </svg>
-                    {refreshing ? "새로고침 중..." : "새로고침"}
-                </button>
-            </div>
-        );
-    };
-
     // 데이터가 없는 경우
     if (!spotData) {
         return (
@@ -267,7 +210,7 @@ const AdminDetail = () => {
             {/* Main Container*/}
             <div className="p-6 flex-grow">
                 {/* 업데이트 인디케이터 */}
-                <UpdateIndicator />
+                {/*<UpdateIndicator />*/}
 
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 grid-rows-[0.7fr_1fr_1fr]">
                     {/* SimpleInfoCard */}

@@ -59,7 +59,7 @@ interface AdminDataProviderProps {
 // 컨텍스트 제공자 컴포넌트
 export const AdminDataProvider: React.FC<AdminDataProviderProps> = ({
     children,
-    test = false,
+    test = true,
 }) => {
     // 데이터 상태 및 로딩 상태
     const [touristInfoData, setTouristInfoData] = useState<PopulationData[]>(
@@ -111,11 +111,11 @@ export const AdminDataProvider: React.FC<AdminDataProviderProps> = ({
 
             const entry = combinedMap.get(areaId)!;
             entry.population = {
-                area_id: 0,
-                area_nm: "",
-                fcst_yn: "",
-                get_time: 0,
-                replace_yn: "",
+                area_id: populationData.area_id,
+                area_nm: populationData.area_nm,
+                fcst_yn: populationData.fcst_yn,
+                get_time: populationData.get_time,
+                replace_yn: populationData.replace_yn,
                 area_cd: populationData.area_cd,
                 area_congest_lvl: populationData.area_congest_lvl,
                 area_congest_msg: populationData.area_congest_msg,
@@ -146,9 +146,9 @@ export const AdminDataProvider: React.FC<AdminDataProviderProps> = ({
 
             const entry = combinedMap.get(areaId)!;
             entry.weather = {
-                area_id: 0,
-                area_nm: "",
-                get_time: 0,
+                area_id: weatherItem.area_id,
+                area_nm: weatherItem.area_nm,
+                get_time: weatherItem.get_time,
                 temp: weatherItem.temp,
                 max_temp: weatherItem.max_temp,
                 min_temp: weatherItem.min_temp,
@@ -189,7 +189,7 @@ export const AdminDataProvider: React.FC<AdminDataProviderProps> = ({
                     const updateData = data as unknown as PopulationData[];
 
                     // for debug
-                    console.log("updateData", updateData);
+                    console.log("fetchTouristInfo", updateData);
 
                     setTouristInfoData(updateData);
                     if (error) {
@@ -265,7 +265,7 @@ export const AdminDataProvider: React.FC<AdminDataProviderProps> = ({
 
                 // 새 이벤트 소스 생성
                 const event = subscribeWeatherUpdate((data) => {
-                    console.log("도착한 날씨데이터: ", data);
+                    console.log("fetchWeatherData: ", data);
                     setWeatherInfoData(data as unknown as WeatherData[]);
                 });
 
@@ -274,6 +274,7 @@ export const AdminDataProvider: React.FC<AdminDataProviderProps> = ({
             } else {
                 // 더미데이터로 교체
                 setWeatherInfoData(dummyWeatherData);
+                console.log(dummyWeatherData);
             }
         } catch (err) {
             console.error("날씨 데이터 가져오기 실패:", err);
@@ -322,6 +323,7 @@ export const AdminDataProvider: React.FC<AdminDataProviderProps> = ({
         }
     };
 
+    // 사고 정보 조회 구독
     const fetchAccidentUpdate = () => {
         if (!test) {
             if (eventSources.current.accidentUpdate) {
@@ -329,9 +331,12 @@ export const AdminDataProvider: React.FC<AdminDataProviderProps> = ({
             }
             const event = subscribeAccidentUpdate((data) => {
                 setAccidentData(data as unknown as AccidentData[]);
+                console.log("AccidentDataUpdate: ", data);
             });
 
             eventSources.current.accidentUpdate = event;
+        } else {
+            setAccidentData(dummyAccidentData);
         }
     };
 

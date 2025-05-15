@@ -87,6 +87,7 @@ export const subscribeAccidentUpdate = (
         const parkData = JSON.parse((event as MessageEvent).data);
         onUpdate(parkData);
     });
+    console.log("connect Accident Update");
     return eventSource;
 };
 

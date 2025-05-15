@@ -18,7 +18,6 @@ export default function AdminComponent() {
     // AdminDataContext에서 데이터 가져오기
     const {
         touristSpotsData,
-        weatherInfoData,
         combinedAreaData,
         // parkData, // 나중에 주차장 정보 가져올거
         accidentData, // 사고, 공사 정보
@@ -49,30 +48,6 @@ export default function AdminComponent() {
             setSortDirection("asc");
         }
     };
-
-    // 정렬된 데이터
-    // const sortedTouristInfo = [...touristInfoData].sort((a, b) => {
-    //     if (sortField === "spotName") {
-    //         return sortDirection === "asc"
-    //             ? a.area_nm.localeCompare(b.area_nm)
-    //             : b.area_nm.localeCompare(a.area_nm);
-    //     }
-    //
-    //     if (sortField === "congestion") {
-    //         const valueA =
-    //             congestionOrder[
-    //                 a.area_congest_lvl as keyof typeof congestionOrder
-    //             ] || 0;
-    //         const valueB =
-    //             congestionOrder[
-    //                 b.area_congest_lvl as keyof typeof congestionOrder
-    //             ] || 0;
-    //
-    //         return sortDirection === "asc" ? valueA - valueB : valueB - valueA;
-    //     }
-    //
-    //     return 0;
-    // });
 
     const sortedTouristInfo: CombinedAreaData[] = [...combinedAreaData].sort(
         (a, b) => {
