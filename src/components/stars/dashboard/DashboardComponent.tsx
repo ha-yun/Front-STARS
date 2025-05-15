@@ -20,7 +20,12 @@ export default function DashboardComponent() {
     const containerRef = useRef<HTMLDivElement | null>(null);
     useScroll({ container: containerRef });
 
-    const { selectedAreaId, triggerCountUp, setTriggerCountUp } = usePlace();
+    const {
+        selectedAreaId,
+        triggerCountUp,
+        setTriggerCountUp,
+        congestionInfo,
+    } = usePlace();
 
     const [areaName, setAreaName] = useState("");
     const [areaCategory, setAreaCategory] = useState("");
@@ -28,34 +33,41 @@ export default function DashboardComponent() {
 
     const visitorCountRef = useRef<HTMLSpanElement | null>(null);
 
-    // useEffect(() => {
-    //     if (triggerCountUp && visitorCountRef.current) {
-    //         const countUp = new CountUp(
-    //             visitorCountRef.current,
-    //             place.todayVisitors,
-    //             {
-    //                 duration: 1,
-    //                 useEasing: true,
-    //                 separator: ",",
-    //             }
-    //         );
-    //         countUp.start();
-    //         setTriggerCountUp(false);
-    //     }
-    // }, [triggerCountUp, place, setTriggerCountUp]);
-
+    // 관광특구 이름, 카테고리, 영문명 정보 가져오기
     useEffect(() => {
         if (!selectedAreaId) return;
-
         getAreaList().then((areas) => {
             const found = areas.find((a) => a.area_id === selectedAreaId);
             if (found) {
                 setAreaName(found.area_name);
-                setAreaCategory(found.category); // ✅ 추가
-                setAreaEngName(found.name_eng); // ✅ 추가
+                setAreaCategory(found.category);
+                setAreaEngName(found.name_eng);
             }
         });
     }, [selectedAreaId]);
+
+    // 혼잡도 기반 CountUp 애니메이션 실행
+    useEffect(() => {
+        if (
+            triggerCountUp &&
+            visitorCountRef.current &&
+            congestionInfo?.area_ppltn_min &&
+            congestionInfo?.area_ppltn_max
+        ) {
+            const avg = Math.round(
+                (congestionInfo.area_ppltn_min +
+                    congestionInfo.area_ppltn_max) /
+                    2
+            );
+            const countUp = new CountUp(visitorCountRef.current, avg, {
+                duration: 1.2,
+                useEasing: true,
+                separator: ",",
+            });
+            countUp.start();
+            setTriggerCountUp(false);
+        }
+    }, [triggerCountUp, congestionInfo, setTriggerCountUp]);
 
     const dummyPOIs = useMemo(
         () =>
@@ -152,7 +164,11 @@ export default function DashboardComponent() {
                 />
 
                 <CongestionStatusCard
-                    status="약간붐빔" // 또는 place.congestionStatus
+                    status={
+                        congestionInfo?.area_congest_lvl === "여유"
+                            ? "원활"
+                            : (congestionInfo?.area_congest_lvl ?? "보통")
+                    }
                     style={cardStyles[3]}
                     cardRef={(el) => (cardRefs.current[3] = el)}
                 />
