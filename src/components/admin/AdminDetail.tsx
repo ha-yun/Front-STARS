@@ -1,13 +1,18 @@
-// src/components/admin/AdminDetail.tsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useLocation, useParams } from "react-router-dom";
 import PieCard from "./cards/PieCard";
 import SimpleInfoCard from "./cards/SimpleInfoCard";
 import AreaPopulationCard from "./cards/AreaPopulationCard";
 import PopulationRateCard from "./cards/PopulationRateCard";
 import ForecastPopulationCard from "./cards/ForecastPopulationCard";
-import { ForecastPopulation, Data, PopulationData } from "../../data/adminData";
-import RodeCard from "./cards/RodeCard";
+import {
+    ForecastPopulation,
+    Data,
+    PopulationData,
+    CombinedAreaData,
+    WeatherData,
+} from "../../data/adminData";
+import WeatherCard from "./cards/WeatherCard";
 import AdminHeader from "./AdminHeader";
 import { useAdminData } from "../../context/AdminContext";
 
@@ -16,31 +21,34 @@ const AdminDetail = () => {
     const { spotCode } = useParams<{ spotCode: string }>();
     // Navi로 이동할 때 같이 보낸 데이터 받아오기
     const location = useLocation();
-    const selectedSpot: PopulationData = location.state?.selectedSpot;
+    const spotData: CombinedAreaData = location.state?.combinedAreaData;
+
+    // 실제 받아서 처리해야하는 데이터 : spotData
+    console.log("받은 데이터: ", spotData);
 
     // 전역 상태에서 데이터 가져오기
-    const { touristInfoData, refreshAllData, refreshing } = useAdminData();
+    const { touristInfoData, refreshAllData } = useAdminData();
 
     // 로컬 상태 관리
     const [gender, setGender] = useState<Data[]>([]);
     const [resnt, setResnt] = useState<Data[]>([]);
     const [ppltnRate, setPpltnRate] = useState<Data[]>([]);
+    const [weather, setWeather] = useState<WeatherData | undefined>(); // Changed to array type
     const [forecastData, setForecastData] = useState<ForecastPopulation[]>([]);
-    const [lastUpdated, setLastUpdated] = useState<Date | null>(new Date());
-
-    // 현재 선택된 지역 코드에 해당하는 데이터 찾기
-    const areaData =
-        selectedSpot ||
-        touristInfoData.find((item) => item.area_cd === spotCode) ||
-        null;
 
     // 차트 데이터 처리
-    React.useEffect(() => {
-        if (areaData) {
-            processChartData(areaData);
-            setLastUpdated(new Date());
+    useEffect(() => {
+        if (spotData) {
+            console.log("넘어오는 데이터중 날씨: ", spotData.weather);
+            if (spotData.population) {
+                processChartData(spotData.population);
+                if (spotData.weather) {
+                    setWeather(spotData.weather);
+                }
+                // Convert single weather object to array if it exists
+            }
         }
-    }, [areaData, touristInfoData]);
+    }, [spotData, touristInfoData]);
 
     // 차트 데이터 가공 함수
     const processChartData = (data: PopulationData) => {
@@ -117,8 +125,8 @@ const AdminDetail = () => {
         ]);
 
         // 24시간 인구 추이 예측 파싱
-        if (data.fcst_ppltn && data.fcst_ppltn.fcst_ppltn) {
-            const forecastChartData = data.fcst_ppltn.fcst_ppltn.map(
+        if (data.fcst_ppltn) {
+            const forecastChartData = data.fcst_ppltn.map(
                 (item: ForecastPopulation) => {
                     // 시간 포맷팅 (2025-04-18 17:00 -> 17:00)
                     const timeString = item.fcst_time.split(" ")[1];
@@ -134,20 +142,6 @@ const AdminDetail = () => {
             setForecastData(forecastChartData);
         }
     };
-
-    // 수동 새로고침 핸들러
-    const handleRefresh = () => {
-        refreshAllData();
-    };
-
-    // 로딩 스피너 컴포넌트
-    // 데이터 로딩을 상위 컴포넌트에서 다 해결하기 때문에 굳이 있을 필요 없음
-    // const LoadingSpinner = ({ message = "데이터를 불러오는 중..." }) => (
-    //     <div className="flex flex-col items-center justify-center">
-    //         <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-    //         <p className="mt-4 text-lg font-medium text-gray-700">{message}</p>
-    //     </div>
-    // );
 
     // 에러 메시지 컴포넌트
     const ErrorMessage = ({
@@ -187,52 +181,8 @@ const AdminDetail = () => {
         </div>
     );
 
-    // 업데이트 인디케이터 컴포넌트
-    const UpdateIndicator = () => {
-        // 시간 포맷팅 함수
-        const formatTime = (date: Date) => {
-            return date.toLocaleTimeString([], {
-                hour: "2-digit",
-                minute: "2-digit",
-                second: "2-digit",
-            });
-        };
-
-        return (
-            <div className="flex items-center justify-end mb-4 text-sm text-gray-600">
-                {lastUpdated && (
-                    <span className="mr-2">
-                        마지막 업데이트: {formatTime(lastUpdated)}
-                    </span>
-                )}
-                <button
-                    onClick={handleRefresh}
-                    disabled={refreshing}
-                    className="flex items-center bg-white border-gray-400 text-blue-600 hover:text-blue-800 disabled:text-gray-400 transition-colors"
-                >
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className={`h-4 w-4 mr-1 ${refreshing ? "animate-spin" : ""}`}
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                    >
-                        <path d="M23 4v6h-6"></path>
-                        <path d="M1 20v-6h6"></path>
-                        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10"></path>
-                        <path d="M20.49 15a9 9 0 0 1-14.85 3.36L1 14"></path>
-                    </svg>
-                    {refreshing ? "새로고침 중..." : "새로고침"}
-                </button>
-            </div>
-        );
-    };
-
     // 데이터가 없는 경우
-    if (!areaData) {
+    if (!spotData) {
         return (
             <div className="bg-gray-100 min-h-screen flex flex-col w-full">
                 <AdminHeader path={"/manage"} />
@@ -256,28 +206,29 @@ const AdminDetail = () => {
             {/* Main Container*/}
             <div className="p-6 flex-grow">
                 {/* 업데이트 인디케이터 */}
-                <UpdateIndicator />
+                {/*<UpdateIndicator />*/}
 
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 grid-rows-[0.7fr_1fr_1fr]">
                     {/* SimpleInfoCard */}
                     <SimpleInfoCard
                         info={{
-                            area_name: areaData.area_nm,
-                            area_code: areaData.area_cd,
-                            area_congest_lvl: areaData.area_congest_lvl,
+                            area_name: spotData.area_nm,
+                            area_code: spotData.population!.area_cd,
+                            area_congest_lvl:
+                                spotData.population!.area_congest_lvl,
                         }}
                     />
 
                     {/* AreaPopulationCard */}
                     <AreaPopulationCard
                         population={{
-                            area_ppltn_min: areaData.area_ppltn_min,
-                            area_ppltn_max: areaData.area_ppltn_max,
+                            area_ppltn_min: spotData.population!.area_ppltn_min,
+                            area_ppltn_max: spotData.population!.area_ppltn_max,
                         }}
                     />
 
-                    {/* RodeCard */}
-                    <RodeCard />
+                    {/* WeatherCard - Now passing an array */}
+                    <WeatherCard datas={weather} />
 
                     {/* 성별 비율 PieCard */}
                     <PieCard datas={gender} name="남여 비율" />

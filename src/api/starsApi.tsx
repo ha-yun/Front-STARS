@@ -59,6 +59,7 @@ export const subscribeTrafficUpdate = (
         const trafficData = JSON.parse((event as MessageEvent).data);
         onUpdate(trafficData);
     });
+    console.log("connect Trraffic Update");
     return eventSource;
 };
 
@@ -73,6 +74,22 @@ export const subscribeParkUpdate = (
         const parkData = JSON.parse((event as MessageEvent).data);
         onUpdate(parkData);
     });
+    console.log("connect Park Update");
+    return eventSource;
+};
+
+// 실시간 사고상황 정보 수신
+export const subscribeAccidentUpdate = (
+    onUpdate: (data: Record<string, unknown>) => void
+): EventSource => {
+    const eventSource = new EventSource(
+        `${prefix}/control/external/main/stream`
+    );
+    eventSource.addEventListener("accident-alert", (event) => {
+        const parkData = JSON.parse((event as MessageEvent).data);
+        onUpdate(parkData);
+    });
+    console.log("connect Accident Update");
     return eventSource;
 };
 

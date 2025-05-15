@@ -3,40 +3,6 @@ import { UserFavoriteList, Favorite } from "../../data/adminData";
 import AdminHeader from "./AdminHeader";
 import { getFavoriteList } from "../../api/adminApi";
 
-// 더미 데이터
-const dummyUserFavoriteLists: UserFavoriteList[] = [
-    {
-        user_id: "user_001",
-        content: [
-            {
-                favorite_id: 1,
-                type: "restaurant",
-                name: "스시히로",
-                address: "서울특별시 강남구 테헤란로 123",
-                place_id: "place_123456",
-                user_id: "user_001",
-            },
-            {
-                favorite_id: 2,
-                type: "cafe",
-                name: "블루보틀",
-                address: "서울특별시 성동구 서울숲길 35",
-                place_id: "place_234567",
-                user_id: "user_001",
-            },
-            {
-                favorite_id: 3,
-                type: "cafe",
-                name: "찰스 바",
-                address: "서울특별시 용산구 이태원로 56",
-                place_id: "place_345678",
-                user_id: "user_001",
-            },
-        ],
-    },
-    // ... 더미 데이터 유지
-];
-
 // 로딩 스켈레톤 컴포넌트
 const UserSkeleton = () => (
     <div className="p-3 border-b animate-pulse">
@@ -74,9 +40,6 @@ const AdminUserFavorite = () => {
     const fetchData = async () => {
         setLoading(true);
         try {
-            // Axios 요청을 시뮬레이션 (2초 지연)
-            // await new Promise((resolve) => setTimeout(resolve, 2000));
-
             const response = await getFavoriteList();
             console.log(response);
             setUserFavorites(response);
@@ -323,7 +286,6 @@ const AdminUserFavorite = () => {
                             "restaurant",
                             "accommodation",
                             "attraction",
-                            "전체",
                         ].map((type) => {
                             const styles = getTypeStylesAndIcon(type);
                             return (

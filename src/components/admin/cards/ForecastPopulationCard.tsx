@@ -39,7 +39,7 @@ const getCongestionColor = (level: string): string => {
             return "#FF9500";
         case "보통":
             return "#FFCC00";
-        case "원활":
+        case "여유":
             return "#34C759";
         default:
             return "#8E8E93";
@@ -90,7 +90,7 @@ const ForecastPopulationCard = ({ fcst_ppltn }: ForecastPopulationProps) => {
     return (
         <div className="bg-white p-4 shadow rounded-lg md:col-span-2 xl:col-span-2 h-full">
             <h3 className="font-semibold text-xl text-black mb-2">
-                24시간 인구 추이 예측
+                12시간 인구 추이 예측
             </h3>
             <div
                 style={{ minHeight: "180px", width: "100%" }}
