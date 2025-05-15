@@ -22,11 +22,13 @@ import {
     ParkInfo,
     CombinedAreaData,
     AccidentData,
+    TrafficData,
 } from "../data/adminData";
 // test용 더미데이터, SSE 통신은 고려하지 않음
 import { dummyTouristData } from "../data/dummy/population";
 import { dummyWeatherData } from "../data/dummy/weather";
 import { dummyAccidentData } from "../data/dummy/accident";
+import { dummyTrafficData } from "../data/dummy/traffic";
 
 // 컨텍스트에서 제공할 데이터 타입 정의
 interface AdminDataContextType {
@@ -35,6 +37,7 @@ interface AdminDataContextType {
     weatherInfoData: WeatherData[];
     parkData: ParkInfo[];
     accidentData: AccidentData[];
+    trafficData: TrafficData[];
     combinedAreaData: CombinedAreaData[];
     findAreaData: (areaId: number) => CombinedAreaData | undefined;
     isLoading: boolean;
@@ -59,7 +62,7 @@ interface AdminDataProviderProps {
 // 컨텍스트 제공자 컴포넌트
 export const AdminDataProvider: React.FC<AdminDataProviderProps> = ({
     children,
-    test = false,
+    test = true,
 }) => {
     // 데이터 상태 및 로딩 상태
     const [touristInfoData, setTouristInfoData] = useState<PopulationData[]>(
@@ -68,6 +71,7 @@ export const AdminDataProvider: React.FC<AdminDataProviderProps> = ({
     const [touristSpotsData, setTouristSpotsData] = useState<TouristSpot[]>([]);
     const [weatherInfoData, setWeatherInfoData] = useState<WeatherData[]>([]);
     const [parkData, setParkData] = useState<ParkInfo[]>([]);
+    const [trafficData, setTrafficData] = useState<TrafficData[]>([]);
     const [accidentData, setAccidentData] = useState<AccidentData[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [spotsLoading, setSpotsLoading] = useState<boolean>(true);
@@ -263,7 +267,7 @@ export const AdminDataProvider: React.FC<AdminDataProviderProps> = ({
             } else {
                 // 더미데이터로 교체
                 setWeatherInfoData(dummyWeatherData);
-                console.log(dummyWeatherData);
+                console.log("날씨 더미 데이터: ", weatherInfoData);
             }
         } catch (err) {
             console.error("날씨 데이터 가져오기 실패:", err);
@@ -286,10 +290,15 @@ export const AdminDataProvider: React.FC<AdminDataProviderProps> = ({
             const event = subscribeTrafficUpdate((data) => {
                 console.log("Traffic data update received:", data);
                 // 필요한 상태 업데이트 로직 추가
+                const updateData = data as unknown as TrafficData[];
+                setTrafficData(updateData);
             });
 
             // 이벤트 소스 저장
             eventSources.current.trafficUpdate = event;
+        } else {
+            setTrafficData(dummyTrafficData);
+            console.log("넣은 데이터: ", dummyTrafficData);
         }
     };
 
@@ -357,15 +366,8 @@ export const AdminDataProvider: React.FC<AdminDataProviderProps> = ({
         fetchParkUpdate();
         fetchAccidentUpdate();
 
-        // 정기적인 새로고침 설정 (10분)
-        const interval = setInterval(() => {
-            refreshAllData();
-        }, 600000); // 10분 = 600,000ms
-
         // 컴포넌트 언마운트 시 정리
         return () => {
-            clearInterval(interval);
-
             // 모든 이벤트 소스 닫기
             Object.values(eventSources.current).forEach((source) => {
                 if (source) source.close();
@@ -380,6 +382,7 @@ export const AdminDataProvider: React.FC<AdminDataProviderProps> = ({
         weatherInfoData,
         parkData,
         accidentData,
+        trafficData,
         combinedAreaData,
         findAreaData,
         isLoading: loading,

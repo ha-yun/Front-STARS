@@ -163,3 +163,28 @@ export interface AccidentData {
     get_time: number;
     search: string;
 }
+
+export interface TrafficData {
+    area_nm: string;
+    area_id: number;
+    get_time: number;
+    road_msg: string;
+    road_traffic_spd: number;
+    road_traffic_idx: string;
+    road_traffic_stts: RoadTrafficNode[];
+}
+
+export interface RoadTrafficNode {
+    dist: number;
+    end_nd_cd: string;
+    end_nd_nm: string;
+    end_nd_xy: string;
+    idx: string;
+    link_id: string;
+    road_nm: string;
+    spd: number;
+    start_nd_cd: string;
+    start_nd_nm: string;
+    start_nd_xy: string;
+    xylist: string;
+}

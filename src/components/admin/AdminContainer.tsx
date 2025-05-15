@@ -6,6 +6,7 @@ import AdminComponent from "./AdminComponent";
 import AdminDetail from "./AdminDetail";
 import AdminTour from "./AdminTour";
 import AdminUserFavorite from "./AdminUserFavorite";
+import AdminTraffic from "./AdminTraffic";
 
 /**
  * Admin 컴포넌트들의 컨테이너 역할을 하는 컴포넌트
@@ -23,6 +24,7 @@ const AdminContainer: React.FC = () => {
                 <Route path="/:spotCode" element={<AdminDetail />} />
                 <Route path="/tour" element={<AdminTour />} />
                 <Route path="/user" element={<AdminUserFavorite />} />
+                <Route path="/traffic" element={<AdminTraffic />} />
                 {/* 기본 리다이렉션 */}
                 <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
