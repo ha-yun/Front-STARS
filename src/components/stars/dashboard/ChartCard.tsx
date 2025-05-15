@@ -6,10 +6,11 @@ import {
     YAxis,
     Tooltip,
     ResponsiveContainer,
+    CartesianGrid,
 } from "recharts";
 
 interface ChartCardProps {
-    data: { day: string; population: number }[];
+    data: { time: string; forecast: number }[];
     style: { opacity: number; y: number; scale: number };
     cardRef: (el: HTMLDivElement | null) => void;
 }
@@ -27,17 +28,19 @@ export default function ChartCard({ data, style, cardRef }: ChartCardProps) {
             style={style}
             ref={cardRef}
         >
-            <p className="text-sm text-gray-500 mb-2">유동인구 추이</p>
+            <p className="text-sm text-gray-500 mb-2">예측 유동인구 추이</p>
             <ResponsiveContainer width="100%" height={200}>
                 <LineChart data={data}>
-                    <XAxis dataKey="day" />
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="time" />
                     <YAxis />
                     <Tooltip />
                     <Line
                         type="monotone"
-                        dataKey="population"
+                        dataKey="forecast"
                         stroke="#60A5FA"
                         strokeWidth={3}
+                        dot={{ r: 2 }}
                     />
                 </LineChart>
             </ResponsiveContainer>
