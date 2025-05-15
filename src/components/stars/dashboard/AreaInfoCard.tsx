@@ -1,14 +1,18 @@
 import { motion } from "framer-motion";
-import { places } from "../../../data/placesData";
+// import { places } from "../../../data/placesData";
 
 interface PlaceInfoCardProps {
-    place: (typeof places)[keyof typeof places];
+    placeName: string;
+    category: string;
+    nameEng: string;
     style: { opacity: number; y: number; scale: number };
     cardRef: (el: HTMLDivElement | null) => void;
 }
 
-export default function PlaceInfoCard({
-    place,
+export default function AreaInfoCard({
+    placeName,
+    category,
+    nameEng,
     style,
     cardRef,
 }: PlaceInfoCardProps) {
@@ -24,9 +28,9 @@ export default function PlaceInfoCard({
             style={style}
             ref={cardRef}
         >
-            <p className="text-sm text-gray-500">관광지</p>
-            <p className="text-3xl font-bold mt-2">{place.name}</p>
-            <p className="text-sm text-gray-500 mt-2">{place.address}</p>
+            <p className="text-sm text-gray-500">{category}</p>
+            <p className="text-3xl font-bold mt-2">{placeName}</p>
+            <p className="text-sm text-gray-500 mt-2">{nameEng}</p>
         </motion.div>
     );
 }

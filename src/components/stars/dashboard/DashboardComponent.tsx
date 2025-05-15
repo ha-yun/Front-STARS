@@ -1,49 +1,87 @@
 import { motion, useScroll } from "framer-motion";
 import { useEffect, useRef, useMemo, useState } from "react";
 import { usePlace } from "../../../context/PlaceContext";
-import { places } from "../../../data/placesData";
 import { CountUp } from "countup.js";
 import VisitorCountCard from "./VisitorCountCard";
-import PlaceInfoCard from "./PlaceInfoCard";
+import AreaInfoCard from "./AreaInfoCard";
 import WeatherCard from "./WeatherCard";
 import ChartCard from "./ChartCard";
-// import ActionButton from "./ActionButton";
 import POICardList from "./POICardList";
 import ReviewAnalysisCard from "./ReviewAnalysisCard";
 import TrafficInfoCard from "./TrafficInfoCard";
 import ParkingInfoCard from "./ParkingInfoCard";
-// import PlaceImageCard from "./PlaceImageCard";
 import CongestionStatusCard from "./CongestionStatusCard";
 import { scrollToTop } from "../../../utils/scrollToTop";
+
+// API 호출
+import { getAreaList } from "../../../api/starsApi";
 
 export default function DashboardComponent() {
     const containerRef = useRef<HTMLDivElement | null>(null);
     useScroll({ container: containerRef });
 
     const {
-        selectedPlace = "seoulPlaza",
+        selectedAreaId,
         triggerCountUp,
         setTriggerCountUp,
+        congestionInfo,
     } = usePlace();
-    const place = places[selectedPlace] ?? places["seoulPlaza"];
+
+    const [areaName, setAreaName] = useState("");
+    const [areaCategory, setAreaCategory] = useState("");
+    const [areaEngName, setAreaEngName] = useState("");
 
     const visitorCountRef = useRef<HTMLSpanElement | null>(null);
 
-    useEffect(() => {
-        if (triggerCountUp && visitorCountRef.current) {
-            const countUp = new CountUp(
-                visitorCountRef.current,
-                place.todayVisitors,
-                {
-                    duration: 1,
-                    useEasing: true,
-                    separator: ",",
-                }
+    const forecastChartData = useMemo(() => {
+        if (!congestionInfo?.fcst_ppltn) return [];
+
+        return congestionInfo.fcst_ppltn.map((item) => {
+            const avg = Math.round(
+                (item.fcst_ppltn_min + item.fcst_ppltn_max) / 2
             );
+            return {
+                time: item.fcst_time.slice(11, 16), // '16:00' 형식
+                forecast: avg,
+            };
+        });
+    }, [congestionInfo]);
+
+    // 관광특구 이름, 카테고리, 영문명 정보 가져오기
+    useEffect(() => {
+        if (!selectedAreaId) return;
+        getAreaList().then((areas) => {
+            const found = areas.find((a) => a.area_id === selectedAreaId);
+            if (found) {
+                setAreaName(found.area_name);
+                setAreaCategory(found.category);
+                setAreaEngName(found.name_eng);
+            }
+        });
+    }, [selectedAreaId]);
+
+    // 혼잡도 기반 CountUp 애니메이션 실행
+    useEffect(() => {
+        if (
+            triggerCountUp &&
+            visitorCountRef.current &&
+            congestionInfo?.area_ppltn_min &&
+            congestionInfo?.area_ppltn_max
+        ) {
+            const avg = Math.round(
+                (congestionInfo.area_ppltn_min +
+                    congestionInfo.area_ppltn_max) /
+                    2
+            );
+            const countUp = new CountUp(visitorCountRef.current, avg, {
+                duration: 1.2,
+                useEasing: true,
+                separator: ",",
+            });
             countUp.start();
             setTriggerCountUp(false);
         }
-    }, [triggerCountUp, place, setTriggerCountUp]);
+    }, [triggerCountUp, congestionInfo, setTriggerCountUp]);
 
     const dummyPOIs = useMemo(
         () =>
@@ -125,8 +163,10 @@ export default function DashboardComponent() {
                 {/*    cardRef={(el) => (cardRefs.current[0] = el)}*/}
                 {/*/>*/}
 
-                <PlaceInfoCard
-                    place={place}
+                <AreaInfoCard
+                    placeName={areaName} // ✅ 관광특구 이름
+                    category={areaCategory}
+                    nameEng={areaEngName}
                     style={cardStyles[1]}
                     cardRef={(el) => (cardRefs.current[1] = el)}
                 />
@@ -138,7 +178,11 @@ export default function DashboardComponent() {
                 />
 
                 <CongestionStatusCard
-                    status="약간붐빔" // 또는 place.congestionStatus
+                    status={
+                        congestionInfo?.area_congest_lvl === "여유"
+                            ? "원활"
+                            : (congestionInfo?.area_congest_lvl ?? "보통")
+                    }
                     style={cardStyles[3]}
                     cardRef={(el) => (cardRefs.current[3] = el)}
                 />
@@ -155,7 +199,7 @@ export default function DashboardComponent() {
                 />
 
                 <ChartCard
-                    data={place.weeklyStats}
+                    data={forecastChartData}
                     style={cardStyles[6]}
                     cardRef={(el) => (cardRefs.current[6] = el)}
                 />
