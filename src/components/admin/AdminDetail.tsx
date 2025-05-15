@@ -1,4 +1,3 @@
-// src/components/admin/AdminDetail.tsx
 import React, { useState, useEffect } from "react";
 import { useLocation, useParams } from "react-router-dom";
 import PieCard from "./cards/PieCard";
@@ -11,8 +10,9 @@ import {
     Data,
     PopulationData,
     CombinedAreaData,
+    WeatherData,
 } from "../../data/adminData";
-import RodeCard from "./cards/RodeCard";
+import WeatherCard from "./cards/WeatherCard";
 import AdminHeader from "./AdminHeader";
 import { useAdminData } from "../../context/AdminContext";
 
@@ -21,9 +21,9 @@ const AdminDetail = () => {
     const { spotCode } = useParams<{ spotCode: string }>();
     // Navi로 이동할 때 같이 보낸 데이터 받아오기
     const location = useLocation();
-    // 해당 데이터를 가공해서 처리
     const spotData: CombinedAreaData = location.state?.combinedAreaData;
 
+    // 실제 받아서 처리해야하는 데이터 : spotData
     console.log("받은 데이터: ", spotData);
 
     // 전역 상태에서 데이터 가져오기
@@ -33,6 +33,7 @@ const AdminDetail = () => {
     const [gender, setGender] = useState<Data[]>([]);
     const [resnt, setResnt] = useState<Data[]>([]);
     const [ppltnRate, setPpltnRate] = useState<Data[]>([]);
+    const [weather, setWeather] = useState<WeatherData[]>([]);
     const [forecastData, setForecastData] = useState<ForecastPopulation[]>([]);
     const [lastUpdated, setLastUpdated] = useState<Date | null>(new Date());
 
@@ -45,8 +46,17 @@ const AdminDetail = () => {
     // 차트 데이터 처리
     useEffect(() => {
         if (spotData) {
+            console.log("넘어오는 데이터중 날씨: ", spotData.weather);
             if (spotData.population) {
                 processChartData(spotData.population);
+                // 지금 weather를 인식하고 있지 못하고 있음 -> 경우별로 케이스를 확실하게 나누는 방법밖에
+                if (Array.isArray(spotData.weather)) {
+                    setWeather(spotData.weather);
+                } else if (spotData.weather) {
+                    setWeather([spotData.weather]);
+                } else {
+                    setWeather([]); // 정의되어 있지 않음
+                }
             }
             setLastUpdated(new Date());
         }
@@ -149,15 +159,6 @@ const AdminDetail = () => {
     const handleRefresh = () => {
         refreshAllData();
     };
-
-    // 로딩 스피너 컴포넌트
-    // 데이터 로딩을 상위 컴포넌트에서 다 해결하기 때문에 굳이 있을 필요 없음
-    // const LoadingSpinner = ({ message = "데이터를 불러오는 중..." }) => (
-    //     <div className="flex flex-col items-center justify-center">
-    //         <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-    //         <p className="mt-4 text-lg font-medium text-gray-700">{message}</p>
-    //     </div>
-    // );
 
     // 에러 메시지 컴포넌트
     const ErrorMessage = ({
@@ -287,8 +288,8 @@ const AdminDetail = () => {
                         }}
                     />
 
-                    {/* RodeCard */}
-                    <RodeCard />
+                    {/* WeatherCard - Fix: Pass the weather data array */}
+                    <WeatherCard datas={weather} />
 
                     {/* 성별 비율 PieCard */}
                     <PieCard datas={gender} name="남여 비율" />

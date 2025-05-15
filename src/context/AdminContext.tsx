@@ -13,6 +13,7 @@ import {
     subscribeWeatherUpdate,
     subscribeTrafficUpdate,
     subscribeParkUpdate,
+    subscribeAccidentUpdate,
 } from "../api/starsApi";
 import {
     PopulationData,
@@ -20,10 +21,12 @@ import {
     WeatherData,
     ParkInfo,
     CombinedAreaData,
+    AccidentData,
 } from "../data/adminData";
 // test용 더미데이터, SSE 통신은 고려하지 않음
 import { dummyTouristData } from "../data/dummy/population";
 import { dummyWeatherData } from "../data/dummy/weather";
+import { dummyAccidentData } from "../data/dummy/accident";
 
 // 컨텍스트에서 제공할 데이터 타입 정의
 interface AdminDataContextType {
@@ -31,6 +34,7 @@ interface AdminDataContextType {
     touristSpotsData: TouristSpot[];
     weatherInfoData: WeatherData[];
     parkData: ParkInfo[];
+    accidentData: AccidentData[];
     combinedAreaData: CombinedAreaData[];
     findAreaData: (areaId: number) => CombinedAreaData | undefined;
     isLoading: boolean;
@@ -55,7 +59,7 @@ interface AdminDataProviderProps {
 // 컨텍스트 제공자 컴포넌트
 export const AdminDataProvider: React.FC<AdminDataProviderProps> = ({
     children,
-    test = true,
+    test = false,
 }) => {
     // 데이터 상태 및 로딩 상태
     const [touristInfoData, setTouristInfoData] = useState<PopulationData[]>(
@@ -64,6 +68,7 @@ export const AdminDataProvider: React.FC<AdminDataProviderProps> = ({
     const [touristSpotsData, setTouristSpotsData] = useState<TouristSpot[]>([]);
     const [weatherInfoData, setWeatherInfoData] = useState<WeatherData[]>([]);
     const [parkData, setParkData] = useState<ParkInfo[]>([]);
+    const [accidentData, setAccidentData] = useState<AccidentData[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [spotsLoading, setSpotsLoading] = useState<boolean>(true);
     const [weatherLoading, setWeatherLoading] = useState<boolean>(true);
@@ -77,15 +82,8 @@ export const AdminDataProvider: React.FC<AdminDataProviderProps> = ({
         weatherUpdate?: EventSource;
         trafficUpdate?: EventSource;
         parkUpdate?: EventSource;
+        accidentUpdate?: EventSource;
     }>({});
-
-    // // 혼잡도 레벨과 스카이 상태에 따른 아이콘/색상 반환 함수
-    // const getDustLevelText = (value: number): string => {
-    //     if (value <= 15) return "좋음";
-    //     if (value <= 35) return "보통";
-    //     if (value <= 75) return "나쁨";
-    //     return "매우나쁨";
-    // };
 
     // 지역 ID로 통합 데이터 조회 함수
     const findAreaData = (area_id: number): CombinedAreaData | undefined => {
@@ -324,6 +322,19 @@ export const AdminDataProvider: React.FC<AdminDataProviderProps> = ({
         }
     };
 
+    const fetchAccidentUpdate = () => {
+        if (!test) {
+            if (eventSources.current.accidentUpdate) {
+                eventSources.current.accidentUpdate.close();
+            }
+            const event = subscribeAccidentUpdate((data) => {
+                setAccidentData(data as unknown as AccidentData[]);
+            });
+
+            eventSources.current.accidentUpdate = event;
+        }
+    };
+
     // 모든 데이터 새로고침 함수
     // 새로고침을 하면 SSE 연결을 새로하는 문제가 있음
 
@@ -350,6 +361,7 @@ export const AdminDataProvider: React.FC<AdminDataProviderProps> = ({
         fetchWeatherData();
         fetchTrafficUpdate();
         fetchParkUpdate();
+        fetchAccidentUpdate();
 
         // 정기적인 새로고침 설정 (10분)
         const interval = setInterval(() => {
@@ -373,6 +385,7 @@ export const AdminDataProvider: React.FC<AdminDataProviderProps> = ({
         touristSpotsData,
         weatherInfoData,
         parkData,
+        accidentData,
         combinedAreaData,
         findAreaData,
         isLoading: loading,

@@ -1,14 +1,14 @@
 // src/components/admin/AdminComponent.tsx
 import { useNavigate } from "react-router-dom";
 import { useAdminData } from "../../context/AdminContext";
-import { WeatherCard } from "./cards/weatherCard";
 import { SpotCard } from "./cards/spotCard";
 import AdminHeader from "./AdminHeader";
 import CongestionTag from "./cards/CongestionTag";
 import { useState } from "react";
 
 // 타입 가져오기
-import { CombinedAreaData, PopulationData } from "../../data/adminData";
+import { CombinedAreaData } from "../../data/adminData";
+import AccidentCard from "./cards/AccidentCard";
 
 export default function AdminComponent() {
     const navigate = useNavigate();
@@ -17,11 +17,11 @@ export default function AdminComponent() {
 
     // AdminDataContext에서 데이터 가져오기
     const {
-        touristInfoData,
         touristSpotsData,
         weatherInfoData,
         combinedAreaData,
-        parkData,
+        // parkData, // 나중에 주차장 정보 가져올거
+        accidentData, // 사고, 공사 정보
         isLoading,
         spotsLoading,
         weatherLoading,
@@ -144,7 +144,7 @@ export default function AdminComponent() {
         </div>
     );
 
-    const WeatherCardSkeleton = () => (
+    const AccidentCardSkeleton = () => (
         <div className="p-3 bg-white border rounded-lg shadow-sm animate-pulse">
             <div className="h-5 bg-gray-200 rounded w-1/2 mb-2"></div>
             <div className="h-8 bg-gray-200 rounded-full w-8 mx-auto mb-2"></div>
@@ -298,7 +298,7 @@ export default function AdminComponent() {
                     {/* 날씨 정보 섹션 */}
                     <div className="w-full border rounded-lg shadow-md bg-white">
                         <h2 className="text-lg md:text-xl p-3 font-bold text-black border-b flex justify-between items-center">
-                            <span>날씨 정보</span>
+                            <span>사고 정보</span>
                             {weatherLoading && (
                                 <span className="text-sm text-blue-500 font-normal flex items-center">
                                     <svg
@@ -337,23 +337,23 @@ export default function AdminComponent() {
                                             key={idx}
                                             className="w-40 flex-auto"
                                         >
-                                            <WeatherCardSkeleton />
+                                            <AccidentCardSkeleton />
                                         </div>
                                     ))
-                                ) : weatherInfoData.length > 0 ? (
+                                ) : accidentData.length > 0 ? (
                                     // 실제 데이터
-                                    weatherInfoData.map((data, idx) => (
+                                    accidentData.map((data, idx) => (
                                         <div
                                             key={idx}
                                             className="w-40 flex-auto"
                                         >
-                                            {/*<WeatherCard key={idx} {...data} />*/}
+                                            <AccidentCard datas={data} />
                                         </div>
                                     ))
                                 ) : (
                                     // 데이터 없음
                                     <div className="p-4 text-center text-gray-500 w-full">
-                                        날씨 정보가 없습니다.
+                                        사고 정보가 없거나 불러올 수 없습니다.
                                     </div>
                                 )}
                             </div>

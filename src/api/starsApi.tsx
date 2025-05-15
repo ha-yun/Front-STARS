@@ -76,6 +76,20 @@ export const subscribeParkUpdate = (
     return eventSource;
 };
 
+// 실시간 사고상황 정보 수신
+export const subscribeAccidentUpdate = (
+    onUpdate: (data: Record<string, unknown>) => void
+): EventSource => {
+    const eventSource = new EventSource(
+        `${prefix}/control/external/main/stream`
+    );
+    eventSource.addEventListener("accident-alert", (event) => {
+        const parkData = JSON.parse((event as MessageEvent).data);
+        onUpdate(parkData);
+    });
+    return eventSource;
+};
+
 // 지역 목록 조회
 export const getAreaList = async () => {
     const header = {

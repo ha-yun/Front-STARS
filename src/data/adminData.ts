@@ -148,3 +148,18 @@ export interface CombinedAreaData {
     // 날씨 데이터
     weather: WeatherData | null;
 }
+
+export interface AccidentData {
+    acdnt_dtype: string;
+    acdnt_info: string;
+    acdnt_occr_dt: string;
+    acdnt_time: string;
+    acdnt_type: string;
+    acdnt_x: number;
+    acdnt_y: number;
+    area_id: number;
+    area_nm: string;
+    exp_clr_dt: string;
+    get_time: number;
+    search: string;
+}
