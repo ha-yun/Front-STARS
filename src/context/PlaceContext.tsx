@@ -3,6 +3,13 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { subscribeCongestionUpdate } from "../api/starsApi";
 
 // 🔷 혼잡도 데이터 타입 정의
+interface ForecastPopulation {
+    fcst_time: string;
+    fcst_congest_lvl: string;
+    fcst_ppltn_min: number;
+    fcst_ppltn_max: number;
+}
+
 interface CongestionData {
     area_id: number;
     area_nm: string;
@@ -11,6 +18,7 @@ interface CongestionData {
     area_ppltn_min: number;
     area_ppltn_max: number;
     ppltn_time: string;
+    fcst_ppltn?: ForecastPopulation[]; // ✅ 추가
 }
 
 interface PlaceContextType {

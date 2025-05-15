@@ -33,6 +33,20 @@ export default function DashboardComponent() {
 
     const visitorCountRef = useRef<HTMLSpanElement | null>(null);
 
+    const forecastChartData = useMemo(() => {
+        if (!congestionInfo?.fcst_ppltn) return [];
+
+        return congestionInfo.fcst_ppltn.map((item) => {
+            const avg = Math.round(
+                (item.fcst_ppltn_min + item.fcst_ppltn_max) / 2
+            );
+            return {
+                time: item.fcst_time.slice(11, 16), // '16:00' 형식
+                forecast: avg,
+            };
+        });
+    }, [congestionInfo]);
+
     // 관광특구 이름, 카테고리, 영문명 정보 가져오기
     useEffect(() => {
         if (!selectedAreaId) return;
@@ -184,11 +198,11 @@ export default function DashboardComponent() {
                     cardRef={(el) => (cardRefs.current[5] = el)}
                 />
 
-                {/*<ChartCard*/}
-                {/*    data={place.weeklyStats}*/}
-                {/*    style={cardStyles[6]}*/}
-                {/*    cardRef={(el) => (cardRefs.current[6] = el)}*/}
-                {/*/>*/}
+                <ChartCard
+                    data={forecastChartData}
+                    style={cardStyles[6]}
+                    cardRef={(el) => (cardRefs.current[6] = el)}
+                />
 
                 <ReviewAnalysisCard
                     datas={[
