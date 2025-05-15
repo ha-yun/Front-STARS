@@ -2,7 +2,7 @@ import React from "react";
 import { WeatherData } from "../../../data/adminData";
 
 interface WeatherCardProps {
-    datas: WeatherData;
+    datas: WeatherData | undefined;
 }
 
 // Helper function to get background color based on temperature

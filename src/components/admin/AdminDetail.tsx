@@ -33,14 +33,8 @@ const AdminDetail = () => {
     const [gender, setGender] = useState<Data[]>([]);
     const [resnt, setResnt] = useState<Data[]>([]);
     const [ppltnRate, setPpltnRate] = useState<Data[]>([]);
-    const [weather, setWeather] = useState<WeatherData | null>();
+    const [weather, setWeather] = useState<WeatherData | undefined>(); // Changed to array type
     const [forecastData, setForecastData] = useState<ForecastPopulation[]>([]);
-
-    // 현재 선택된 지역 코드에 해당하는 데이터 찾기
-    // const areaData =
-    //     selectedSpot ||
-    //     touristInfoData.find((item) => item.area_cd === spotCode) ||
-    //     null;
 
     // 차트 데이터 처리
     useEffect(() => {
@@ -48,8 +42,10 @@ const AdminDetail = () => {
             console.log("넘어오는 데이터중 날씨: ", spotData.weather);
             if (spotData.population) {
                 processChartData(spotData.population);
-                // 지금 weather를 인식하고 있지 못하고 있음 -> 경우별로 케이스를 확실하게 나누는 방법밖에
-                setWeather(spotData.weather || null);
+                if (spotData.weather) {
+                    setWeather(spotData.weather);
+                }
+                // Convert single weather object to array if it exists
             }
         }
     }, [spotData, touristInfoData]);
@@ -231,7 +227,7 @@ const AdminDetail = () => {
                         }}
                     />
 
-                    {/* WeatherCard - Fix: Pass the weather data array */}
+                    {/* WeatherCard - Now passing an array */}
                     <WeatherCard datas={weather} />
 
                     {/* 성별 비율 PieCard */}

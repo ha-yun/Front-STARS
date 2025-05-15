@@ -59,7 +59,7 @@ interface AdminDataProviderProps {
 // 컨텍스트 제공자 컴포넌트
 export const AdminDataProvider: React.FC<AdminDataProviderProps> = ({
     children,
-    test = true,
+    test = false,
 }) => {
     // 데이터 상태 및 로딩 상태
     const [touristInfoData, setTouristInfoData] = useState<PopulationData[]>(
@@ -181,15 +181,9 @@ export const AdminDataProvider: React.FC<AdminDataProviderProps> = ({
 
                 // 새 이벤트 소스 생성
                 const event: EventSource = subscribeCongestionUpdate((data) => {
-                    // for debug
-                    // console.log(
-                    //     "subscribeCongestionUpdate event received:",
-                    //     data
-                    // );
                     const updateData = data as unknown as PopulationData[];
 
-                    // for debug
-                    console.log("fetchTouristInfo", updateData);
+                    console.log("fetchTouristInfo");
 
                     setTouristInfoData(updateData);
                     if (error) {
@@ -225,14 +219,9 @@ export const AdminDataProvider: React.FC<AdminDataProviderProps> = ({
                 // 새 이벤트 소스 생성
                 const event: EventSource = subscribeCongestionAlert(
                     (data): void => {
-                        // for Debug
-                        // console.log("subscribeCongestionAlert event:", data);
-
-                        console.log("혼잡 데이터 도착");
-
                         // 데이터 타입 변환 및 처리
                         setTouristSpotsData(data as unknown as TouristSpot[]);
-
+                        console.log("fetchTouristSpots");
                         if (error) {
                             setError(null);
                         }
@@ -265,8 +254,8 @@ export const AdminDataProvider: React.FC<AdminDataProviderProps> = ({
 
                 // 새 이벤트 소스 생성
                 const event = subscribeWeatherUpdate((data) => {
-                    console.log("fetchWeatherData: ", data);
                     setWeatherInfoData(data as unknown as WeatherData[]);
+                    console.log("fetchWeatherData");
                 });
 
                 // 이벤트 소스 저장
@@ -316,8 +305,8 @@ export const AdminDataProvider: React.FC<AdminDataProviderProps> = ({
             const event = subscribeParkUpdate((data) => {
                 // 필요한 상태 업데이트 로직 추가
                 setParkData(data as unknown as ParkInfo[]);
+                console.log("parkUpdate", data);
             });
-
             // 이벤트 소스 저장
             eventSources.current.parkUpdate = event;
         }

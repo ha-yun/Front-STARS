@@ -59,6 +59,7 @@ export const subscribeTrafficUpdate = (
         const trafficData = JSON.parse((event as MessageEvent).data);
         onUpdate(trafficData);
     });
+    console.log("connect Trraffic Update");
     return eventSource;
 };
 
@@ -73,6 +74,7 @@ export const subscribeParkUpdate = (
         const parkData = JSON.parse((event as MessageEvent).data);
         onUpdate(parkData);
     });
+    console.log("connect Park Update");
     return eventSource;
 };
 
