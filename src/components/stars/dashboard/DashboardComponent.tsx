@@ -1,49 +1,61 @@
 import { motion, useScroll } from "framer-motion";
 import { useEffect, useRef, useMemo, useState } from "react";
 import { usePlace } from "../../../context/PlaceContext";
-import { places } from "../../../data/placesData";
 import { CountUp } from "countup.js";
 import VisitorCountCard from "./VisitorCountCard";
-import PlaceInfoCard from "./PlaceInfoCard";
+import AreaInfoCard from "./AreaInfoCard";
 import WeatherCard from "./WeatherCard";
 import ChartCard from "./ChartCard";
-// import ActionButton from "./ActionButton";
 import POICardList from "./POICardList";
 import ReviewAnalysisCard from "./ReviewAnalysisCard";
 import TrafficInfoCard from "./TrafficInfoCard";
 import ParkingInfoCard from "./ParkingInfoCard";
-// import PlaceImageCard from "./PlaceImageCard";
 import CongestionStatusCard from "./CongestionStatusCard";
 import { scrollToTop } from "../../../utils/scrollToTop";
+
+// API 호출
+import { getAreaList } from "../../../api/starsApi";
 
 export default function DashboardComponent() {
     const containerRef = useRef<HTMLDivElement | null>(null);
     useScroll({ container: containerRef });
 
-    const {
-        selectedPlace = "seoulPlaza",
-        triggerCountUp,
-        setTriggerCountUp,
-    } = usePlace();
-    const place = places[selectedPlace] ?? places["seoulPlaza"];
+    const { selectedAreaId, triggerCountUp, setTriggerCountUp } = usePlace();
+
+    const [areaName, setAreaName] = useState("");
+    const [areaCategory, setAreaCategory] = useState("");
+    const [areaEngName, setAreaEngName] = useState("");
 
     const visitorCountRef = useRef<HTMLSpanElement | null>(null);
 
+    // useEffect(() => {
+    //     if (triggerCountUp && visitorCountRef.current) {
+    //         const countUp = new CountUp(
+    //             visitorCountRef.current,
+    //             place.todayVisitors,
+    //             {
+    //                 duration: 1,
+    //                 useEasing: true,
+    //                 separator: ",",
+    //             }
+    //         );
+    //         countUp.start();
+    //         setTriggerCountUp(false);
+    //     }
+    // }, [triggerCountUp, place, setTriggerCountUp]);
+
     useEffect(() => {
-        if (triggerCountUp && visitorCountRef.current) {
-            const countUp = new CountUp(
-                visitorCountRef.current,
-                place.todayVisitors,
-                {
-                    duration: 1,
-                    useEasing: true,
-                    separator: ",",
-                }
-            );
-            countUp.start();
-            setTriggerCountUp(false);
-        }
-    }, [triggerCountUp, place, setTriggerCountUp]);
+        if (!selectedAreaId) return;
+
+        getAreaList().then((areas) => {
+            const found = areas.find((a) => a.area_id === selectedAreaId);
+            if (found) {
+                setAreaName(found.area_name);
+                setAreaCategory(found.category); // ✅ 추가
+                setAreaEngName(found.name_eng); // ✅ 추가
+            }
+        });
+    }, [selectedAreaId]);
 
     const dummyPOIs = useMemo(
         () =>
@@ -125,8 +137,10 @@ export default function DashboardComponent() {
                 {/*    cardRef={(el) => (cardRefs.current[0] = el)}*/}
                 {/*/>*/}
 
-                <PlaceInfoCard
-                    place={place}
+                <AreaInfoCard
+                    placeName={areaName} // ✅ 관광특구 이름
+                    category={areaCategory}
+                    nameEng={areaEngName}
                     style={cardStyles[1]}
                     cardRef={(el) => (cardRefs.current[1] = el)}
                 />
@@ -154,11 +168,11 @@ export default function DashboardComponent() {
                     cardRef={(el) => (cardRefs.current[5] = el)}
                 />
 
-                <ChartCard
-                    data={place.weeklyStats}
-                    style={cardStyles[6]}
-                    cardRef={(el) => (cardRefs.current[6] = el)}
-                />
+                {/*<ChartCard*/}
+                {/*    data={place.weeklyStats}*/}
+                {/*    style={cardStyles[6]}*/}
+                {/*    cardRef={(el) => (cardRefs.current[6] = el)}*/}
+                {/*/>*/}
 
                 <ReviewAnalysisCard
                     datas={[
