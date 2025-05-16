@@ -81,7 +81,7 @@ export default function MapSectionComponent() {
             if (area && mapRef.current) {
                 mapRef.current.flyTo({
                     center: [area.lon, area.lat],
-                    zoom: 14,
+                    zoom: 15,
                     pitch: 45,
                 });
                 setSelectedAreaId(areaId);
