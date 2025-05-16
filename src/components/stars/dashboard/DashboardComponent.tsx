@@ -16,6 +16,21 @@ import { scrollToTop } from "../../../utils/scrollToTop";
 // API 호출
 import { getAreaList } from "../../../api/starsApi";
 
+interface Area {
+    area_id: number;
+    area_name: string;
+    lat: number;
+    lon: number;
+    category: string;
+    name_eng: string;
+}
+
+function isValidStatus(
+    level: string | undefined
+): level is "여유" | "보통" | "약간 붐빔" | "붐빔" {
+    return ["여유", "보통", "약간 붐빔", "붐빔"].includes(level ?? "");
+}
+
 export default function DashboardComponent() {
     const containerRef = useRef<HTMLDivElement | null>(null);
     useScroll({ container: containerRef });
@@ -50,8 +65,8 @@ export default function DashboardComponent() {
     // 관광특구 이름, 카테고리, 영문명 정보 가져오기
     useEffect(() => {
         if (!selectedAreaId) return;
-        getAreaList().then((areas) => {
-            const found = areas.find((a) => a.area_id === selectedAreaId);
+        getAreaList().then((areas: Area[]) => {
+            const found = areas.find((a: Area) => a.area_id === selectedAreaId);
             if (found) {
                 setAreaName(found.area_name);
                 setAreaCategory(found.category);
@@ -175,13 +190,18 @@ export default function DashboardComponent() {
                     refEl={visitorCountRef}
                     style={cardStyles[2]}
                     cardRef={(el) => (cardRefs.current[2] = el)}
+                    status={
+                        isValidStatus(congestionInfo?.area_congest_lvl)
+                            ? congestionInfo.area_congest_lvl
+                            : "보통"
+                    }
                 />
 
                 <CongestionStatusCard
                     status={
-                        congestionInfo?.area_congest_lvl === "여유"
-                            ? "원활"
-                            : (congestionInfo?.area_congest_lvl ?? "보통")
+                        isValidStatus(congestionInfo?.area_congest_lvl)
+                            ? congestionInfo.area_congest_lvl
+                            : "보통"
                     }
                     style={cardStyles[3]}
                     cardRef={(el) => (cardRefs.current[3] = el)}
