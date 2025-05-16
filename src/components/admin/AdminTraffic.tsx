@@ -1,9 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
 import AdminHeader from "./AdminHeader";
-import mapboxgl, { LngLatLike } from "mapbox-gl";
+import mapboxgl, { LngLatLike, NavigationControl } from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { useAdminData } from "../../context/AdminContext";
 import { MapData, ParkNode, TrafficData } from "../../data/adminData";
+import MapboxLanguage from "@mapbox/mapbox-gl-language";
 
 const AdminTraffic = () => {
     const mapContainer = useRef<HTMLDivElement | null>(null);
@@ -56,6 +57,14 @@ const AdminTraffic = () => {
             zoom: initialMapZoom,
             interactive: true,
         });
+
+        mapInstance.addControl(new NavigationControl(), "right");
+
+        mapInstance.addControl(
+            new MapboxLanguage({
+                defaultLanguage: "ko",
+            })
+        );
 
         // 지도 로드 완료 이벤트
         mapInstance.on("load", () => {

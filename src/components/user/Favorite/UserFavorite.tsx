@@ -3,13 +3,6 @@ import React, { useState, useEffect } from "react";
 import { Favorite } from "../../../data/adminData";
 import { getUserFavoriteList, deleteFavorite } from "../../../api/mypageApi";
 
-// API 응답 타입 정의, 모의 API용
-interface ApiResponse<T> {
-    success: boolean;
-    data?: T;
-    message?: string;
-}
-
 // 타입별 색상 정의
 const typeColors = {
     attraction: {
@@ -59,9 +52,6 @@ const UserFavorite = () => {
         setError(null);
 
         try {
-            // 더미 모의 API 호출 함수
-            // const response = await fetchFavorites();
-
             // 실제 호출해야한 API, response 처리 로직을 다시 짜야할 수 있음
             const response = await getUserFavoriteList();
 
@@ -77,6 +67,7 @@ const UserFavorite = () => {
             }
         } catch (err) {
             setError("네트워크 오류가 발생했습니다. 다시 시도해주세요.");
+            console.log(err);
             // 예외 발생 시 빈 배열로 초기화
             setFavorites([]);
         } finally {
@@ -121,17 +112,14 @@ const UserFavorite = () => {
 
                 if (response.success) {
                     // 성공적으로 삭제되면 상태에서도 삭제
-                    setFavorites(
-                        favorites.filter(
-                            (item) => item.favorite_id !== fav.favorite_id
-                        )
-                    );
+                    await loadFavorites();
                 } else {
                     // 실패 시 알림
                     alert(response.message || "삭제에 실패했습니다.");
                 }
             } catch (err) {
                 alert("네트워크 오류가 발생했습니다. 다시 시도해주세요.");
+                console.log(err);
             } finally {
                 setDeletingId(null); // 삭제 중 표시 제거
             }

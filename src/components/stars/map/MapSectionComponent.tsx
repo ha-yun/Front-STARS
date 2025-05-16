@@ -7,7 +7,8 @@ import useCustomLogin from "../../../hooks/useCustomLogin";
 import AlertModal from "../../alert/AlertModal";
 import useCongestionAlert from "../../../hooks/useCongestionAlert";
 import { getAreaList } from "../../../api/starsApi";
-import AreaFocusCard from "./AreaFoucsCard"; // 관광특구 카드
+import AreaFocusCard from "./AreaFoucsCard";
+import MapboxLanguage from "@mapbox/mapbox-gl-language"; // 관광특구 카드
 
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
 
@@ -44,6 +45,11 @@ export default function MapSectionComponent() {
             zoom: 11.3,
             minZoom: 11.3,
         });
+        map.addControl(
+            new MapboxLanguage({
+                defaultLanguage: "ko",
+            })
+        );
         mapRef.current = map; // 추가
 
         // 관광특구 마커 생성
