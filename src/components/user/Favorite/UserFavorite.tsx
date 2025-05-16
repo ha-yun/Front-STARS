@@ -57,6 +57,7 @@ const UserFavorite = () => {
 
             if (response) {
                 setFavorites(response);
+                console.log(response);
             } else {
                 setError(
                     response.message ||
@@ -109,8 +110,10 @@ const UserFavorite = () => {
 
                 // 실제 호출해야하는 API
                 const response = await deleteFavorite(fav);
+                console.log("삭제 결과: ", response);
 
-                if (response.success) {
+                if (response.message === "즐겨찾기 삭제 완료") {
+                    alert("삭제되었습니다.");
                     // 성공적으로 삭제되면 상태에서도 삭제
                     await loadFavorites();
                 } else {
@@ -221,10 +224,7 @@ const UserFavorite = () => {
                                     </div>
                                     <button
                                         className="bg-white text-red-500 hover:text-red-700 text-xs md:text-sm disabled:text-gray-400 ml-2"
-                                        onClick={() =>
-                                            // 지금 모의 API라서 실제 API로 바꿔야한다, 넣어야할 params도 바뀌어야함
-                                            handleDelete(item)
-                                        }
+                                        onClick={() => handleDelete(item)}
                                         disabled={
                                             deletingId === item.favorite_id
                                         }
