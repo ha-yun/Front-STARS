@@ -10,9 +10,9 @@ interface SearchDataItem {
 
 interface MenuProps {
     isOpen: boolean;
-    searchData?: SearchDataItem[];
+    searchData?: SearchResult[];
     hasSearched: boolean;
-    onResultClick?: (item: SearchDataItem) => void;
+    onResultClick?: (item: SearchResult) => void;
 }
 
 type DropdownType = "category" | null;
