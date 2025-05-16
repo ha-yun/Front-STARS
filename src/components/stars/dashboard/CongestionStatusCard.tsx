@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 
 interface CongestionStatusCardProps {
-    status: "원활" | "보통" | "약간붐빔" | "붐빔";
+    status: "원활" | "보통" | "약간 붐빔" | "붐빔";
     style: { opacity: number; y: number; scale: number };
     cardRef: (el: HTMLDivElement | null) => void;
 }
@@ -9,7 +9,7 @@ interface CongestionStatusCardProps {
 const statusColors: Record<string, string> = {
     원활: "bg-green-500 text-white",
     보통: "bg-yellow-500 text-white",
-    약간붐빔: "bg-orange-500 text-white",
+    "약간 붐빔": "bg-orange-500 text-white",
     붐빔: "bg-red-500 text-white",
 };
 
