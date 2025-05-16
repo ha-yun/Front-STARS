@@ -84,34 +84,6 @@ export interface UserFavoriteList {
     content: Favorite[];
 }
 
-// 주차 관련 정보 데이터
-export interface ParkInfo {
-    area_nm: string;
-    get_time: string;
-    pk_time: string;
-    prk_stts: ParkPlaceInfo[];
-}
-
-// 주차장 정보 데이터타입
-type ParkPlaceInfo = {
-    add_rates: number;
-    add_time_rates: number;
-    address: string;
-    cpcty: number;
-    cur_prk_cnt: number;
-    cur_prk_yn: string;
-    cur_prk_time: string;
-    lat: number;
-    lon: number;
-    pay_yn: string;
-    prk_cd: string;
-    prk_name: string;
-    prk_type: string;
-    rates: number;
-    road_addr: string;
-    time_rates: number;
-};
-
 // 날씨 예보 데이터 타입 정의
 export interface WeatherForecast {
     fcst_dt: string;
@@ -187,4 +159,39 @@ export interface RoadTrafficNode {
     start_nd_nm: string;
     start_nd_xy: string;
     xylist: string;
+}
+
+// 주차장 정보
+export interface ParkData {
+    area_id: number;
+    area_nm: string;
+    get_time: number;
+    pk_time: string;
+    prk_stts: ParkNode[];
+}
+
+export interface ParkNode {
+    add_rates: number; // 추가 주차 단위 요금
+    add_time_rates: number; // 추가 주차 단위 시간
+    address: string; // 주소
+    cpcty: number; // 주차장 수용 가능 면수
+    cur_prk_cnt: number; // 현재 주차중인 대수
+    cur_prk_yn: string; // 실시간 정보 제공 여부
+    cur_prk_time: string; // 실시간 정보 업데이트 시각
+    lat: number;
+    lon: number;
+    pay_yn: string; // 유무료 여부
+    prk_cd: string; // 주차장 코드
+    prk_name: string; // 주차장 이름
+    prk_type: string; // 주차장 유형(BS: 지하, NP: 지상)
+    rates: number; // 기본 주차 요금
+    road_addr: string;
+    time_rates: number; // 기본 주차 단위 시간
+}
+
+export interface MapData {
+    area_id: number;
+    area_nm: string;
+    parkData: ParkData | null;
+    trafficData: TrafficData | null;
 }

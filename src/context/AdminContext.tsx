@@ -19,10 +19,11 @@ import {
     PopulationData,
     TouristSpot,
     WeatherData,
-    ParkInfo,
     CombinedAreaData,
     AccidentData,
     TrafficData,
+    ParkData,
+    MapData,
 } from "../data/adminData";
 // test용 더미데이터, SSE 통신은 고려하지 않음
 import { dummyTouristData } from "../data/dummy/population";
@@ -35,10 +36,11 @@ interface AdminDataContextType {
     touristInfoData: PopulationData[];
     touristSpotsData: TouristSpot[];
     weatherInfoData: WeatherData[];
-    parkData: ParkInfo[];
+    parkData: ParkData[];
     accidentData: AccidentData[];
     trafficData: TrafficData[];
     combinedAreaData: CombinedAreaData[];
+    mapData: MapData[];
     findAreaData: (areaId: number) => CombinedAreaData | undefined;
     isLoading: boolean;
     spotsLoading: boolean;
@@ -62,7 +64,7 @@ interface AdminDataProviderProps {
 // 컨텍스트 제공자 컴포넌트
 export const AdminDataProvider: React.FC<AdminDataProviderProps> = ({
     children,
-    test = true,
+    test = false,
 }) => {
     // 데이터 상태 및 로딩 상태
     const [touristInfoData, setTouristInfoData] = useState<PopulationData[]>(
@@ -70,9 +72,9 @@ export const AdminDataProvider: React.FC<AdminDataProviderProps> = ({
     );
     const [touristSpotsData, setTouristSpotsData] = useState<TouristSpot[]>([]);
     const [weatherInfoData, setWeatherInfoData] = useState<WeatherData[]>([]);
-    const [parkData, setParkData] = useState<ParkInfo[]>([]);
     const [trafficData, setTrafficData] = useState<TrafficData[]>([]);
     const [accidentData, setAccidentData] = useState<AccidentData[]>([]);
+    const [parkData, setParkData] = useState<ParkData[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [spotsLoading, setSpotsLoading] = useState<boolean>(true);
     const [weatherLoading, setWeatherLoading] = useState<boolean>(true);
@@ -169,6 +171,46 @@ export const AdminDataProvider: React.FC<AdminDataProviderProps> = ({
 
         return Array.from(combinedMap.values());
     }, [touristInfoData, weatherInfoData]);
+
+    // const mapData = useMemo<MapData[]>(() => {
+    //     const combinedMap = new Map<number, MapData>();
+    // }, [parkData, trafficData]);
+
+    const mapData = useMemo<MapData[]>(() => {
+        const combinedMap = new Map<number, MapData>();
+
+        trafficData.forEach((trafficData) => {
+            const areaId = trafficData.area_id;
+
+            if (!combinedMap.has(areaId)) {
+                combinedMap.set(areaId, {
+                    area_id: areaId,
+                    area_nm: trafficData.area_nm,
+                    trafficData: null,
+                    parkData: null,
+                });
+            }
+            const entry = combinedMap.get(areaId)!;
+            entry.trafficData = trafficData;
+        });
+
+        parkData.forEach((parkData) => {
+            const areaId = parkData.area_id;
+
+            if (!combinedMap.has(areaId)) {
+                combinedMap.set(areaId, {
+                    area_id: areaId,
+                    area_nm: parkData.area_nm,
+                    trafficData: null,
+                    parkData: null,
+                });
+            }
+            const entry = combinedMap.get(areaId)!;
+            entry.parkData = parkData;
+        });
+
+        return Array.from(combinedMap.values());
+    }, [parkData, trafficData]);
 
     // 관광지 정보 데이터 로드 함수
     const fetchTouristInfo = async () => {
@@ -313,8 +355,8 @@ export const AdminDataProvider: React.FC<AdminDataProviderProps> = ({
             // 새 이벤트 소스 생성
             const event = subscribeParkUpdate((data) => {
                 // 필요한 상태 업데이트 로직 추가
-                setParkData(data as unknown as ParkInfo[]);
-                console.log("parkUpdate", data);
+                setParkData(data as unknown as ParkData[]);
+                console.log("parkUpdate", parkData);
             });
             // 이벤트 소스 저장
             eventSources.current.parkUpdate = event;
@@ -384,6 +426,7 @@ export const AdminDataProvider: React.FC<AdminDataProviderProps> = ({
         accidentData,
         trafficData,
         combinedAreaData,
+        mapData,
         findAreaData,
         isLoading: loading,
         spotsLoading,
