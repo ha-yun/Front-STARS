@@ -101,6 +101,8 @@ export const getAreaList = async () => {
         },
     };
     const res = await axios.get(`${prefix}/place/main/area/list`, header);
+    console.log("백엔드 호출 ", res.data);
+
     return res.data;
 };
 

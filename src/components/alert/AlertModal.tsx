@@ -55,7 +55,7 @@ export default function AlertModal({
                 return (
                     <div
                         key={alert.id}
-                        className={`${alertClass[alert.type]} transition-all shadow-md max-w-xs`}
+                        className={`${alertClass[alert.type]} transition-all shadow-md md:max-w-xs max-w-52`}
                         role="button"
                         tabIndex={0}
                         onClick={() => toggleExpand(alert.id)}
