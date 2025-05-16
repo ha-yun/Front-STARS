@@ -1,12 +1,6 @@
 import { useMemo, useState } from "react";
 import useCustomLogin from "../../../hooks/useCustomLogin";
-
-interface SearchDataItem {
-    place_id: number;
-    name: string;
-    type: string;
-    address: string;
-}
+import { SearchResult } from "../../../api/searchApi";
 
 interface MenuProps {
     isOpen: boolean;
