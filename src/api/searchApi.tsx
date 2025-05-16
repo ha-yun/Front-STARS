@@ -8,6 +8,8 @@ export interface SearchResult {
     name: string;
     address: string;
     type: string;
+    lat: number;
+    lon: number;
 }
 
 // 통합 이름 검색

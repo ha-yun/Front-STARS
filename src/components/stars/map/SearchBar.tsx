@@ -9,9 +9,13 @@ import {
 
 interface SearchBarProps {
     onSearch?: (query: string) => void;
+    onResultClick?: (item: SearchResult) => void; // 추가
 }
 
-export default function SearchBarWithMenu({ onSearch }: SearchBarProps) {
+export default function SearchBarWithMenu({
+    onSearch,
+    onResultClick,
+}: SearchBarProps) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [query, setQuery] = useState("");
     const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
@@ -93,6 +97,7 @@ export default function SearchBarWithMenu({ onSearch }: SearchBarProps) {
                 isOpen={isMenuOpen}
                 searchData={searchResults}
                 hasSearched={hasSearched}
+                onResultClick={onResultClick} // 전달
             />
         </div>
     );
