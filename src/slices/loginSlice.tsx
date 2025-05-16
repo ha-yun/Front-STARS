@@ -86,6 +86,11 @@ const loginSlice = createSlice({
     },
 });
 
+export const isAdmin = (): boolean => {
+    const cookie = loadUserCookie();
+    return cookie.role === "ROLE_ADMIN";
+};
+
 export const { login, logout, updateLoginInfo, clearLoginInfo } =
     loginSlice.actions;
 export default loginSlice.reducer;
