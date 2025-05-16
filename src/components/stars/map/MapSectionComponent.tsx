@@ -107,6 +107,7 @@ export default function MapSectionComponent() {
 
     const handleSearchResultClick = useCallback((item: SearchResult) => {
         const map = mapRef.current;
+        if (!map) return;
 
         if (searchMarkerRef.current) {
             searchMarkerRef.current.remove();
