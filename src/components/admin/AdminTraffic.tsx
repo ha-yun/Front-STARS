@@ -43,7 +43,7 @@ const AdminTraffic = () => {
 
     // 지도 초기화
     useEffect(() => {
-        console.log("교통 주차 통합 데이터: ", mapData);
+        // console.log("교통 주차 통합 데이터: ", mapData);
         if (!mapContainer.current) return;
 
         // mapbox token 설정
@@ -170,8 +170,6 @@ const AdminTraffic = () => {
     const highlightAreaData = (areaData: MapData) => {
         if (!map.current || !mapLoaded) return;
 
-        console.log("Highlighting data for area:", areaData.area_nm);
-
         // Clear all existing layers and sources
         clearAllLayers();
 
@@ -235,9 +233,6 @@ const AdminTraffic = () => {
             console.log("Map not ready yet");
             return;
         }
-
-        console.log("Drawing roads for area:", trafficData.area_nm);
-        console.log("Number of roads:", trafficData.road_traffic_stts.length);
 
         trafficData.road_traffic_stts.forEach((road, index) => {
             // xylist를 파싱하여 경로 좌표 배열 생성
@@ -331,8 +326,6 @@ const AdminTraffic = () => {
             console.log("Map not ready yet");
             return;
         }
-
-        console.log("Drawing parking markers, count:", parkingList.length);
 
         parkingList.forEach((park) => {
             if (!park.lat || !park.lon) return;
@@ -454,7 +447,6 @@ const AdminTraffic = () => {
         if (!mapLoaded) return;
 
         if (selectedArea && mapData.length) {
-            console.log("Selected area changed to:", selectedArea);
             const area = mapData.find((area) => area.area_nm === selectedArea);
             if (area) {
                 moveToSelectedArea(area);

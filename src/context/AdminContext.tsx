@@ -7,7 +7,7 @@ import React, {
     ReactNode,
     useMemo,
 } from "react";
-import { Navigate, useNavigate } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import {
     subscribeCongestionUpdate,
     subscribeCongestionAlert,
@@ -68,399 +68,362 @@ export const AdminDataProvider: React.FC<AdminDataProviderProps> = ({
     children,
     test = false,
 }) => {
+    // 관리자 권한 확인
+    const adminCheck = isAdmin();
+
     // 데이터 상태 및 로딩 상태
-    if (isAdmin()) {
-        const [touristInfoData, setTouristInfoData] = useState<
-            PopulationData[]
-        >([]);
-        const [touristSpotsData, setTouristSpotsData] = useState<TouristSpot[]>(
-            []
-        );
-        const [weatherInfoData, setWeatherInfoData] = useState<WeatherData[]>(
-            []
-        );
-        const [trafficData, setTrafficData] = useState<TrafficData[]>([]);
-        const [accidentData, setAccidentData] = useState<AccidentData[]>([]);
-        const [parkData, setParkData] = useState<ParkData[]>([]);
-        const [loading, setLoading] = useState<boolean>(true);
-        const [spotsLoading, setSpotsLoading] = useState<boolean>(true);
-        const [weatherLoading, setWeatherLoading] = useState<boolean>(true);
-        const [error, setError] = useState<string | null>(null);
-        const [refreshing, setRefreshing] = useState<boolean>(false);
+    const [touristInfoData, setTouristInfoData] = useState<PopulationData[]>(
+        []
+    );
+    const [touristSpotsData, setTouristSpotsData] = useState<TouristSpot[]>([]);
+    const [weatherInfoData, setWeatherInfoData] = useState<WeatherData[]>([]);
+    const [trafficData, setTrafficData] = useState<TrafficData[]>([]);
+    const [accidentData, setAccidentData] = useState<AccidentData[]>([]);
+    const [parkData, setParkData] = useState<ParkData[]>([]);
+    const [loading, setLoading] = useState<boolean>(true);
+    const [spotsLoading, setSpotsLoading] = useState<boolean>(true);
+    const [weatherLoading, setWeatherLoading] = useState<boolean>(true);
+    const [error, setError] = useState<string | null>(null);
+    const [refreshing, setRefreshing] = useState<boolean>(false);
+    const eventSources = React.useRef<{
+        congestionUpdate?: EventSource;
+        congestionAlert?: EventSource;
+        weatherUpdate?: EventSource;
+        trafficUpdate?: EventSource;
+        parkUpdate?: EventSource;
+        accidentUpdate?: EventSource;
+    }>({});
 
-        const navigate = useNavigate();
+    const combinedAreaData = useMemo<CombinedAreaData[]>(() => {
+        // area_id를 기준으로 인구 데이터와 날씨 데이터 병합
+        const combinedMap = new Map<number, CombinedAreaData>();
 
-        // SSE 이벤트 소스 저장을 위한 refs
-        const eventSources = React.useRef<{
-            congestionUpdate?: EventSource;
-            congestionAlert?: EventSource;
-            weatherUpdate?: EventSource;
-            trafficUpdate?: EventSource;
-            parkUpdate?: EventSource;
-            accidentUpdate?: EventSource;
-        }>({});
+        // 인구 데이터 처리
+        touristInfoData.forEach((populationData) => {
+            const areaId = populationData.area_id;
 
-        // 지역 ID로 통합 데이터 조회 함수
-        const findAreaData = (
-            area_id: number
-        ): CombinedAreaData | undefined => {
-            return combinedAreaData.find((data) => data.area_id === area_id);
-        };
-
-        // 기존에는 area_cd를 이용해서 관리하고 있었는데
-        // weather과 통합하기 위해서 area_id를 사용하는 구조로 변경해야함
-        const combinedAreaData = useMemo<CombinedAreaData[]>(() => {
-            // area_id를 기준으로 인구 데이터와 날씨 데이터 병합
-            const combinedMap = new Map<number, CombinedAreaData>();
-
-            // 인구 데이터 처리
-            touristInfoData.forEach((populationData) => {
-                const areaId = populationData.area_id;
-
-                if (!combinedMap.has(areaId)) {
-                    combinedMap.set(areaId, {
-                        area_id: areaId,
-                        area_nm: populationData.area_nm,
-                        population: null,
-                        weather: null,
-                    });
-                }
-
-                const entry = combinedMap.get(areaId)!;
-                entry.population = {
-                    area_id: populationData.area_id,
+            if (!combinedMap.has(areaId)) {
+                combinedMap.set(areaId, {
+                    area_id: areaId,
                     area_nm: populationData.area_nm,
-                    fcst_yn: populationData.fcst_yn,
-                    get_time: populationData.get_time,
-                    replace_yn: populationData.replace_yn,
-                    area_cd: populationData.area_cd,
-                    area_congest_lvl: populationData.area_congest_lvl,
-                    area_congest_msg: populationData.area_congest_msg,
-                    area_ppltn_min: populationData.area_ppltn_min,
-                    area_ppltn_max: populationData.area_ppltn_max,
-                    male_ppltn_rate: populationData.male_ppltn_rate,
-                    female_ppltn_rate: populationData.female_ppltn_rate,
-                    resnt_ppltn_rate: populationData.resnt_ppltn_rate,
-                    non_resnt_ppltn_rate: populationData.non_resnt_ppltn_rate,
-                    ppltn_rates: populationData.ppltn_rates,
-                    ppltn_time: populationData.ppltn_time,
-                    fcst_ppltn: populationData.fcst_ppltn,
-                };
-            });
+                    population: null,
+                    weather: null,
+                });
+            }
 
-            // 날씨 데이터 처리
-            weatherInfoData.forEach((weatherItem) => {
-                const areaId = weatherItem.area_id;
+            const entry = combinedMap.get(areaId)!;
+            entry.population = populationData;
+        });
 
-                if (!combinedMap.has(areaId)) {
-                    combinedMap.set(areaId, {
-                        area_id: areaId,
-                        area_nm: weatherItem.area_nm,
-                        population: null,
-                        weather: null,
-                    });
-                }
+        // 날씨 데이터 처리
+        weatherInfoData.forEach((weatherItem) => {
+            const areaId = weatherItem.area_id;
 
-                const entry = combinedMap.get(areaId)!;
-                entry.weather = {
-                    area_id: weatherItem.area_id,
+            if (!combinedMap.has(areaId)) {
+                combinedMap.set(areaId, {
+                    area_id: areaId,
                     area_nm: weatherItem.area_nm,
-                    get_time: weatherItem.get_time,
-                    temp: weatherItem.temp,
-                    max_temp: weatherItem.max_temp,
-                    min_temp: weatherItem.min_temp,
-                    sensible_temp: weatherItem.sensible_temp,
-                    precipitation: weatherItem.precipitation,
-                    precpt_type: weatherItem.precpt_type,
-                    pcp_msg: weatherItem.pcp_msg,
-                    pm10: weatherItem.pm10,
-                    pm25: weatherItem.pm25,
-                    weather_time: weatherItem.weather_time,
-                    fcst24hours: weatherItem.fcst24hours,
-                };
-            });
-
-            return Array.from(combinedMap.values());
-        }, [touristInfoData, weatherInfoData]);
-
-        // const mapData = useMemo<MapData[]>(() => {
-        //     const combinedMap = new Map<number, MapData>();
-        // }, [parkData, trafficData]);
-
-        const mapData = useMemo<MapData[]>(() => {
-            const combinedMap = new Map<number, MapData>();
-
-            trafficData.forEach((trafficData) => {
-                const areaId = trafficData.area_id;
-
-                if (!combinedMap.has(areaId)) {
-                    combinedMap.set(areaId, {
-                        area_id: areaId,
-                        area_nm: trafficData.area_nm,
-                        trafficData: null,
-                        parkData: null,
-                    });
-                }
-                const entry = combinedMap.get(areaId)!;
-                entry.trafficData = trafficData;
-            });
-
-            parkData.forEach((parkData) => {
-                const areaId = parkData.area_id;
-
-                if (!combinedMap.has(areaId)) {
-                    combinedMap.set(areaId, {
-                        area_id: areaId,
-                        area_nm: parkData.area_nm,
-                        trafficData: null,
-                        parkData: null,
-                    });
-                }
-                const entry = combinedMap.get(areaId)!;
-                entry.parkData = parkData;
-            });
-
-            return Array.from(combinedMap.values());
-        }, [parkData, trafficData]);
-
-        // 관광지 정보 데이터 로드 함수
-        const fetchTouristInfo = async () => {
-            setLoading(true);
-            setError(null);
-
-            try {
-                // 테스트 모드가 아닐 때 실제 SSE 연결
-                if (!test) {
-                    // 기존 이벤트 소스가 있다면 닫기
-                    if (eventSources.current.congestionUpdate) {
-                        eventSources.current.congestionUpdate.close();
-                    }
-
-                    // 새 이벤트 소스 생성
-                    const event: EventSource = subscribeCongestionUpdate(
-                        (data) => {
-                            const updateData =
-                                data as unknown as PopulationData[];
-
-                            console.log("fetchTouristInfo");
-
-                            setTouristInfoData(updateData);
-                            if (error) {
-                                setError(null);
-                            }
-                        }
-                    );
-
-                    // 이벤트 소스 저장
-                    eventSources.current.congestionUpdate = event;
-                } else {
-                    setTouristInfoData(dummyTouristData);
-                }
-            } catch (err) {
-                console.error("Failed to fetch tourist info:", err);
-                setError("정보를 불러오는데 실패했습니다.");
-                setTouristInfoData([]);
-            } finally {
-                setLoading(false);
+                    population: null,
+                    weather: null,
+                });
             }
-        };
 
-        // 혼잡 현황 데이터 로드 함수
-        const fetchTouristSpots = async () => {
-            setSpotsLoading(true);
+            const entry = combinedMap.get(areaId)!;
+            entry.weather = weatherItem;
+        });
 
-            try {
-                if (!test) {
-                    // 기존 이벤트 소스가 있다면 닫기
-                    if (eventSources.current.congestionAlert) {
-                        eventSources.current.congestionAlert.close();
-                    }
+        return Array.from(combinedMap.values());
+    }, [touristInfoData, weatherInfoData]);
 
-                    // 새 이벤트 소스 생성
-                    const event: EventSource = subscribeCongestionAlert(
-                        (data): void => {
-                            // 데이터 타입 변환 및 처리
-                            setTouristSpotsData(
-                                data as unknown as TouristSpot[]
-                            );
-                            console.log("fetchTouristSpots");
-                            if (error) {
-                                setError(null);
-                            }
-                        }
-                    );
+    const mapData = useMemo<MapData[]>(() => {
+        const combinedMap = new Map<number, MapData>();
+        trafficData.forEach((traffic) => {
+            const areaId = traffic.area_id;
 
-                    // 이벤트 소스 저장
-                    eventSources.current.congestionAlert = event;
-                }
-            } catch (err) {
-                console.error("Failed to fetch tourist spots:", err);
-                setError("정보를 불러오는데 실패했습니다");
-                setTouristSpotsData([]);
-            } finally {
-                setSpotsLoading(false);
+            if (!combinedMap.has(areaId)) {
+                combinedMap.set(areaId, {
+                    area_id: areaId,
+                    area_nm: traffic.area_nm,
+                    trafficData: null,
+                    parkData: null,
+                });
             }
-        };
+            const entry = combinedMap.get(areaId)!;
+            // console.log(traffic);
+            entry.trafficData = traffic;
+        });
 
-        // 날씨 정보 데이터 로드 함수
-        const fetchWeatherData = async () => {
-            setWeatherLoading(true);
-            setError(null);
+        parkData.forEach((park) => {
+            const areaId = park.area_id;
 
-            try {
-                if (!test) {
-                    // 기존 이벤트 소스가 있다면 닫기
-                    if (eventSources.current.weatherUpdate) {
-                        eventSources.current.weatherUpdate.close();
-                    }
-
-                    // 새 이벤트 소스 생성
-                    const event = subscribeWeatherUpdate((data) => {
-                        setWeatherInfoData(data as unknown as WeatherData[]);
-                        console.log("fetchWeatherData");
-                    });
-
-                    // 이벤트 소스 저장
-                    eventSources.current.weatherUpdate = event;
-                } else {
-                    // 더미데이터로 교체
-                    setWeatherInfoData(dummyWeatherData);
-                    console.log("날씨 더미 데이터: ", weatherInfoData);
-                }
-            } catch (err) {
-                console.error("날씨 데이터 가져오기 실패:", err);
-                setError("날씨 정보를 불러오는데 실패했습니다");
-                setWeatherInfoData([]);
-            } finally {
-                setWeatherLoading(false);
+            if (!combinedMap.has(areaId)) {
+                combinedMap.set(areaId, {
+                    area_id: areaId,
+                    area_nm: park.area_nm,
+                    trafficData: null,
+                    parkData: null,
+                });
             }
-        };
+            const entry = combinedMap.get(areaId)!;
+            entry.parkData = park;
+        });
+        return Array.from(combinedMap.values());
+    }, [parkData, trafficData]);
 
-        // 트래픽 정보 구독 설정
-        const fetchTrafficUpdate = () => {
+    // 지역 ID로 통합 데이터 조회 함수
+    const findAreaData = (area_id: number): CombinedAreaData | undefined => {
+        return combinedAreaData.find((data) => data.area_id === area_id);
+    };
+
+    // 관광지 정보 데이터 로드 함수
+    const fetchTouristInfo = async () => {
+        if (!adminCheck) return;
+
+        setLoading(true);
+        setError(null);
+
+        try {
+            // 테스트 모드가 아닐 때 실제 SSE 연결
             if (!test) {
                 // 기존 이벤트 소스가 있다면 닫기
-                if (eventSources.current.trafficUpdate) {
-                    eventSources.current.trafficUpdate.close();
+                if (eventSources.current.congestionUpdate) {
+                    eventSources.current.congestionUpdate.close();
                 }
 
                 // 새 이벤트 소스 생성
-                const event = subscribeTrafficUpdate((data) => {
-                    console.log("Traffic data update received:", data);
-                    // 필요한 상태 업데이트 로직 추가
-                    const updateData = data as unknown as TrafficData[];
-                    setTrafficData(updateData);
+                const event: EventSource = subscribeCongestionUpdate((data) => {
+                    const updateData = data as unknown as PopulationData[];
+
+                    console.log("fetchTouristInfo");
+
+                    setTouristInfoData(updateData);
+                    if (error) {
+                        setError(null);
+                    }
                 });
 
                 // 이벤트 소스 저장
-                eventSources.current.trafficUpdate = event;
+                eventSources.current.congestionUpdate = event;
             } else {
-                setTrafficData(dummyTrafficData);
-                console.log("넣은 데이터: ", dummyTrafficData);
+                setTouristInfoData(dummyTouristData);
             }
-        };
+        } catch (err) {
+            console.error("Failed to fetch tourist info:", err);
+            setError("정보를 불러오는데 실패했습니다.");
+            setTouristInfoData([]);
+        } finally {
+            setLoading(false);
+        }
+    };
 
-        // 주차 정보 구독 설정
-        const fetchParkUpdate = () => {
+    // 혼잡 현황 데이터 로드 함수
+    const fetchTouristSpots = async () => {
+        if (!adminCheck) return;
+
+        setSpotsLoading(true);
+
+        try {
             if (!test) {
                 // 기존 이벤트 소스가 있다면 닫기
-                if (eventSources.current.parkUpdate) {
-                    eventSources.current.parkUpdate.close();
+                if (eventSources.current.congestionAlert) {
+                    eventSources.current.congestionAlert.close();
                 }
 
                 // 새 이벤트 소스 생성
-                const event = subscribeParkUpdate((data) => {
-                    // 필요한 상태 업데이트 로직 추가
-                    setParkData(data as unknown as ParkData[]);
-                    console.log("parkUpdate", parkData);
-                });
+                const event: EventSource = subscribeCongestionAlert(
+                    (data): void => {
+                        // 데이터 타입 변환 및 처리
+                        setTouristSpotsData(data as unknown as TouristSpot[]);
+                        console.log("fetchTouristSpots");
+                        if (error) {
+                            setError(null);
+                        }
+                    }
+                );
+
                 // 이벤트 소스 저장
-                eventSources.current.parkUpdate = event;
+                eventSources.current.congestionAlert = event;
             }
-        };
+        } catch (err) {
+            console.error("Failed to fetch tourist spots:", err);
+            setError("정보를 불러오는데 실패했습니다");
+            setTouristSpotsData([]);
+        } finally {
+            setSpotsLoading(false);
+        }
+    };
 
-        // 사고 정보 조회 구독
-        const fetchAccidentUpdate = () => {
+    // 날씨 정보 데이터 로드 함수
+    const fetchWeatherData = async () => {
+        if (!adminCheck) return;
+
+        setWeatherLoading(true);
+        setError(null);
+
+        try {
             if (!test) {
-                if (eventSources.current.accidentUpdate) {
-                    eventSources.current.accidentUpdate.close();
+                // 기존 이벤트 소스가 있다면 닫기
+                if (eventSources.current.weatherUpdate) {
+                    eventSources.current.weatherUpdate.close();
                 }
-                const event = subscribeAccidentUpdate((data) => {
-                    setAccidentData(data as unknown as AccidentData[]);
-                    console.log("AccidentDataUpdate: ", data);
+
+                // 새 이벤트 소스 생성
+                const event = subscribeWeatherUpdate((data) => {
+                    setWeatherInfoData(data as unknown as WeatherData[]);
+                    console.log("fetchWeatherData");
                 });
 
-                eventSources.current.accidentUpdate = event;
+                // 이벤트 소스 저장
+                eventSources.current.weatherUpdate = event;
             } else {
-                setAccidentData(dummyAccidentData);
+                // 더미데이터로 교체
+                setWeatherInfoData(dummyWeatherData);
+                console.log("날씨 더미 데이터: ", weatherInfoData);
             }
-        };
+        } catch (err) {
+            console.error("날씨 데이터 가져오기 실패:", err);
+            setError("날씨 정보를 불러오는데 실패했습니다");
+            setWeatherInfoData([]);
+        } finally {
+            setWeatherLoading(false);
+        }
+    };
 
-        // 모든 데이터 새로고침 함수
-        // 새로고침을 하면 SSE 연결을 새로하는 문제가 있음
+    // 트래픽 정보 구독 설정
+    const fetchTrafficUpdate = () => {
+        if (!adminCheck) return;
 
-        const refreshAllData = async () => {
-            setRefreshing(true);
-
-            try {
-                await Promise.all([
-                    fetchTouristInfo(),
-                    fetchTouristSpots(),
-                    fetchWeatherData(),
-                ]);
-            } catch (error) {
-                console.error("데이터 새로고침 중 오류 발생:", error);
-            } finally {
-                setRefreshing(false);
+        if (!test) {
+            // 기존 이벤트 소스가 있다면 닫기
+            if (eventSources.current.trafficUpdate) {
+                eventSources.current.trafficUpdate.close();
             }
-        };
 
-        // 컴포넌트 마운트 시 데이터 로드 및 이벤트 소스 설정
-        useEffect(() => {
+            // 새 이벤트 소스 생성
+            const event = subscribeTrafficUpdate((data) => {
+                const updateData = data as unknown as TrafficData[];
+                setTrafficData(updateData);
+            });
+
+            // 이벤트 소스 저장
+            eventSources.current.trafficUpdate = event;
+        } else {
+            setTrafficData(dummyTrafficData);
+            console.log("넣은 데이터: ", dummyTrafficData);
+        }
+    };
+
+    // 주차 정보 구독 설정
+    const fetchParkUpdate = () => {
+        if (!adminCheck) return;
+
+        if (!test) {
+            // 기존 이벤트 소스가 있다면 닫기
+            if (eventSources.current.parkUpdate) {
+                eventSources.current.parkUpdate.close();
+            }
+
+            // 새 이벤트 소스 생성
+            const event = subscribeParkUpdate((data) => {
+                // 필요한 상태 업데이트 로직 추가
+                setParkData(data as unknown as ParkData[]);
+                console.log("parkUpdate", parkData);
+            });
+            // 이벤트 소스 저장
+            eventSources.current.parkUpdate = event;
+        }
+    };
+
+    // 사고 정보 조회 구독
+    const fetchAccidentUpdate = () => {
+        if (!adminCheck) return;
+
+        if (!test) {
+            if (eventSources.current.accidentUpdate) {
+                eventSources.current.accidentUpdate.close();
+            }
+            const event = subscribeAccidentUpdate((data) => {
+                setAccidentData(data as unknown as AccidentData[]);
+                console.log("AccidentDataUpdate: ", data);
+            });
+
+            eventSources.current.accidentUpdate = event;
+        } else {
+            setAccidentData(dummyAccidentData);
+        }
+    };
+
+    // 모든 데이터 새로고침 함수
+    const refreshAllData = async () => {
+        if (!adminCheck) return Promise.resolve();
+
+        setRefreshing(true);
+
+        try {
+            await Promise.all([
+                fetchTouristInfo(),
+                fetchTouristSpots(),
+                fetchWeatherData(),
+            ]);
+        } catch (error) {
+            console.error("데이터 새로고침 중 오류 발생:", error);
+        } finally {
+            setRefreshing(false);
+        }
+
+        return Promise.resolve();
+    };
+
+    // 컴포넌트 마운트 시 데이터 로드 및 이벤트 소스 설정
+    useEffect(() => {
+        if (adminCheck) {
             fetchTouristInfo();
             fetchTouristSpots();
             fetchWeatherData();
             fetchTrafficUpdate();
             fetchParkUpdate();
             fetchAccidentUpdate();
+        }
 
-            // 컴포넌트 언마운트 시 정리
-            return () => {
-                // 모든 이벤트 소스 닫기
-                Object.values(eventSources.current).forEach((source) => {
-                    if (source) source.close();
-                });
-            };
-        }, []);
-
-        // 컨텍스트 값
-        const contextValue: AdminDataContextType = {
-            touristInfoData,
-            touristSpotsData,
-            weatherInfoData,
-            parkData,
-            accidentData,
-            trafficData,
-            combinedAreaData,
-            mapData,
-            findAreaData,
-            isLoading: loading,
-            spotsLoading,
-            weatherLoading,
-            error,
-            refreshAllData,
-            refreshing,
+        // 컴포넌트 언마운트 시 정리
+        return () => {
+            // 모든 이벤트 소스 닫기
+            Object.values(eventSources.current).forEach((source) => {
+                if (source) source.close();
+            });
         };
+    }, [adminCheck]);
 
-        return (
-            <AdminDataContext.Provider value={contextValue}>
-                {children}
-            </AdminDataContext.Provider>
-        );
-    } else {
+    // 컨텍스트 값
+    const contextValue: AdminDataContextType = {
+        touristInfoData,
+        touristSpotsData,
+        weatherInfoData,
+        parkData,
+        accidentData,
+        trafficData,
+        combinedAreaData,
+        mapData,
+        findAreaData,
+        isLoading: loading,
+        spotsLoading,
+        weatherLoading,
+        error,
+        refreshAllData,
+        refreshing,
+    };
+
+    // 관리자가 아닌 경우 로그인 페이지로 리다이렉트
+    if (!adminCheck) {
         alert("관리자 로그인 후 시도하십시오");
         return <Navigate to="/login" replace />;
     }
+
+    return (
+        <AdminDataContext.Provider value={contextValue}>
+            {children}
+        </AdminDataContext.Provider>
+    );
 };
 
 // 컨텍스트 사용을 위한 훅
