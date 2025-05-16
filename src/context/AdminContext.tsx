@@ -7,6 +7,7 @@ import React, {
     ReactNode,
     useMemo,
 } from "react";
+import { Navigate } from "react-router-dom";
 import {
     subscribeCongestionUpdate,
     subscribeCongestionAlert,
@@ -30,6 +31,7 @@ import { dummyTouristData } from "../data/dummy/population";
 import { dummyWeatherData } from "../data/dummy/weather";
 import { dummyAccidentData } from "../data/dummy/accident";
 import { dummyTrafficData } from "../data/dummy/traffic";
+import { isAdmin } from "../slices/loginSlice";
 
 // 컨텍스트에서 제공할 데이터 타입 정의
 interface AdminDataContextType {
@@ -66,6 +68,9 @@ export const AdminDataProvider: React.FC<AdminDataProviderProps> = ({
     children,
     test = false,
 }) => {
+    // 관리자 권한 확인
+    const adminCheck = isAdmin();
+
     // 데이터 상태 및 로딩 상태
     const [touristInfoData, setTouristInfoData] = useState<PopulationData[]>(
         []
@@ -80,8 +85,6 @@ export const AdminDataProvider: React.FC<AdminDataProviderProps> = ({
     const [weatherLoading, setWeatherLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const [refreshing, setRefreshing] = useState<boolean>(false);
-
-    // SSE 이벤트 소스 저장을 위한 refs
     const eventSources = React.useRef<{
         congestionUpdate?: EventSource;
         congestionAlert?: EventSource;
@@ -91,13 +94,6 @@ export const AdminDataProvider: React.FC<AdminDataProviderProps> = ({
         accidentUpdate?: EventSource;
     }>({});
 
-    // 지역 ID로 통합 데이터 조회 함수
-    const findAreaData = (area_id: number): CombinedAreaData | undefined => {
-        return combinedAreaData.find((data) => data.area_id === area_id);
-    };
-
-    // 기존에는 area_cd를 이용해서 관리하고 있었는데
-    // weather과 통합하기 위해서 area_id를 사용하는 구조로 변경해야함
     const combinedAreaData = useMemo<CombinedAreaData[]>(() => {
         // area_id를 기준으로 인구 데이터와 날씨 데이터 병합
         const combinedMap = new Map<number, CombinedAreaData>();
@@ -116,25 +112,7 @@ export const AdminDataProvider: React.FC<AdminDataProviderProps> = ({
             }
 
             const entry = combinedMap.get(areaId)!;
-            entry.population = {
-                area_id: populationData.area_id,
-                area_nm: populationData.area_nm,
-                fcst_yn: populationData.fcst_yn,
-                get_time: populationData.get_time,
-                replace_yn: populationData.replace_yn,
-                area_cd: populationData.area_cd,
-                area_congest_lvl: populationData.area_congest_lvl,
-                area_congest_msg: populationData.area_congest_msg,
-                area_ppltn_min: populationData.area_ppltn_min,
-                area_ppltn_max: populationData.area_ppltn_max,
-                male_ppltn_rate: populationData.male_ppltn_rate,
-                female_ppltn_rate: populationData.female_ppltn_rate,
-                resnt_ppltn_rate: populationData.resnt_ppltn_rate,
-                non_resnt_ppltn_rate: populationData.non_resnt_ppltn_rate,
-                ppltn_rates: populationData.ppltn_rates,
-                ppltn_time: populationData.ppltn_time,
-                fcst_ppltn: populationData.fcst_ppltn,
-            };
+            entry.population = populationData;
         });
 
         // 날씨 데이터 처리
@@ -151,69 +129,56 @@ export const AdminDataProvider: React.FC<AdminDataProviderProps> = ({
             }
 
             const entry = combinedMap.get(areaId)!;
-            entry.weather = {
-                area_id: weatherItem.area_id,
-                area_nm: weatherItem.area_nm,
-                get_time: weatherItem.get_time,
-                temp: weatherItem.temp,
-                max_temp: weatherItem.max_temp,
-                min_temp: weatherItem.min_temp,
-                sensible_temp: weatherItem.sensible_temp,
-                precipitation: weatherItem.precipitation,
-                precpt_type: weatherItem.precpt_type,
-                pcp_msg: weatherItem.pcp_msg,
-                pm10: weatherItem.pm10,
-                pm25: weatherItem.pm25,
-                weather_time: weatherItem.weather_time,
-                fcst24hours: weatherItem.fcst24hours,
-            };
+            entry.weather = weatherItem;
         });
 
         return Array.from(combinedMap.values());
     }, [touristInfoData, weatherInfoData]);
 
-    // const mapData = useMemo<MapData[]>(() => {
-    //     const combinedMap = new Map<number, MapData>();
-    // }, [parkData, trafficData]);
-
     const mapData = useMemo<MapData[]>(() => {
         const combinedMap = new Map<number, MapData>();
-
-        trafficData.forEach((trafficData) => {
-            const areaId = trafficData.area_id;
+        trafficData.forEach((traffic) => {
+            const areaId = traffic.area_id;
 
             if (!combinedMap.has(areaId)) {
                 combinedMap.set(areaId, {
                     area_id: areaId,
-                    area_nm: trafficData.area_nm,
+                    area_nm: traffic.area_nm,
                     trafficData: null,
                     parkData: null,
                 });
             }
             const entry = combinedMap.get(areaId)!;
-            entry.trafficData = trafficData;
+            // console.log(traffic);
+            entry.trafficData = traffic;
         });
 
-        parkData.forEach((parkData) => {
-            const areaId = parkData.area_id;
+        parkData.forEach((park) => {
+            const areaId = park.area_id;
 
             if (!combinedMap.has(areaId)) {
                 combinedMap.set(areaId, {
                     area_id: areaId,
-                    area_nm: parkData.area_nm,
+                    area_nm: park.area_nm,
                     trafficData: null,
                     parkData: null,
                 });
             }
             const entry = combinedMap.get(areaId)!;
-            entry.parkData = parkData;
+            entry.parkData = park;
         });
-
         return Array.from(combinedMap.values());
     }, [parkData, trafficData]);
 
+    // 지역 ID로 통합 데이터 조회 함수
+    const findAreaData = (area_id: number): CombinedAreaData | undefined => {
+        return combinedAreaData.find((data) => data.area_id === area_id);
+    };
+
     // 관광지 정보 데이터 로드 함수
     const fetchTouristInfo = async () => {
+        if (!adminCheck) return;
+
         setLoading(true);
         setError(null);
 
@@ -253,6 +218,8 @@ export const AdminDataProvider: React.FC<AdminDataProviderProps> = ({
 
     // 혼잡 현황 데이터 로드 함수
     const fetchTouristSpots = async () => {
+        if (!adminCheck) return;
+
         setSpotsLoading(true);
 
         try {
@@ -288,6 +255,8 @@ export const AdminDataProvider: React.FC<AdminDataProviderProps> = ({
 
     // 날씨 정보 데이터 로드 함수
     const fetchWeatherData = async () => {
+        if (!adminCheck) return;
+
         setWeatherLoading(true);
         setError(null);
 
@@ -322,6 +291,8 @@ export const AdminDataProvider: React.FC<AdminDataProviderProps> = ({
 
     // 트래픽 정보 구독 설정
     const fetchTrafficUpdate = () => {
+        if (!adminCheck) return;
+
         if (!test) {
             // 기존 이벤트 소스가 있다면 닫기
             if (eventSources.current.trafficUpdate) {
@@ -330,8 +301,6 @@ export const AdminDataProvider: React.FC<AdminDataProviderProps> = ({
 
             // 새 이벤트 소스 생성
             const event = subscribeTrafficUpdate((data) => {
-                console.log("Traffic data update received:", data);
-                // 필요한 상태 업데이트 로직 추가
                 const updateData = data as unknown as TrafficData[];
                 setTrafficData(updateData);
             });
@@ -346,6 +315,8 @@ export const AdminDataProvider: React.FC<AdminDataProviderProps> = ({
 
     // 주차 정보 구독 설정
     const fetchParkUpdate = () => {
+        if (!adminCheck) return;
+
         if (!test) {
             // 기존 이벤트 소스가 있다면 닫기
             if (eventSources.current.parkUpdate) {
@@ -365,6 +336,8 @@ export const AdminDataProvider: React.FC<AdminDataProviderProps> = ({
 
     // 사고 정보 조회 구독
     const fetchAccidentUpdate = () => {
+        if (!adminCheck) return;
+
         if (!test) {
             if (eventSources.current.accidentUpdate) {
                 eventSources.current.accidentUpdate.close();
@@ -381,9 +354,9 @@ export const AdminDataProvider: React.FC<AdminDataProviderProps> = ({
     };
 
     // 모든 데이터 새로고침 함수
-    // 새로고침을 하면 SSE 연결을 새로하는 문제가 있음
-
     const refreshAllData = async () => {
+        if (!adminCheck) return Promise.resolve();
+
         setRefreshing(true);
 
         try {
@@ -397,16 +370,20 @@ export const AdminDataProvider: React.FC<AdminDataProviderProps> = ({
         } finally {
             setRefreshing(false);
         }
+
+        return Promise.resolve();
     };
 
     // 컴포넌트 마운트 시 데이터 로드 및 이벤트 소스 설정
     useEffect(() => {
-        fetchTouristInfo();
-        fetchTouristSpots();
-        fetchWeatherData();
-        fetchTrafficUpdate();
-        fetchParkUpdate();
-        fetchAccidentUpdate();
+        if (adminCheck) {
+            fetchTouristInfo();
+            fetchTouristSpots();
+            fetchWeatherData();
+            fetchTrafficUpdate();
+            fetchParkUpdate();
+            fetchAccidentUpdate();
+        }
 
         // 컴포넌트 언마운트 시 정리
         return () => {
@@ -415,7 +392,7 @@ export const AdminDataProvider: React.FC<AdminDataProviderProps> = ({
                 if (source) source.close();
             });
         };
-    }, []);
+    }, [adminCheck]);
 
     // 컨텍스트 값
     const contextValue: AdminDataContextType = {
@@ -435,6 +412,12 @@ export const AdminDataProvider: React.FC<AdminDataProviderProps> = ({
         refreshAllData,
         refreshing,
     };
+
+    // 관리자가 아닌 경우 로그인 페이지로 리다이렉트
+    if (!adminCheck) {
+        alert("관리자 로그인 후 시도하십시오");
+        return <Navigate to="/login" replace />;
+    }
 
     return (
         <AdminDataContext.Provider value={contextValue}>
