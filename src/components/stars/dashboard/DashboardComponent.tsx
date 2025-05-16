@@ -11,10 +11,12 @@ import ReviewAnalysisCard from "./ReviewAnalysisCard";
 import TrafficInfoCard from "./TrafficInfoCard";
 import ParkingInfoCard from "./ParkingInfoCard";
 import CongestionStatusCard from "./CongestionStatusCard";
+import AttractionCard from "./AttractionCard";
+import CulturalEventCard from "./CulturalEventCard";
 import { scrollToTop } from "../../../utils/scrollToTop";
 
 // API 호출
-import { getAreaList } from "../../../api/starsApi";
+import { getAreaList, getPlaceListByArea } from "../../../api/starsApi";
 
 interface Area {
     area_id: number;
@@ -23,6 +25,47 @@ interface Area {
     lon: number;
     category: string;
     name_eng: string;
+}
+
+interface POI {
+    name: string;
+    address: string;
+    tel: string;
+}
+
+interface POIRawItem {
+    name?: string;
+    cafe_name?: string;
+    address: string;
+    phone?: string;
+}
+
+interface Attraction {
+    name: string;
+    address: string;
+    phone?: string;
+    homepage_url?: string;
+}
+
+interface CulturalEvent {
+    title: string;
+    address: string;
+    start_date: string;
+    end_date: string;
+    event_fee?: string;
+    event_img?: string;
+}
+
+type PlaceType =
+    | "cafe"
+    | "restaurant"
+    | "accommodation"
+    | "attraction"
+    | "cultural_event";
+
+interface PlaceListItem {
+    type: PlaceType;
+    content: unknown[];
 }
 
 function isValidStatus(
@@ -45,6 +88,10 @@ export default function DashboardComponent() {
     const [areaName, setAreaName] = useState("");
     const [areaCategory, setAreaCategory] = useState("");
     const [areaEngName, setAreaEngName] = useState("");
+
+    const [poiList, setPoiList] = useState<POI[]>([]);
+    const [attractions, setAttractions] = useState<Attraction[]>([]);
+    const [events, setEvents] = useState<CulturalEvent[]>([]);
 
     const visitorCountRef = useRef<HTMLSpanElement | null>(null);
 
@@ -73,6 +120,37 @@ export default function DashboardComponent() {
                 setAreaEngName(found.name_eng);
             }
         });
+
+        getPlaceListByArea(selectedAreaId).then(
+            (placeList: PlaceListItem[]) => {
+                const poiTypes: PlaceType[] = [
+                    "restaurant",
+                    "cafe",
+                    "accommodation",
+                ];
+
+                const pois: POI[] = placeList
+                    .filter((p) => poiTypes.includes(p.type))
+                    .flatMap((p) =>
+                        (p.content as unknown as POIRawItem[]).map((item) => ({
+                            name: item.name || item.cafe_name || "이름 없음",
+                            address: item.address,
+                            tel: item.phone || "정보없음",
+                        }))
+                    );
+                setPoiList(pois);
+
+                const attractionData =
+                    (placeList.find((p) => p.type === "attraction")
+                        ?.content as Attraction[]) ?? [];
+                setAttractions(attractionData);
+
+                const eventData =
+                    (placeList.find((p) => p.type === "cultural_event")
+                        ?.content as CulturalEvent[]) ?? [];
+                setEvents(eventData);
+            }
+        );
     }, [selectedAreaId]);
 
     // 혼잡도 기반 CountUp 애니메이션 실행
@@ -98,15 +176,15 @@ export default function DashboardComponent() {
         }
     }, [triggerCountUp, congestionInfo, setTriggerCountUp]);
 
-    const dummyPOIs = useMemo(
-        () =>
-            Array.from({ length: 30 }, (_, i) => ({
-                name: `상권 ${i + 1}번`,
-                address: `서울 중구 상권로 ${i + 1}길`,
-                tel: `02-0000-00${String(i + 1).padStart(2, "0")}`,
-            })),
-        []
-    );
+    // const dummyPOIs = useMemo(
+    //     () =>
+    //         Array.from({ length: 30 }, (_, i) => ({
+    //             name: `상권 ${i + 1}번`,
+    //             address: `서울 중구 상권로 ${i + 1}길`,
+    //             tel: `02-0000-00${String(i + 1).padStart(2, "0")}`,
+    //         })),
+    //     []
+    // );
 
     const [cardStyles, setCardStyles] = useState<{
         [key: number]: { opacity: number; y: number; scale: number };
@@ -243,12 +321,33 @@ export default function DashboardComponent() {
                     cardRef={(el) => (cardRefs.current[9] = el)}
                 />
 
+                {/* POI 카드들 */}
                 <POICardList
-                    pois={dummyPOIs}
-                    baseIndex={10} // 중요! 인덱스 충돌 방지
+                    pois={poiList}
+                    baseIndex={10}
                     cardRefs={cardRefs}
                     cardStyles={cardStyles}
                 />
+
+                {/* 관광지 카드들 */}
+                {attractions.map((a, i) => (
+                    <AttractionCard
+                        key={i}
+                        attraction={a}
+                        style={cardStyles[100 + i]}
+                        cardRef={(el) => (cardRefs.current[100 + i] = el)}
+                    />
+                ))}
+
+                {/* 문화행사 카드들 */}
+                {events.map((e, i) => (
+                    <CulturalEventCard
+                        key={i}
+                        event={e}
+                        style={cardStyles[200 + i]}
+                        cardRef={(el) => (cardRefs.current[200 + i] = el)}
+                    />
+                ))}
             </motion.div>
             <div className="absolute top-8 right-8 z-10 justify-between flex gap-2">
                 <div

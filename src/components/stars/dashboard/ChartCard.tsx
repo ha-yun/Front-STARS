@@ -34,13 +34,18 @@ export default function ChartCard({ data, style, cardRef }: ChartCardProps) {
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="time" />
                     <YAxis />
-                    <Tooltip />
+                    <Tooltip
+                        formatter={(value: number) => [
+                            `${value}명`,
+                            "예상 인구 수",
+                        ]}
+                    />
                     <Line
                         type="monotone"
                         dataKey="forecast"
-                        stroke="#60A5FA"
-                        strokeWidth={3}
-                        dot={{ r: 2 }}
+                        stroke="#2b7fff"
+                        strokeWidth={5}
+                        dot={{ r: 5 }}
                     />
                 </LineChart>
             </ResponsiveContainer>
