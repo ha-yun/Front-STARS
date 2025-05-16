@@ -32,7 +32,7 @@ export default function MapSectionComponent() {
     const [showFocusCard, setShowFocusCard] = useState(false);
     // AlertModal 관련 상태 및 함수
     const { alerts, dismissAlert } = useCongestionAlert();
-    const { isLogin, doLogout, moveToLogin } = useCustomLogin();
+    const { isLogin } = useCustomLogin();
 
     useEffect(() => {
         if (!mapContainer.current) return;
