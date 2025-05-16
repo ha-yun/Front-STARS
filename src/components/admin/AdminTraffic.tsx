@@ -15,7 +15,30 @@ const AdminTraffic = () => {
     const initialMapCenter: LngLatLike = [126.978, 37.5665]; // Seoul
     const initialMapZoom = 11;
 
+    // 지역 검색을 위한 상태 추가
+    const [searchTerm, setSearchTerm] = useState("");
+    const [filteredMapData, setFilteredMapData] = useState<MapData[]>([]);
+
     const { mapData } = useAdminData();
+
+    // 검색어에 따라 필터링된 지역 데이터 업데이트
+    useEffect(() => {
+        if (!mapData || mapData.length === 0) {
+            setFilteredMapData([]);
+            return;
+        }
+
+        if (!searchTerm.trim()) {
+            // 검색어가 없으면 모든 데이터 표시
+            setFilteredMapData(mapData);
+        } else {
+            // 검색어를 포함하는 지역만 필터링
+            const filtered = mapData.filter((area) =>
+                area.area_nm.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+            setFilteredMapData(filtered);
+        }
+    }, [searchTerm, mapData]);
 
     // 지도 초기화
     useEffect(() => {
@@ -60,6 +83,9 @@ const AdminTraffic = () => {
         // 선택된 지역 상태 초기화
         setSelectedArea(null);
 
+        // 검색어 초기화
+        setSearchTerm("");
+
         // 모든 레이어 및 마커 제거
         clearAllLayers();
 
@@ -79,19 +105,33 @@ const AdminTraffic = () => {
         const parkData = areaData.parkData;
 
         let centerLng, centerLat;
-        let zoomLevel = 14;
+        let zoomLevel = 15;
 
         // 교통 데이터가 있으면 첫 번째 도로 세그먼트의 중간점으로 이동
         if (trafficData && trafficData.road_traffic_stts.length > 0) {
             const firstRoad = trafficData.road_traffic_stts[0];
 
-            // Parse start and end coordinates
-            const startCoords = firstRoad.start_nd_xy.split("_").map(Number);
-            const endCoords = firstRoad.end_nd_xy.split("_").map(Number);
+            // xylist가 있으면 경로의 중간 지점으로 이동
+            if (firstRoad.xylist) {
+                const points = firstRoad.xylist.split("|");
+                // 경로 좌표의 중간 지점을 선택
+                const midPointIndex = Math.floor(points.length / 2);
+                const midPointCoords = points[midPointIndex]
+                    .split("_")
+                    .map(Number);
+                centerLng = midPointCoords[0];
+                centerLat = midPointCoords[1];
+            } else {
+                // xylist가 없으면 시작점과 끝점의 중간 지점 사용
+                const startCoords = firstRoad.start_nd_xy
+                    .split("_")
+                    .map(Number);
+                const endCoords = firstRoad.end_nd_xy.split("_").map(Number);
 
-            // Calculate center point between start and end
-            centerLng = (startCoords[0] + endCoords[0]) / 2;
-            centerLat = (startCoords[1] + endCoords[1]) / 2;
+                // Calculate center point between start and end
+                centerLng = (startCoords[0] + endCoords[0]) / 2;
+                centerLat = (startCoords[1] + endCoords[1]) / 2;
+            }
         }
         // 주차장 데이터가 있고 교통 데이터가 없으면 첫 번째 주차장 위치로 이동
         else if (parkData && parkData.prk_stts.length > 0) {
@@ -187,19 +227,29 @@ const AdminTraffic = () => {
             return;
         }
 
-        // console.log("Drawing roads for area:", trafficData.area_nm);
-        // console.log("Number of roads:", trafficData.road_traffic_stts.length);
+        console.log("Drawing roads for area:", trafficData.area_nm);
+        console.log("Number of roads:", trafficData.road_traffic_stts.length);
 
         trafficData.road_traffic_stts.forEach((road, index) => {
-            // 시작점과 끝점 좌표
-            const startCoords = road.start_nd_xy.split("_").map(Number);
-            const endCoords = road.end_nd_xy.split("_").map(Number);
+            // xylist를 파싱하여 경로 좌표 배열 생성
+            let pathCoordinates: [number, number][] = [];
 
-            // 시작점과 끝점만 사용하여 직선 좌표 생성
-            const pathCoordinates = [
-                [startCoords[0], startCoords[1]],
-                [endCoords[0], endCoords[1]],
-            ];
+            // xylist가 있으면 해당 좌표 사용
+            if (road.xylist) {
+                pathCoordinates = road.xylist.split("|").map((point) => {
+                    const coords = point.split("_").map(Number);
+                    return [coords[0], coords[1]] as [number, number];
+                });
+            }
+            // xylist가 없으면 시작점과 끝점만 사용
+            else {
+                const startCoords = road.start_nd_xy.split("_").map(Number);
+                const endCoords = road.end_nd_xy.split("_").map(Number);
+                pathCoordinates = [
+                    [startCoords[0], startCoords[1]],
+                    [endCoords[0], endCoords[1]],
+                ];
+            }
 
             // 소스 ID 생성
             const sourceId = `traffic-source-${road.link_id}-${index}`;
@@ -234,26 +284,32 @@ const AdminTraffic = () => {
                     },
                     paint: {
                         "line-color": getTrafficColor(road.idx),
-                        "line-width": 8,
+                        "line-width": 4,
                         "line-opacity": 0.8,
                     },
                 });
 
                 // 시작점과 끝점 마커 추가
-                // const startMarker = addPointMarker(
-                //     startCoords,
-                //     road.start_nd_nm,
-                //     "#1e88e5"
-                // );
-                // const endMarker = addPointMarker(
-                //     endCoords,
-                //     road.end_nd_nm,
-                //     "#d81b60"
-                // );
-                //
-                // // 마커 참조 저장
-                // if (startMarker) markerRefs.current.push(startMarker);
-                // if (endMarker) markerRefs.current.push(endMarker);
+                if (pathCoordinates.length > 0) {
+                    const startPoint = pathCoordinates[0];
+                    const endPoint =
+                        pathCoordinates[pathCoordinates.length - 1];
+
+                    const startMarker = addPointMarker(
+                        startPoint,
+                        road.start_nd_nm,
+                        "#1e88e5"
+                    );
+                    const endMarker = addPointMarker(
+                        endPoint,
+                        road.end_nd_nm,
+                        "#d81b60"
+                    );
+
+                    // 마커 참조 저장
+                    if (startMarker) markerRefs.current.push(startMarker);
+                    if (endMarker) markerRefs.current.push(endMarker);
+                }
             } catch (error) {
                 console.error("Error adding source or layer:", error);
             }
@@ -356,7 +412,7 @@ const AdminTraffic = () => {
 
     // 포인트 마커 추가 함수
     const addPointMarker = (
-        coords: number[],
+        coords: [number, number],
         name: string,
         color: string
     ): mapboxgl.Marker | null => {
@@ -377,7 +433,7 @@ const AdminTraffic = () => {
 
         // Add the marker to the map
         const marker = new mapboxgl.Marker(el)
-            .setLngLat([coords[0], coords[1]])
+            .setLngLat(coords)
             .setPopup(popup)
             .addTo(map.current);
 
@@ -426,6 +482,16 @@ const AdminTraffic = () => {
         return `${area.trafficData.road_traffic_idx} (${area.trafficData.road_traffic_spd}km/h)`;
     };
 
+    // 검색어 입력 핸들러
+    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setSearchTerm(e.target.value);
+    };
+
+    // 검색어 초기화 핸들러
+    const clearSearch = () => {
+        setSearchTerm("");
+    };
+
     return (
         <div className="bg-gray-100 flex flex-col w-full h-screen">
             {/* Header */}
@@ -438,7 +504,7 @@ const AdminTraffic = () => {
                 <div className="w-1/4 bg-white border-r flex flex-col text-black">
                     {/* Fixed Header Section */}
                     <div className="p-4 border-b">
-                        <div className="flex justify-between items-center">
+                        <div className="flex justify-between items-center mb-3">
                             <h2 className="text-xl font-bold">
                                 교통 & 주차 현황
                             </h2>
@@ -465,12 +531,44 @@ const AdminTraffic = () => {
                                 초기 화면
                             </button>
                         </div>
+
+                        {/* 검색 입력 필드 추가 */}
+                        <div className="relative">
+                            <input
+                                type="text"
+                                placeholder="지역명 검색..."
+                                value={searchTerm}
+                                onChange={handleSearchChange}
+                                className="w-full px-4 py-2 pr-10 border border-gray-300 bg-gray-50 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            />
+                            {searchTerm && (
+                                <button
+                                    onClick={clearSearch}
+                                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-black bg-gray-50 hover:bg-red-500 hover:text-white"
+                                >
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        className="h-5 w-5"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        stroke="currentColor"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth={2}
+                                            d="M6 18L18 6M6 6l12 12"
+                                        />
+                                    </svg>
+                                </button>
+                            )}
+                        </div>
                     </div>
 
-                    {/* Scrollable Content Area */}
+                    {/* Scrollable Content Area - 필터링된 지역 목록 표시 */}
                     <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
-                        {mapData.length > 0 ? (
-                            mapData.map((area, idx) => (
+                        {filteredMapData.length > 0 ? (
+                            filteredMapData.map((area, idx) => (
                                 <div
                                     key={idx}
                                     className={`p-3 border rounded-lg mb-3 cursor-pointer transition-all duration-200 ${
@@ -503,7 +601,9 @@ const AdminTraffic = () => {
                             ))
                         ) : (
                             <div className="text-center py-4 text-gray-500">
-                                데이터가 없습니다.
+                                {searchTerm
+                                    ? "검색 결과가 없습니다."
+                                    : "데이터가 없습니다."}
                             </div>
                         )}
                     </div>
@@ -559,27 +659,6 @@ const AdminTraffic = () => {
                     </div>
                 </div>
             </div>
-
-            {/* Add custom scrollbar styles */}
-            {/*<style jsx>{`*/}
-            {/*    .custom-scrollbar::-webkit-scrollbar {*/}
-            {/*        width: 6px;*/}
-            {/*    }*/}
-
-            {/*    .custom-scrollbar::-webkit-scrollbar-track {*/}
-            {/*        background: #f1f1f1;*/}
-            {/*        border-radius: 10px;*/}
-            {/*    }*/}
-
-            {/*    .custom-scrollbar::-webkit-scrollbar-thumb {*/}
-            {/*        background: #ccc;*/}
-            {/*        border-radius: 10px;*/}
-            {/*    }*/}
-
-            {/*    .custom-scrollbar::-webkit-scrollbar-thumb:hover {*/}
-            {/*        background: #999;*/}
-            {/*    }*/}
-            {/*`}</style>*/}
         </div>
     );
 };
