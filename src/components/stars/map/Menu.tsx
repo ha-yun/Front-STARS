@@ -11,7 +11,8 @@ interface SearchDataItem {
 interface MenuProps {
     isOpen: boolean;
     searchData?: SearchDataItem[];
-    hasSearched: boolean; // prop으로 받기
+    hasSearched: boolean;
+    onResultClick?: (item: SearchDataItem) => void;
 }
 
 type DropdownType = "category" | null;
@@ -42,7 +43,12 @@ const reverseCategoryMap: Record<string, string> = Object.entries(
     {} as Record<string, string>
 );
 
-export default function Menu({ isOpen, searchData, hasSearched }: MenuProps) {
+export default function Menu({
+    isOpen,
+    searchData,
+    hasSearched,
+    onResultClick,
+}: MenuProps) {
     const [openDropdown, setOpenDropdown] = useState<DropdownType>(null);
     const [selectedCategory, setSelectedCategory] =
         useState<string>("카테고리");
@@ -123,7 +129,8 @@ export default function Menu({ isOpen, searchData, hasSearched }: MenuProps) {
                         dataToShow.map((item, idx) => (
                             <li
                                 key={`${item.place_id ?? `${item.name}-${item.address}`}-${idx}`}
-                                className="py-6 border-b md:mr-2 flex items-center"
+                                className="py-6 border-b md:mr-2 flex items-center cursor-pointer hover:bg-purple-50"
+                                onClick={() => onResultClick?.(item)} // 클릭 시 콜백 호출
                             >
                                 <div className="flex-[3] flex flex-col items-center justify-center text-center">
                                     <div className="font-semibold text-gray-800 text-lg">
@@ -146,7 +153,7 @@ export default function Menu({ isOpen, searchData, hasSearched }: MenuProps) {
                         ))
                     )}
                 </ul>
-                <div className="flex items-center justify-end">
+                <div className="flex items-center justify-end mt-auto">
                     {!isLogin ? (
                         <span
                             className="underline text-indigo-500 font-semibold cursor-pointer hover:text-indigo-700 transition px-2 py-1"
