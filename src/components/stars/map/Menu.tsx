@@ -67,7 +67,7 @@ export default function Menu({ isOpen, searchData, hasSearched }: MenuProps) {
                     : "-translate-x-full pointer-events-none"
             }`}
         >
-            <div className="p-2 h-full flex flex-col overflow-y-auto min-h-[30vh] max-h-[70vh]">
+            <div className="p-2 h-full flex flex-col overflow-y-auto min-h-[25vh] max-h-[70vh]">
                 {/* 헤더 */}
                 <div className="flex p-2 justify-between items-center sticky top-0 z-10">
                     <div className="flex items-center">
@@ -146,7 +146,7 @@ export default function Menu({ isOpen, searchData, hasSearched }: MenuProps) {
                         ))
                     )}
                 </ul>
-                <div className="fixed bottom-4 right-4">
+                <div className="flex items-center justify-end">
                     {!isLogin ? (
                         <span
                             className="underline text-indigo-500 font-semibold cursor-pointer hover:text-indigo-700 transition px-2 py-1"
