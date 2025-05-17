@@ -261,7 +261,7 @@ export default function MapSectionComponent() {
         if (items.length > 0) {
             map.flyTo({
                 center: [items[0].lon, items[0].lat],
-                zoom: 16,
+                zoom: 15,
                 pitch: 45,
             });
             setShowFocusCard(false);
