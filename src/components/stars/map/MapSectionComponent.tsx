@@ -21,7 +21,7 @@ const categoryMap: Record<string, string> = {
 };
 
 interface Area {
-    area_id: number;
+    area_id: number | null;
     area_name: string;
     lat: number;
     lon: number;
@@ -174,7 +174,7 @@ export default function MapSectionComponent() {
                     const feature = e.features?.[0] as Feature<Point>;
                     if (!feature) return;
                     const areaId = feature.properties?.area_id;
-                    setSelectedAreaId(areaId != null ? areaId : undefined); // 이 부분을 추가/수정
+                    setSelectedAreaId(areaId != null ? areaId : undefined);
                     map.flyTo({
                         center: feature.geometry.coordinates as [
                             number,
