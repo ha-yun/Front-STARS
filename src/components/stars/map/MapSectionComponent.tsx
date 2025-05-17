@@ -9,6 +9,8 @@ import useCongestionAlert from "../../../hooks/useCongestionAlert";
 import { getAreaList } from "../../../api/starsApi";
 import AreaFocusCard from "./AreaFocusCard";
 import { SearchResult } from "../../../api/searchApi"; // 관광특구 카드
+import PlaceSuggestionBtn from "./PlaceSuggestionBtn";
+
 
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
 const categoryMap: Record<string, string> = {
@@ -321,6 +323,8 @@ export default function MapSectionComponent() {
                 onResultClick={handleSearchResultClick}
                 onSingleResultClick={handleSingleResultClick}
             />
+
+            <PlaceSuggestionBtn />
 
             {/* Mapbox 지도 */}
             <div className="w-full h-full" ref={mapContainer} />
