@@ -162,14 +162,14 @@ export default function MapSectionComponent() {
                     ) as mapboxgl.GeoJSONSource;
                     source.getClusterExpansionZoom(clusterId, (err, zoom) => {
                         if (err) return;
+                        const safeZoom = zoom != null ? zoom : undefined; // null 체크
                         map.easeTo({
                             center: (features[0].geometry as Point)
                                 .coordinates as [number, number],
-                            zoom,
+                            zoom: safeZoom,
                         });
                     });
                 });
-
                 map.on("click", "unclustered-point", (e) => {
                     const feature = e.features?.[0] as Feature<Point>;
                     if (!feature) return;
