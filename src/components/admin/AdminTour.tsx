@@ -62,6 +62,7 @@ const AdminTour = () => {
 
     // 컴포넌트 마운트 시 데이터 로드
     useEffect(() => {
+        console.log("Tour Info component mounted");
         fetchEvents();
     }, []);
 

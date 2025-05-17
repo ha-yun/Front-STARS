@@ -17,13 +17,11 @@ export default function AdminComponent() {
 
     // AdminDataContext에서 데이터 가져오기
     const {
-        touristSpotsData,
-        combinedAreaData,
-        // parkData, // 나중에 주차장 정보 가져올거
-        accidentData, // 사고, 공사 정보
+        touristSpotsData, // 혼잡도 3~4단계
+        accidentData, // 사고정보
+        combinedAreaData, // 관광지 상세정보
         isLoading,
         spotsLoading,
-        weatherLoading,
         error,
         refreshAllData,
         refreshing,
@@ -208,7 +206,7 @@ export default function AdminComponent() {
                 <div className="w-full lg:w-1/3 bg-white rounded-lg shadow-md order-1 flex flex-col">
                     <h2 className="text-lg md:text-xl p-3 font-bold text-black border-b flex justify-between items-center">
                         <span>주요 인구 혼잡 현황</span>
-                        {spotsLoading && (
+                        {isLoading && (
                             <span className="text-sm text-blue-500 font-normal flex items-center">
                                 <svg
                                     className="animate-spin -ml-1 mr-2 h-4 w-4 text-blue-500"
@@ -239,7 +237,7 @@ export default function AdminComponent() {
                             className="flex flex-nowrap lg:flex-col space-x-3 lg:space-x-0 lg:space-y-3 pb-2"
                             style={{ minWidth: "max-content", width: "100%" }}
                         >
-                            {spotsLoading ? (
+                            {isLoading ? (
                                 // 로딩 스켈레톤
                                 [...Array(5)].map((_, idx) => (
                                     <div
@@ -274,7 +272,7 @@ export default function AdminComponent() {
                     <div className="w-full border rounded-lg shadow-md bg-white">
                         <h2 className="text-lg md:text-xl p-3 font-bold text-black border-b flex justify-between items-center">
                             <span>사고 정보</span>
-                            {weatherLoading && (
+                            {isLoading && (
                                 <span className="text-sm text-blue-500 font-normal flex items-center">
                                     <svg
                                         className="animate-spin -ml-1 mr-2 h-4 w-4 text-blue-500"
@@ -305,7 +303,7 @@ export default function AdminComponent() {
                                 className="flex flex-nowrap space-x-3 pb-2"
                                 style={{ minWidth: "max-content" }}
                             >
-                                {weatherLoading ? (
+                                {isLoading ? (
                                     // 로딩 스켈레톤
                                     [...Array(5)].map((_, idx) => (
                                         <div

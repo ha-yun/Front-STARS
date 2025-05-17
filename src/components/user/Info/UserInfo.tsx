@@ -7,6 +7,7 @@ import { UserInfo as UserInfoType } from "../../../data/UserInfoData";
 import { editUserProfile, getUserProfile } from "../../../api/mypageApi";
 import { signoutUser } from "../../../api/authApi";
 import useCustomLogin from "../../../hooks/useCustomLogin";
+import { isAdmin } from "../../../slices/loginSlice";
 
 const initialUserData: UserInfoType = {
     member_id: "",
@@ -36,6 +37,8 @@ const UserInfo = () => {
     const [userInfoToSubmit, setUserInfoToSubmit] =
         useState<UserInfoType>(initialUserData);
     const { doLogout, moveToPath } = useCustomLogin();
+
+    const adminCheck = isAdmin();
 
     // 사용자 정보 불러오는 함수
     const loadUserInfo = async () => {
@@ -129,6 +132,11 @@ const UserInfo = () => {
         }
     };
 
+    // 관리자 페이지로 이동 핸들러
+    const handleGoToAdminPage = () => {
+        moveToPath("/manage");
+    };
+
     // 로딩 스켈레톤
     if (isLoading) {
         return (
@@ -195,7 +203,7 @@ const UserInfo = () => {
                         </button>
                     </>
                 ) : (
-                    <>
+                    <div className="flex flex-col sm:flex-row w-full sm:w-auto gap-2">
                         <button
                             className={`w-full sm:w-auto bg-indigo-500 text-white py-2 px-4 rounded hover:bg-indigo-600 transition-colors ${
                                 isSubmitting
@@ -207,6 +215,16 @@ const UserInfo = () => {
                         >
                             수정하기
                         </button>
+
+                        {adminCheck && (
+                            <button
+                                className="w-full sm:w-auto bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600 transition-colors"
+                                onClick={handleGoToAdminPage}
+                            >
+                                관리자 페이지
+                            </button>
+                        )}
+
                         <button
                             className={`w-full sm:w-auto bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600 transition-colors mt-2 sm:mt-0 ${
                                 isSubmitting
@@ -244,7 +262,7 @@ const UserInfo = () => {
                                 "계정 삭제"
                             )}
                         </button>
-                    </>
+                    </div>
                 )}
             </div>
         </div>

@@ -1,7 +1,7 @@
 // src/components/admin/AdminContainer.tsx
 import React from "react";
 import { AdminDataProvider } from "../../context/AdminContext";
-import { Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import AdminComponent from "./AdminComponent";
 import AdminDetail from "./AdminDetail";
 import AdminTour from "./AdminTour";
@@ -14,8 +14,6 @@ import AdminTraffic from "./AdminTraffic";
  * - 라우팅을 통합적으로 처리
  */
 const AdminContainer: React.FC = () => {
-    const location = useLocation();
-
     return (
         <AdminDataProvider>
             <Routes>
