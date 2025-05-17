@@ -124,7 +124,7 @@ export default function Menu({
                             <li
                                 key={`${item.place_id ?? `${item.name}-${item.address}`}-${idx}`}
                                 className="py-6 border-b md:mr-2 flex items-center cursor-pointer hover:bg-purple-50"
-                                onClick={() => onResultClick?.(item)} // 클릭 시 콜백 호출
+                                onClick={() => onResultClick?.(item)} // 클릭 시 단일 핸들러 호출
                             >
                                 <div className="flex-[3] flex flex-col items-center justify-center text-center">
                                     <div className="font-semibold text-gray-800 text-lg">
