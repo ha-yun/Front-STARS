@@ -8,7 +8,7 @@ import AlertModal from "../../alert/AlertModal";
 import useCongestionAlert from "../../../hooks/useCongestionAlert";
 import { getAreaList } from "../../../api/starsApi";
 import AreaFocusCard from "./AreaFoucsCard";
-import MapboxLanguage from "@mapbox/mapbox-gl-language"; // 관광특구 카드
+// import MapboxLanguage from "@mapbox/mapbox-gl-language"; // 관광특구 카드
 
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
 
@@ -40,16 +40,15 @@ export default function MapSectionComponent() {
 
         const map = new mapboxgl.Map({
             container: mapContainer.current,
-            style: "mapbox://styles/minseoks/cm99kn1ni00fl01sx4ygw7kiq",
+            style: "mapbox://styles/minseoks/cm99i4icd00fe01r9gia5c055",
             center: [126.9779692, 37.566535] as LngLatLike,
             zoom: 11.3,
             minZoom: 11.3,
         });
-        map.addControl(
-            new MapboxLanguage({
-                defaultLanguage: "ko",
-            })
-        );
+        // map.setLayoutProperty("country-label", "text-field", [
+        //     "get",
+        //     "name_korean",
+        // ]);
         mapRef.current = map; // 추가
 
         // 관광특구 마커 생성
