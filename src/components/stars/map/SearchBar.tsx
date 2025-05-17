@@ -9,9 +9,15 @@ import {
 
 interface SearchBarProps {
     onSearch?: (query: string) => void;
+    onResultClick?: (items: SearchResult[]) => void;
+    onSingleResultClick?: (item: SearchResult) => void; // 추가
 }
 
-export default function SearchBarWithMenu({ onSearch }: SearchBarProps) {
+export default function SearchBarWithMenu({
+    onSearch,
+    onResultClick,
+    onSingleResultClick,
+}: SearchBarProps) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [query, setQuery] = useState("");
     const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
@@ -24,7 +30,7 @@ export default function SearchBarWithMenu({ onSearch }: SearchBarProps) {
 
     const handleSearch = async () => {
         if (!query) return;
-        setHasSearched(true); // 검색 시 true로 변경
+        setHasSearched(true);
         const [byKeyword, byAddress] = await Promise.all([
             searchByKeyword(query),
             searchByAddress(query),
@@ -38,6 +44,7 @@ export default function SearchBarWithMenu({ onSearch }: SearchBarProps) {
         setSearchResults(merged);
         setIsMenuOpen(true);
         if (onSearch) onSearch(query);
+        if (onResultClick) onResultClick(merged); // 배열 전체 전달
     };
 
     useEffect(() => {
@@ -93,6 +100,7 @@ export default function SearchBarWithMenu({ onSearch }: SearchBarProps) {
                 isOpen={isMenuOpen}
                 searchData={searchResults}
                 hasSearched={hasSearched}
+                onResultClick={onSingleResultClick} // 단일 클릭 핸들러 전달
             />
         </div>
     );

@@ -2,12 +2,14 @@ import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { CountUp } from "countup.js";
 import { getAreaList, getPlaceListByArea } from "../../../api/starsApi";
+import { SearchResult } from "../../../api/searchApi"; // 이걸로 통일
 
 interface AreaFocusCardProps {
     areaId: number;
     show: boolean;
     onClose: () => void;
     onDetail: () => void;
+    onCategoryClick?: (items: SearchResult[]) => void;
 }
 
 interface AreaDetail {
@@ -22,14 +24,44 @@ interface AreaDetail {
 
 interface PlaceCategoryContent {
     type: string;
-    content: any[];
+    content: PlaceContent[];
 }
+
+interface PlaceContent {
+    place_id?: string; // 추가
+    cafe_id?: number;
+    cafe_name?: string;
+    restaurant_id?: number;
+    restaurant_name?: string;
+    attraction_id?: number;
+    attraction_name?: string;
+    accommodation_id?: number;
+    accommodation_name?: string;
+    event_id?: number;
+    event_name?: string;
+    title?: string;
+    address: string;
+    phone?: string;
+    kakaomap_url?: string;
+    lat: number;
+    lon: number;
+}
+
+const getPlaceName = (place: PlaceContent) =>
+    place.cafe_name ||
+    place.restaurant_name ||
+    place.attraction_name ||
+    place.accommodation_name ||
+    place.event_name ||
+    place.title ||
+    "";
 
 const AreaFocusCard: React.FC<AreaFocusCardProps> = ({
     areaId,
     show,
     onClose,
     onDetail,
+    onCategoryClick,
 }) => {
     const [area, setArea] = useState<AreaDetail | null>(null);
     const [placeSummary, setPlaceSummary] = useState<Record<string, number>>(
@@ -40,13 +72,11 @@ const AreaFocusCard: React.FC<AreaFocusCardProps> = ({
     useEffect(() => {
         if (!show || !areaId) return;
 
-        // 실제 지역 리스트에서 해당 areaId에 맞는 지역 정보 추출
         getAreaList().then((areaList: AreaDetail[]) => {
             const selected = areaList.find((a) => a.area_id === Number(areaId));
             if (selected) setArea(selected);
         });
 
-        // 장소 요약 정보 호출
         getPlaceListByArea(areaId).then((placeList: PlaceCategoryContent[]) => {
             const summary: Record<string, number> = {};
             placeList.forEach((item) => {
@@ -71,6 +101,37 @@ const AreaFocusCard: React.FC<AreaFocusCardProps> = ({
 
         if (!countUp.error) countUp.start();
     }, [area, show]);
+
+    const handleCategoryClick = async (type: string) => {
+        const placeList = await getPlaceListByArea(areaId);
+        const categoryItem = placeList.find(
+            (item: PlaceCategoryContent) => item.type === type
+        );
+        if (!categoryItem) return;
+
+        const items: SearchResult[] = categoryItem.content.map((place: any) => {
+            // place_id 우선, 없으면 id 사용
+            const place_id =
+                place.place_id ?? (place.id ? String(place.id) : "");
+            // cultural_event/culturalevent면 title, 아니면 name
+            const isEvent =
+                type === "cultural_event" ||
+                type === "culturalevent" ||
+                place.type === "cultural_event" ||
+                place.type === "culturalevent";
+            return {
+                place_id,
+                name: isEvent ? (place.title ?? "") : (place.name ?? ""),
+                title: isEvent ? (place.title ?? "") : undefined,
+                address: place.address,
+                lon: place.lon,
+                lat: place.lat,
+                type,
+            };
+        });
+
+        onCategoryClick?.(items);
+    };
 
     return (
         <div
@@ -108,9 +169,13 @@ const AreaFocusCard: React.FC<AreaFocusCardProps> = ({
                     whileHover={{ y: -8 }}
                 >
                     <h3 className="text-lg font-bold mb-2">장소 요약</h3>
-                    <ul className="text-sm space-y-1">
+                    <ul>
                         {Object.entries(placeSummary).map(([type, count]) => (
-                            <li key={type}>
+                            <li
+                                key={type}
+                                className="cursor-pointer hover:underline"
+                                onClick={() => handleCategoryClick(type)}
+                            >
                                 {type} : {count}곳
                             </li>
                         ))}
