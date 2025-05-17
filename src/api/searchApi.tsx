@@ -10,6 +10,7 @@ export interface SearchResult {
     type: string;
     lat: number;
     lon: number;
+    title?: string;
 }
 
 // 통합 이름 검색
