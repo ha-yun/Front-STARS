@@ -173,7 +173,8 @@ export default function MapSectionComponent() {
                 map.on("click", "unclustered-point", (e) => {
                     const feature = e.features?.[0] as Feature<Point>;
                     if (!feature) return;
-                    setSelectedAreaId(feature.properties?.area_id as number);
+                    const areaId = feature.properties?.area_id;
+                    setSelectedAreaId(areaId != null ? areaId : undefined); // 이 부분을 추가/수정
                     map.flyTo({
                         center: feature.geometry.coordinates as [
                             number,
