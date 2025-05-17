@@ -8,7 +8,8 @@ import AlertModal from "../../alert/AlertModal";
 import useCongestionAlert from "../../../hooks/useCongestionAlert";
 import { getAreaList } from "../../../api/starsApi";
 import AreaFocusCard from "./AreaFocusCard";
-import { SearchResult } from "../../../api/searchApi"; // 관광특구 카드
+import { SearchResult } from "../../../api/searchApi";
+import type { Feature, Point } from "geojson"; // 추가
 
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
 const categoryMap: Record<string, string> = {
@@ -30,7 +31,7 @@ interface Area {
 
 export default function MapSectionComponent() {
     const mapContainer = useRef<HTMLDivElement | null>(null);
-    const mapRef = useRef<mapboxgl.Map | null>(null); // 추가
+    const mapRef = useRef<mapboxgl.Map | null>(null);
     const searchMarkersRef = useRef<
         { marker: mapboxgl.Marker; item: SearchResult }[]
     >([]);
@@ -38,11 +39,9 @@ export default function MapSectionComponent() {
     const {
         selectedAreaId,
         setSelectedAreaId,
-        triggerCountUp,
-        setTriggerCountUp,
+        setTriggerCountUp, // triggerCountUp 미사용이므로 제거
     } = usePlace();
     const [showFocusCard, setShowFocusCard] = useState(false);
-    // AlertModal 관련 상태 및 함수
     const { alerts, dismissAlert } = useCongestionAlert();
     const { isLogin } = useCustomLogin();
 
@@ -59,7 +58,7 @@ export default function MapSectionComponent() {
         mapRef.current = map;
 
         getAreaList().then((areaList: Area[]) => {
-            const features = areaList.map((area) => ({
+            const features: Feature<Point>[] = areaList.map((area) => ({
                 type: "Feature",
                 properties: {
                     area_id: area.area_id,
@@ -82,6 +81,7 @@ export default function MapSectionComponent() {
                     clusterMaxZoom: 16,
                     clusterRadius: 40,
                 });
+
                 // 클러스터 레이어
                 map.addLayer({
                     id: "clusters",
@@ -118,6 +118,7 @@ export default function MapSectionComponent() {
                     },
                 });
 
+                // 개별 마커(1개짜리) 레이어
                 map.addLayer({
                     id: "unclustered-point",
                     type: "circle",
@@ -125,11 +126,12 @@ export default function MapSectionComponent() {
                     filter: ["!", ["has", "point_count"]],
                     paint: {
                         "circle-color": "rgba(40,140,255,0.8)",
-                        "circle-radius": 12,
+                        "circle-radius": 12, // 1개짜리 크기 조절
                         "circle-stroke-width": 2,
                         "circle-stroke-color": "#fff",
                     },
                 });
+
                 // 클러스터 숫자
                 map.addLayer({
                     id: "cluster-count",
@@ -149,20 +151,6 @@ export default function MapSectionComponent() {
                     },
                 });
 
-                // 개별 마커 레이어
-                map.addLayer({
-                    id: "unclustered-point",
-                    type: "circle",
-                    source: "areas",
-                    filter: ["!", ["has", "point_count"]],
-                    paint: {
-                        "circle-color": "rgba(40,140,255,0.4)",
-                        "circle-radius": 12,
-                        "circle-stroke-width": 2,
-                        "circle-stroke-color": "#fff",
-                    },
-                });
-
                 // 클릭 이벤트
                 map.on("click", "clusters", (e) => {
                     const features = map.queryRenderedFeatures(e.point, {
@@ -175,19 +163,17 @@ export default function MapSectionComponent() {
                     source.getClusterExpansionZoom(clusterId, (err, zoom) => {
                         if (err) return;
                         map.easeTo({
-                            center: features[0].geometry.coordinates as [
-                                number,
-                                number,
-                            ],
+                            center: (features[0].geometry as Point)
+                                .coordinates as [number, number],
                             zoom,
                         });
                     });
                 });
 
                 map.on("click", "unclustered-point", (e) => {
-                    const feature = e.features?.[0];
+                    const feature = e.features?.[0] as Feature<Point>;
                     if (!feature) return;
-                    setSelectedAreaId(feature.properties?.area_id);
+                    setSelectedAreaId(feature.properties?.area_id as number);
                     map.flyTo({
                         center: feature.geometry.coordinates as [
                             number,
@@ -223,7 +209,6 @@ export default function MapSectionComponent() {
     }, [setSelectedAreaId]);
 
     const handleViewArea = (areaId: number) => {
-        console.log(areaId + "번 지역으로 이동");
         getAreaList().then((areaList: Area[]) => {
             const area = areaList.find((a) => a.area_id === areaId);
             if (area && mapRef.current) {
@@ -258,10 +243,10 @@ export default function MapSectionComponent() {
                 closeButton: false,
             }).setHTML(
                 `<div class="flex flex-col p-2 gap-2">
-                <h3 class="font-bold text-xl text-gray-700">${item.name}</h3>
-                <span class="text-md text-gray-500">${categoryMap?.[item.type] ?? item.type}</span>
-                <p class="text-gray-700">${item.address}</p>
-            </div>`
+                                <h3 class="font-bold text-xl text-gray-700">${item.name}</h3>
+                                <span class="text-md text-gray-500">${categoryMap?.[item.type] ?? item.type}</span>
+                                <p class="text-gray-700">${item.address}</p>
+                            </div>`
             );
 
             const marker = new mapboxgl.Marker({ element: el })
@@ -285,11 +270,9 @@ export default function MapSectionComponent() {
     const handleSingleResultClick = useCallback((item: SearchResult) => {
         const map = mapRef.current;
         if (!map) return;
-        // 모든 팝업 닫기
         searchMarkersRef.current.forEach(({ marker }) =>
             marker.getPopup()?.remove()
         );
-        // 해당 마커 찾기
         const found = searchMarkersRef.current.find(
             (m) => m.item.name === item.name && m.item.address === item.address
         );
@@ -316,16 +299,13 @@ export default function MapSectionComponent() {
                 </div>
             )}
 
-            {/* 검색 바 */}
             <SearchBar
                 onResultClick={handleSearchResultClick}
                 onSingleResultClick={handleSingleResultClick}
             />
 
-            {/* Mapbox 지도 */}
             <div className="w-full h-full" ref={mapContainer} />
 
-            {/* 지역 정보 카드 */}
             {selectedAreaId && (
                 <AreaFocusCard
                     areaId={selectedAreaId}
