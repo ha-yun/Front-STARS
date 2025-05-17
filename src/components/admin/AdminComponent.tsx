@@ -148,7 +148,7 @@ export default function AdminComponent() {
     return (
         <div className="bg-gray-100 flex flex-col w-full h-screen">
             {/* Header */}
-            <AdminHeader path={"/login"} />
+            <AdminHeader path={"/map"} />
             {/* End of Header */}
 
             {/* 오류 메시지 표시 */}
