@@ -24,6 +24,7 @@ export default function AppRoutes() {
                 <Route path="tour" element={<AdminTour />} />
                 <Route path="user" element={<AdminUserFavorite />} />
                 <Route path="traffic" element={<AdminTraffic />} />
+
             </Route>
         </Routes>
     );
