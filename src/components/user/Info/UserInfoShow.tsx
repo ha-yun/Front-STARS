@@ -2,6 +2,7 @@
 import React from "react";
 import { UserInfo } from "../../../data/UserInfoData";
 import { formatKoreanDate } from "../../../utils/dateUtil";
+
 // Props 인터페이스 정의
 interface UserInfoShowProps {
     userInfo: UserInfo;
@@ -9,35 +10,45 @@ interface UserInfoShowProps {
 
 const UserInfoShow: React.FC<UserInfoShowProps> = ({ userInfo }) => {
     return (
-        <div className="p-2 md:p-4">
-            <div className="p-2 md:p-4 mb-2 md:mb-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                    <p className="text-gray-800 mb-2 text-sm md:text-base">
-                        <strong>아이디:</strong> {userInfo.user_id}
-                    </p>
-                    <p className="text-gray-800 mb-2 text-sm md:text-base">
-                        <strong>닉네임:</strong> {userInfo.nickname}
-                    </p>
-                    <p className="text-gray-800 mb-2 text-sm md:text-base">
-                        <strong>가입일:</strong>{" "}
-                        {formatKoreanDate(userInfo.created_at)}
-                    </p>
-                    <p className="text-gray-800 mb-2 text-sm md:text-base">
-                        <strong>출생년도:</strong> {userInfo.birth_year}
-                    </p>
-                    <p className="text-gray-800 mb-2 text-sm md:text-base">
-                        <strong>MBTI:</strong> {userInfo.mbti}
-                    </p>
-                    <p className="text-gray-800 mb-2 text-sm md:text-base">
-                        <strong>성별:</strong>{" "}
-                        {userInfo.gender === "male"
+        <div className="bg-white rounded-lg p-6">
+            <div className="flex flex-col space-y-2">
+                <InfoItem label="아이디" value={userInfo.user_id} />
+                <InfoItem label="닉네임" value={userInfo.nickname} />
+                <InfoItem
+                    label="가입일"
+                    value={formatKoreanDate(userInfo.created_at)}
+                />
+                <InfoItem
+                    label="출생년도"
+                    value={userInfo.birth_year.toString()}
+                />
+                <InfoItem label="MBTI" value={userInfo.mbti} />
+                <InfoItem
+                    label="성별"
+                    value={
+                        userInfo.gender === "male"
                             ? "남성"
                             : userInfo.gender === "female"
                               ? "여성"
-                              : ""}
-                    </p>
-                </div>
+                              : "미지정"
+                    }
+                />
             </div>
+        </div>
+    );
+};
+
+// 정보 항목을 위한 재사용 가능한 컴포넌트
+interface InfoItemProps {
+    label: string;
+    value: string;
+}
+
+const InfoItem: React.FC<InfoItemProps> = ({ label, value }) => {
+    return (
+        <div className="flex items-center py-2 border-b border-gray-100 last:border-0">
+            <div className="w-24 font-semibold text-gray-700">{label}</div>
+            <div className="text-gray-800 ml-4">{value}</div>
         </div>
     );
 };

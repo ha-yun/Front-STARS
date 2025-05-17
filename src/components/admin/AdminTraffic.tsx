@@ -43,7 +43,7 @@ const AdminTraffic = () => {
 
     // 지도 초기화
     useEffect(() => {
-        // console.log("교통 주차 통합 데이터: ", mapData);
+        console.log("교통 주차 통합 데이터: ", mapData);
         if (!mapContainer.current) return;
 
         // mapbox token 설정
@@ -58,7 +58,12 @@ const AdminTraffic = () => {
             interactive: true,
         });
 
-        mapInstance.addControl(new NavigationControl(), "right");
+        mapInstance.addControl(
+            new NavigationControl({
+                visualizePitch: true,
+            }),
+            "right"
+        );
 
         mapInstance.addControl(
             new MapboxLanguage({
@@ -341,21 +346,28 @@ const AdminTraffic = () => {
     const createParkingMarker = (park: ParkNode): mapboxgl.Marker | null => {
         if (!map.current) return null;
 
+        console.log("park info: ", park);
+
         // Create popup content
         const popupContent = `
             <div class="parking-popup">
-                <h3 class="font-bold text-md">${park.prk_name}</h3>
-                <p class="text-sm">주소: ${park.address || park.road_addr || "정보 없음"}</p>
-                <p class="text-sm">
-                    <span class="font-semibold">현황:</span> 
+                <h3 class="font-bold text-md text-black">${park.prk_nm}</h3>
+                <p class="text-sm text-black">주소: ${park.address || park.road_addr || "정보 없음"}</p>
+                <p class="text-sm text-black">
+                    <span class="font-semibold text-black">남은자리:</span> 
                     ${park.cur_prk_cnt !== undefined ? `${park.cur_prk_cnt}/${park.cpcty || "?"}대` : "정보 없음"}
                 </p>
-                <p class="text-sm">
-                    <span class="font-semibold">요금:</span> 
+                <p class="text-sm text-black">
+                    <span class="font-semibold text-black">요금:</span> 
                     ${park.pay_yn === "Y" ? "유료" : park.pay_yn === "N" ? "무료" : "정보 없음"}
                     ${park.rates !== undefined ? ` (기본 ${park.rates}원/${park.time_rates || "?"}분)` : ""}
                 </p>
-                <p class="text-sm text-gray-500">업데이트: ${park.cur_prk_time || "정보 없음"}</p>
+                <p class="text-sm text-black">
+                    <span class="font-semibold text-black">추가요금:</span>
+                    ${park.add_rates !== undefined ? ` ${park.add_rates}원/${park.add_time_rates || "?"}분` : ""}
+                </p>
+                
+                <p class="text-sm text-gray-500 text-black">업데이트: ${park.cur_prk_time || "정보 없음"}</p>
             </div>
         `;
 
@@ -366,7 +378,7 @@ const AdminTraffic = () => {
             park.cpcty !== undefined &&
             park.cpcty > 0
         ) {
-            availabilityRatio = 1 - park.cur_prk_cnt / park.cpcty;
+            availabilityRatio = park.cur_prk_cnt / park.cpcty;
         }
 
         // 색상 결정 - 용량에 따라 색상 변경 (녹색: 여유, 노란색: 중간, 빨간색: 혼잡)

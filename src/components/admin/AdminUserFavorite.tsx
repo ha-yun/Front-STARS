@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { UserFavoriteList, Favorite } from "../../data/adminData";
 import AdminHeader from "./AdminHeader";
 import { getFavoriteList } from "../../api/adminApi";
+import { useLocation, useParams } from "react-router-dom"; // 라우팅 정보를 가져오기 위해 추가
 
 // 로딩 스켈레톤 컴포넌트
 const UserSkeleton = () => (
@@ -28,6 +29,9 @@ const FavoriteSkeleton = () => (
 );
 
 const AdminUserFavorite = () => {
+    const location = useLocation(); // 현재 라우트 위치 정보를 가져옴
+    const params = useParams(); // URL 파라미터를 가져옴
+
     const [userFavorites, setUserFavorites] = useState<UserFavoriteList[]>([]);
     const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
     const [currentFavorites, setCurrentFavorites] = useState<Favorite[]>([]);
@@ -35,19 +39,27 @@ const AdminUserFavorite = () => {
     const [filteredUsers, setFilteredUsers] = useState<UserFavoriteList[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [favoriteLoading, setFavoriteLoading] = useState<boolean>(false);
+    const [dataFetched, setDataFetched] = useState<boolean>(false); // 데이터 페칭 상태 추적
 
-    // API 호출을 시뮬레이션하는 함수
+    // API 호출을 하는 함수
     const fetchData = async () => {
+        // 이미 로딩 중이거나 데이터가 이미 페칭된 경우 중복 호출 방지
+        if (loading && dataFetched) {
+            return;
+        }
+
         setLoading(true);
         try {
+            console.log("Fetching User Favorite data from:", location.pathname);
             const response = await getFavoriteList();
-            console.log(response);
+
             setUserFavorites(response);
             setFilteredUsers(response);
             // 첫 번째 사용자 선택
-            if (response.length > 0) {
+            if (response.length > 0 && !selectedUserId) {
                 setSelectedUserId(response[0].user_id);
             }
+            setDataFetched(true); // 데이터가 성공적으로 페칭됨
         } catch (error) {
             console.error("Error fetching data:", error);
         } finally {
@@ -55,10 +67,22 @@ const AdminUserFavorite = () => {
         }
     };
 
-    // 컴포넌트 마운트 시 데이터 로드
+    // 라우팅 정보가 변경될 때마다 데이터 다시 로드
+    // location.pathname이 변경될 때 다시 호출됨
     useEffect(() => {
+        console.log("Route changed:", location.pathname);
+        setDataFetched(false); // 라우트가 변경되면 데이터 페칭 상태 초기화
         fetchData();
-    }, []);
+
+        // 컴포넌트 정리 함수 - 언마운트 시 실행
+        return () => {
+            console.log(
+                "AdminUserFavorite unmounting from:",
+                location.pathname
+            );
+            // 필요시 중단해야 할 작업이 있다면 여기에 추가
+        };
+    }, [location.pathname]); // 라우트 경로 변경 시 실행
 
     // 선택된 사용자가 변경될 때 즐겨찾기 로드
     useEffect(() => {
@@ -70,6 +94,9 @@ const AdminUserFavorite = () => {
                         (user) => user.user_id === selectedUserId
                     );
                     if (selectedUser) {
+                        console.log(
+                            `Loading favorites for user: ${selectedUserId}`
+                        );
                         setCurrentFavorites(selectedUser.content);
                     } else {
                         setCurrentFavorites([]);
@@ -174,6 +201,13 @@ const AdminUserFavorite = () => {
         }
     };
 
+    // 수동 새로고침 핸들러 추가
+    const handleRefresh = () => {
+        setDataFetched(false);
+        setLoading(true);
+        fetchData();
+    };
+
     return (
         <div className="bg-gray-100 min-h-screen flex flex-col w-full">
             {/* Header */}
@@ -186,11 +220,21 @@ const AdminUserFavorite = () => {
                 <div className="w-full md:w-1/3 bg-white rounded-lg shadow-md">
                     <h2 className="text-lg md:text-xl p-3 font-bold text-black border-b flex justify-between items-center">
                         <span>사용자 목록</span>
-                        {loading && (
-                            <span className="text-sm text-blue-500 font-normal">
-                                로딩 중...
-                            </span>
-                        )}
+                        <div className="flex items-center">
+                            {loading && (
+                                <span className="text-sm text-blue-500 font-normal mr-2">
+                                    로딩 중...
+                                </span>
+                            )}
+                            <button
+                                onClick={handleRefresh}
+                                className="ml-2 text-sm bg-white text-black hover:text-blue-500"
+                                title="새로고침"
+                                disabled={loading}
+                            >
+                                새로고침
+                            </button>
+                        </div>
                     </h2>
 
                     {/* 검색창 */}
