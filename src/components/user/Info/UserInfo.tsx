@@ -7,7 +7,6 @@ import { UserInfo as UserInfoType } from "../../../data/UserInfoData";
 import { editUserProfile, getUserProfile } from "../../../api/mypageApi";
 import { signoutUser } from "../../../api/authApi";
 import useCustomLogin from "../../../hooks/useCustomLogin";
-// import { signoutUser } from "../../../api/authApi";
 
 const initialUserData: UserInfoType = {
     member_id: "",
@@ -57,6 +56,7 @@ const UserInfo = () => {
                 setUserInfoToSubmit(initialUserData);
             }
         } catch (err) {
+            console.error(err);
             setError("네트워크 오류가 발생했습니다. 다시 시도해주세요.");
             // 오류 발생 시 기본 데이터 설정
             setUserData(initialUserData);
