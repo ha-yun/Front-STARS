@@ -18,29 +18,34 @@ export default function useCongestionAlert() {
     useEffect(() => {
         eventSourceRef.current = subscribeCongestionAlert((data) => {
             const alertsArray = Array.isArray(data) ? data : [data];
-            alertsArray.forEach((item) => {
-                const type = getAlertType(item.area_congest_lvl as string);
-                if (!type) return;
-                setAlerts((prev) => {
-                    const exists = prev.find((a) => a.area_nm === item.area_nm);
-                    const newAlert: CongestionAlert = {
-                        id: exists ? exists.id : ++alertId,
+            const newAlerts: CongestionAlert[] = alertsArray
+                .map((item) => {
+                    const type = getAlertType(item.area_congest_lvl as string);
+                    if (!type) return null;
+                    return {
+                        id: ++alertId,
                         area_nm: item.area_nm as string,
                         area_id: item.area_id as number,
                         area_congest_lvl: item.area_congest_lvl as string,
                         area_congest_msg: item.area_congest_msg as string,
                         ppltn_time: item.ppltn_time as string,
                         type,
-                    };
-                    // 이미 있으면 교체, 없으면 추가
-                    if (exists) {
-                        return prev.map((a) =>
-                            a.area_nm === item.area_nm ? newAlert : a
-                        );
-                    } else {
-                        return [...prev, newAlert];
-                    }
-                });
+                    } as CongestionAlert;
+                })
+                .filter(Boolean) as CongestionAlert[];
+
+            setAlerts((prev) => {
+                // 완전히 동일한 알림 배열이면 상태 변경하지 않음
+                const isSame =
+                    prev.length === newAlerts.length &&
+                    prev.every(
+                        (a, i) =>
+                            a.area_id === newAlerts[i].area_id &&
+                            a.area_congest_lvl ===
+                                newAlerts[i].area_congest_lvl &&
+                            a.area_congest_msg === newAlerts[i].area_congest_msg
+                    );
+                return isSame ? prev : newAlerts;
             });
         });
         return () => {

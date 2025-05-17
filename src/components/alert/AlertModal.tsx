@@ -40,7 +40,6 @@ export default function AlertModal({
     onViewArea,
 }: AlertModalProps) {
     const [expanded, setExpanded] = useState<number[]>([]);
-    console.log(alerts);
 
     const toggleExpand = (id: number) => {
         setExpanded((prev) =>
