@@ -9,11 +9,11 @@ interface TypeStyles {
     tagText: string;
     icon: string;
 }
-
 interface FavoriteCardProps {
     item: Favorite;
     typeStyles: TypeStyles;
     categoryMap: Record<string, string>;
+    idType?: "favorite_id" | "place_id";
     extra?: React.ReactNode;
     children?: React.ReactNode;
 }
@@ -22,6 +22,7 @@ export default function FavoriteCard({
     item,
     typeStyles,
     categoryMap,
+    idType = "favorite_id",
     extra,
     children,
 }: FavoriteCardProps) {
@@ -43,13 +44,15 @@ export default function FavoriteCard({
                     >
                         {categoryMap[item.type] ?? item.type}
                     </span>
-                    {children}
                 </div>
             </div>
             <p className="text-gray-600 text-sm mt-1 flex-1">{item.address}</p>
-            <div className="mt-2 text-right">
+            <div className="mt-2 flex flex-col items-end text-right gap-1">
+                {children}
                 <span className="text-gray-500 text-xs">
-                    ID: {item.favorite_id}
+                    {idType === "place_id"
+                        ? `Place ID: ${item.place_id}`
+                        : `Favorite ID: ${item.favorite_id}`}
                 </span>
             </div>
         </div>
