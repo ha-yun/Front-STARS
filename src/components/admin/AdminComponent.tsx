@@ -129,22 +129,22 @@ export default function AdminComponent() {
         </div>
     );
 
-    const TableRowSkeleton = () => (
-        <div className="flex py-3 border-b animate-pulse">
-            <div className="w-1/4 px-1">
-                <div className="h-4 bg-gray-200 rounded"></div>
-            </div>
-            <div className="w-1/4 px-1">
-                <div className="h-4 bg-gray-200 rounded"></div>
-            </div>
-            <div className="w-1/4 px-1">
-                <div className="h-4 bg-gray-200 rounded"></div>
-            </div>
-            <div className="w-1/4 flex justify-center">
-                <div className="h-4 bg-gray-200 rounded w-16"></div>
-            </div>
-        </div>
-    );
+    // const TableRowSkeleton = () => (
+    //     <div className="flex py-3 border-b animate-pulse">
+    //         <div className="w-1/4 px-1">
+    //             <div className="h-4 bg-gray-200 rounded"></div>
+    //         </div>
+    //         <div className="w-1/4 px-1">
+    //             <div className="h-4 bg-gray-200 rounded"></div>
+    //         </div>
+    //         <div className="w-1/4 px-1">
+    //             <div className="h-4 bg-gray-200 rounded"></div>
+    //         </div>
+    //         <div className="w-1/4 flex justify-center">
+    //             <div className="h-4 bg-gray-200 rounded w-16"></div>
+    //         </div>
+    //     </div>
+    // );
 
     return (
         <div className="bg-gray-100 flex flex-col w-full h-screen">
@@ -221,7 +221,32 @@ export default function AdminComponent() {
                                         key={idx}
                                         className="w-60 lg:w-full flex-none"
                                     >
-                                        <SpotCard key={idx} {...spot} />
+                                        <SpotCard
+                                            key={idx}
+                                            {...spot}
+                                            onClick={() => {
+                                                // Find the corresponding detailed area data
+                                                const areaData =
+                                                    combinedAreaData.find(
+                                                        (area) =>
+                                                            area.area_nm ===
+                                                            spot.area_nm
+                                                    );
+                                                if (areaData) {
+                                                    // Use the same navigation logic as in the table
+                                                    window.scrollTo(0, 0);
+                                                    navigate(
+                                                        `/manage/${areaData.area_id}`,
+                                                        {
+                                                            state: {
+                                                                combinedAreaData:
+                                                                    areaData,
+                                                            },
+                                                        }
+                                                    );
+                                                }
+                                            }}
+                                        />
                                     </div>
                                 ))
                             ) : (

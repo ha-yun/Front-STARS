@@ -1,4 +1,4 @@
-// src/components/admin/cards/LongNameSpotCard.tsx
+// src/components/admin/cards/spotCard.tsx
 import { useMemo } from "react";
 import CongestionTag from "./CongestionTag";
 import { useMediaQuery } from "../../../hooks/useMediaQuery";
@@ -7,7 +7,7 @@ type LongNameSpotCardProps = {
     area_nm: string;
     area_cd: string;
     area_congest_lvl: string;
-    onClick?: () => void;
+    onClick?: () => void; // Add onClick prop
 };
 
 /**
@@ -18,7 +18,7 @@ const SpotCard = ({
     area_nm,
     area_cd,
     area_congest_lvl,
-    onClick,
+    onClick, // Include onClick in props
 }: LongNameSpotCardProps) => {
     const isMobile = useMediaQuery("(max-width: 768px)");
 
@@ -78,7 +78,7 @@ const SpotCard = ({
     return (
         <div
             className="bg-white p-3 rounded-lg shadow-sm border border-gray-100 hover:shadow-lg transition-shadow cursor-pointer"
-            onClick={onClick}
+            onClick={onClick} // Use the onClick prop here
         >
             <div className="flex justify-between items-start">
                 <div className="max-w-[75%]">
