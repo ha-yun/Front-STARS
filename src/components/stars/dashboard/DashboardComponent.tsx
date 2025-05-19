@@ -321,14 +321,6 @@ export default function DashboardComponent() {
                     cardRef={(el) => (cardRefs.current[9] = el)}
                 />
 
-                {/* POI 카드들 */}
-                <POICardList
-                    pois={poiList}
-                    baseIndex={10}
-                    cardRefs={cardRefs}
-                    cardStyles={cardStyles}
-                />
-
                 {/* 관광지 카드들 */}
                 {attractions.map((a, i) => (
                     <AttractionCard
@@ -338,6 +330,14 @@ export default function DashboardComponent() {
                         cardRef={(el) => (cardRefs.current[100 + i] = el)}
                     />
                 ))}
+
+                {/* POI 카드들 */}
+                <POICardList
+                    pois={poiList}
+                    baseIndex={10}
+                    cardRefs={cardRefs}
+                    cardStyles={cardStyles}
+                />
 
                 {/* 문화행사 카드들 */}
                 {events.map((e, i) => (
