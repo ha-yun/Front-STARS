@@ -92,7 +92,7 @@ button:focus-visible {
 
 /* 스크롤바 트랙 (배경) */
 ::-webkit-scrollbar-track {
-  background: #f0f0f0; /* 트랙 배경색 */
+  background: rgba(240, 240, 240, 0); /* 트랙 배경색 */
   border-radius: 4px;
 }
 
