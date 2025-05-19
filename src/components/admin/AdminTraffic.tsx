@@ -505,31 +505,35 @@ const AdminTraffic = () => {
         setSearchTerm("");
     };
 
+    // Return statement with responsive JSX
+    // Return statement with responsive JSX
     return (
         <div className="bg-gray-100 flex flex-col w-full h-screen">
             {/* Header */}
             <AdminHeader path={"/manage"} />
             {/* End of Header */}
 
-            {/* Main content */}
-            <div className="flex-1 flex overflow-hidden">
-                {/* Left panel - Enhanced Scrollable Menu */}
-                <div className="w-1/4 bg-white border-r flex flex-col text-black">
+            {/* Main content - Added vertical divider */}
+            <div className="flex-1 flex flex-col md:flex-row overflow-hidden relative">
+                {/* Left panel - Collapsible on mobile */}
+                <div className="w-full md:w-1/4 bg-white border-b md:border-r md:border-r-gray-300 md:shadow-md flex flex-col text-black z-10 relative">
+                    {/* Mobile divider - visible only on mobile at the bottom of card section */}
+                    <div className="md:hidden absolute bottom-0 left-0 right-0 h-2 bg-gradient-to-b from-gray-200 to-gray-300 shadow-md"></div>
                     {/* Fixed Header Section */}
-                    <div className="p-4 border-b">
-                        <div className="flex justify-between items-center mb-3">
-                            <h2 className="text-xl font-bold">
+                    <div className="p-2 md:p-4 border-b">
+                        <div className="flex justify-between items-center mb-2 md:mb-3">
+                            <h2 className="text-lg md:text-xl font-bold">
                                 교통 & 주차 현황
                             </h2>
 
                             {/* 초기화 버튼 */}
                             <button
                                 onClick={resetMapView}
-                                className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1.5 rounded-lg text-sm flex items-center shadow-md transition-colors duration-200"
+                                className="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 md:px-3 md:py-1.5 rounded-lg text-xs md:text-sm flex items-center shadow-md transition-colors duration-200"
                             >
                                 <svg
                                     xmlns="http://www.w3.org/2000/svg"
-                                    className="h-4 w-4 mr-1"
+                                    className="h-3 w-3 md:h-4 md:w-4 mr-1"
                                     fill="none"
                                     viewBox="0 0 24 24"
                                     stroke="currentColor"
@@ -541,7 +545,9 @@ const AdminTraffic = () => {
                                         d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
                                     />
                                 </svg>
-                                초기 화면
+                                <span className="hidden sm:inline">
+                                    초기 화면
+                                </span>
                             </button>
                         </div>
 
@@ -552,7 +558,7 @@ const AdminTraffic = () => {
                                 placeholder="지역명 검색..."
                                 value={searchTerm}
                                 onChange={handleSearchChange}
-                                className="w-full px-4 py-2 pr-10 border border-gray-300 bg-gray-50 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                className="w-full px-2 py-1 md:px-4 md:py-2 pr-8 md:pr-10 border border-gray-300 bg-gray-50 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                             />
                             {searchTerm && (
                                 <button
@@ -578,13 +584,13 @@ const AdminTraffic = () => {
                         </div>
                     </div>
 
-                    {/* Scrollable Content Area - 필터링된 지역 목록 표시 */}
-                    <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
+                    {/* Scrollable Content Area - More compact on mobile */}
+                    <div className="h-48 md:h-auto md:flex-1 overflow-y-auto p-2 px-3 md:p-4 custom-scrollbar pb-6">
                         {filteredMapData.length > 0 ? (
                             filteredMapData.map((area, idx) => (
                                 <div
                                     key={idx}
-                                    className={`p-3 border rounded-lg mb-3 cursor-pointer transition-all duration-200 ${
+                                    className={`p-2 md:p-3 border rounded-lg mb-2 md:mb-3 cursor-pointer transition-all duration-200 ${
                                         selectedArea === area.area_nm
                                             ? "bg-blue-50 border-blue-300 shadow-md"
                                             : "hover:bg-gray-50"
@@ -593,20 +599,19 @@ const AdminTraffic = () => {
                                         setSelectedArea(area.area_nm)
                                     }
                                 >
-                                    <h3 className="font-bold">
+                                    <h3 className="font-bold text-sm md:text-base">
                                         {area.area_nm}
                                     </h3>
-                                    <div className="flex justify-between items-center mt-1">
-                                        <span className="text-sm">
-                                            교통 상태:{" "}
-                                            {getTrafficStatusText(area)}
+                                    <div className="flex flex-row justify-between items-center mt-1">
+                                        <span className="text-xs md:text-sm">
+                                            교통: {getTrafficStatusText(area)}
                                         </span>
-                                        <span className="text-sm">
-                                            주차장: {getParkingCount(area)}개소
+                                        <span className="text-xs md:text-sm">
+                                            주차: {getParkingCount(area)}개
                                         </span>
                                     </div>
                                     {area.trafficData && (
-                                        <p className="text-sm text-gray-600 mt-1">
+                                        <p className="text-sm text-gray-600 mt-1 hidden md:block">
                                             {area.trafficData.road_msg}
                                         </p>
                                     )}
@@ -622,54 +627,67 @@ const AdminTraffic = () => {
                     </div>
                 </div>
 
-                {/* Map */}
-                <div className="flex-1 relative">
+                {/* Map - Full width on mobile, remaining space on desktop */}
+                <div className="flex-1 relative h-full min-h-[400px] mt-3 md:mt-0">
+                    {/* Strong mobile horizontal divider - only visible on mobile */}
+                    <div className="md:hidden absolute top-0 left-0 right-0 h-1 bg-gray-400 shadow-md z-10"></div>
+                    {/* Strong vertical divider that's only visible on desktop */}
+                    <div className="hidden md:block absolute top-0 left-0 h-full w-1 bg-gray-300 shadow-md"></div>
                     <div ref={mapContainer} className="absolute inset-0" />
 
-                    {/* Legend */}
-                    <div className="absolute bottom-4 right-4 bg-white p-3 rounded-lg shadow-md z-10 text-black">
-                        <h3 className="font-bold mb-2">범례</h3>
-                        <div className="mb-2">
-                            <h4 className="font-semibold text-sm">
-                                교통 상태:
-                            </h4>
-                            <div className="flex items-center mb-1">
-                                <div className="w-4 h-4 bg-green-500 mr-2"></div>
-                                <span className="text-sm">원활</span>
-                            </div>
-                            <div className="flex items-center mb-1">
-                                <div className="w-4 h-4 bg-orange-500 mr-2"></div>
-                                <span className="text-sm">서행</span>
-                            </div>
-                            <div className="flex items-center">
-                                <div className="w-4 h-4 bg-red-500 mr-2"></div>
-                                <span className="text-sm">정체</span>
-                            </div>
-                        </div>
-                        <div>
-                            <h4 className="font-semibold text-sm">
-                                주차장 상태:
-                            </h4>
-                            <div className="flex items-center mb-1">
-                                <div className="w-4 h-4 bg-green-500 mr-2 flex items-center justify-center text-white font-bold text-xs">
-                                    P
+                    {/* Legend - Redesigned with side-by-side layout */}
+                    <div className="absolute bottom-4 right-4 bg-white p-2 md:p-3 rounded-lg shadow-md z-10 text-black text-xs md:text-sm">
+                        <h3 className="font-bold mb-1 md:mb-2 text-center">
+                            범례
+                        </h3>
+                        <div className="flex flex-row">
+                            {/* Left column - Traffic status */}
+                            <div className="mr-3 md:mr-4">
+                                <h4 className="font-semibold mb-1">
+                                    교통 상태:
+                                </h4>
+                                <div className="flex items-center mb-1">
+                                    <div className="w-3 h-3 md:w-4 md:h-4 bg-green-500 mr-1 md:mr-2"></div>
+                                    <span>원활</span>
                                 </div>
-                                <span className="text-sm">여유</span>
-                            </div>
-                            <div className="flex items-center mb-1">
-                                <div className="w-4 h-4 bg-yellow-500 mr-2 flex items-center justify-center text-white font-bold text-xs">
-                                    P
+                                <div className="flex items-center mb-1">
+                                    <div className="w-3 h-3 md:w-4 md:h-4 bg-orange-500 mr-1 md:mr-2"></div>
+                                    <span>서행</span>
                                 </div>
-                                <span className="text-sm">보통</span>
-                            </div>
-                            <div className="flex items-center">
-                                <div className="w-4 h-4 bg-red-500 mr-2 flex items-center justify-center text-white font-bold text-xs">
-                                    P
+                                <div className="flex items-center">
+                                    <div className="w-3 h-3 md:w-4 md:h-4 bg-red-500 mr-1 md:mr-2"></div>
+                                    <span>정체</span>
                                 </div>
-                                <span className="text-sm">혼잡</span>
+                            </div>
+
+                            {/* Right column - Parking status */}
+                            <div className="ml-1 md:ml-2 border-l border-gray-300 pl-3 md:pl-4">
+                                <h4 className="font-semibold mb-1">
+                                    주차장 상태:
+                                </h4>
+                                <div className="flex items-center mb-1">
+                                    <div className="w-3 h-3 md:w-4 md:h-4 bg-green-500 mr-1 md:mr-2 flex items-center justify-center text-white font-bold text-xxs md:text-xs">
+                                        P
+                                    </div>
+                                    <span>여유</span>
+                                </div>
+                                <div className="flex items-center mb-1">
+                                    <div className="w-3 h-3 md:w-4 md:h-4 bg-yellow-500 mr-1 md:mr-2 flex items-center justify-center text-white font-bold text-xxs md:text-xs">
+                                        P
+                                    </div>
+                                    <span>보통</span>
+                                </div>
+                                <div className="flex items-center">
+                                    <div className="w-3 h-3 md:w-4 md:h-4 bg-red-500 mr-1 md:mr-2 flex items-center justify-center text-white font-bold text-xxs md:text-xs">
+                                        P
+                                    </div>
+                                    <span>혼잡</span>
+                                </div>
                             </div>
                         </div>
                     </div>
+
+                    {/* Map toggle button removed as requested */}
                 </div>
             </div>
         </div>

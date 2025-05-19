@@ -264,80 +264,98 @@ const AdminTour = () => {
                         </div>
                     )}
 
-                    {/* 데이터 테이블 */}
-                    <div className="overflow-x-auto">
-                        <table className="w-full divide-y divide-gray-200 table-fixed">
-                            <thead className="bg-gray-50">
-                                <tr>
-                                    <th className="w-16 md:w-24 px-2 md:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        카테고리
-                                    </th>
-                                    <th className="w-16 md:w-24 px-2 md:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        장소
-                                    </th>
-                                    <th className="w-32 md:w-48 px-2 md:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        제목
-                                    </th>
-                                    <th className="w-20 md:w-28 px-2 md:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        시작일
-                                    </th>
-                                    <th className="w-20 md:w-28 px-2 md:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        종료일
-                                    </th>
-                                    <th className="w-16 px-2 md:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        요금
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody className="bg-white divide-y divide-gray-200">
-                                {loading && list.length === 0
-                                    ? // 로딩 스켈레톤
-                                      [...Array(10)].map((_, index) => (
-                                          <TableRowSkeleton key={index} />
-                                      ))
-                                    : // 실제 데이터
-                                      filteredList.map((item, index) => (
-                                          <tr
-                                              key={index}
-                                              className={`${index % 2 === 0 ? "bg-white" : "bg-gray-50"} hover:bg-gray-100 transition-colors`}
-                                          >
-                                              <td className="px-2 md:px-4 py-3 text-sm text-gray-900 truncate">
-                                                  {item.category}
-                                              </td>
-                                              <td className="px-2 md:px-4 py-3 text-sm text-gray-900 truncate">
-                                                  {item.gu}
-                                              </td>
-                                              <td className="px-2 md:px-4 py-3 text-sm text-gray-900 font-medium truncate">
-                                                  <div
-                                                      className="truncate max-w-xs"
-                                                      title={item.event_name}
-                                                  >
-                                                      {item.event_name}
-                                                  </div>
-                                              </td>
-                                              <td className="px-2 md:px-4 py-3 text-sm text-gray-900 truncate">
-                                                  {formatDate(item.start_date)}
-                                              </td>
-                                              <td className="px-2 md:px-4 py-3 text-sm text-gray-900 truncate">
-                                                  {formatDate(item.end_date)}
-                                              </td>
-                                              <td className="px-2 md:px-4 py-3 text-sm text-gray-900">
-                                                  <span
-                                                      className={`px-2 py-1 text-xs rounded-full ${
-                                                          item.is_free
-                                                              ? "bg-green-100 text-green-800"
-                                                              : "bg-red-100 text-red-800"
-                                                      }`}
-                                                  >
-                                                      {item.is_free
-                                                          ? "무료"
-                                                          : "유료"}
-                                                  </span>
-                                              </td>
-                                          </tr>
-                                      ))}
-                            </tbody>
-                        </table>
+                    {/* 데이터 테이블 - 스크롤 기능 개선 */}
+                    <div className="relative">
+                        {/* 테이블 헤더 - 고정 */}
+                        <div className="overflow-x-auto">
+                            <table className="w-full table-fixed">
+                                <thead className="bg-gray-50">
+                                    <tr>
+                                        <th className="w-16 md:w-24 px-2 md:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            카테고리
+                                        </th>
+                                        <th className="w-16 md:w-24 px-2 md:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            장소
+                                        </th>
+                                        <th className="w-32 md:w-48 px-2 md:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            제목
+                                        </th>
+                                        <th className="w-20 md:w-28 px-2 md:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            시작일
+                                        </th>
+                                        <th className="w-20 md:w-28 px-2 md:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            종료일
+                                        </th>
+                                        <th className="w-16 px-2 md:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            요금
+                                        </th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
+
+                        {/* 테이블 본문 - 스크롤 */}
+                        <div
+                            className="overflow-x-auto overflow-y-auto"
+                            style={{ maxHeight: "500px" }}
+                        >
+                            <table className="w-full table-fixed">
+                                <tbody className="bg-white divide-y divide-gray-200">
+                                    {loading && list.length === 0
+                                        ? // 로딩 스켈레톤
+                                          [...Array(10)].map((_, index) => (
+                                              <TableRowSkeleton key={index} />
+                                          ))
+                                        : // 실제 데이터
+                                          filteredList.map((item, index) => (
+                                              <tr
+                                                  key={index}
+                                                  className={`${index % 2 === 0 ? "bg-white" : "bg-gray-50"} hover:bg-gray-100 transition-colors`}
+                                              >
+                                                  <td className="w-16 md:w-24 px-2 md:px-4 py-3 text-sm text-gray-900 truncate">
+                                                      {item.category}
+                                                  </td>
+                                                  <td className="w-16 md:w-24 px-2 md:px-4 py-3 text-sm text-gray-900 truncate">
+                                                      {item.gu}
+                                                  </td>
+                                                  <td className="w-32 md:w-48 px-2 md:px-4 py-3 text-sm text-gray-900 font-medium truncate">
+                                                      <div
+                                                          className="truncate max-w-xs"
+                                                          title={
+                                                              item.event_name
+                                                          }
+                                                      >
+                                                          {item.event_name}
+                                                      </div>
+                                                  </td>
+                                                  <td className="w-20 md:w-28 px-2 md:px-4 py-3 text-sm text-gray-900 truncate">
+                                                      {formatDate(
+                                                          item.start_date
+                                                      )}
+                                                  </td>
+                                                  <td className="w-20 md:w-28 px-2 md:px-4 py-3 text-sm text-gray-900 truncate">
+                                                      {formatDate(
+                                                          item.end_date
+                                                      )}
+                                                  </td>
+                                                  <td className="w-16 px-2 md:px-4 py-3 text-sm text-gray-900">
+                                                      <span
+                                                          className={`px-2 py-1 text-xs rounded-full ${
+                                                              item.is_free
+                                                                  ? "bg-green-100 text-green-800"
+                                                                  : "bg-red-100 text-red-800"
+                                                          }`}
+                                                      >
+                                                          {item.is_free
+                                                              ? "무료"
+                                                              : "유료"}
+                                                      </span>
+                                                  </td>
+                                              </tr>
+                                          ))}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -263,7 +263,7 @@ export const AdminDataProvider: React.FC<AdminDataProviderProps> = ({
                     }
                 };
                 const handelParkUpdate = (data: Record<string, unknown>) => {
-                    console.log("들어온 traffic-update 데이터: ", data);
+                    console.log("들어온 park-update 데이터: ", data);
                     setParkData(data as unknown as ParkData[]);
 
                     if (error) {
@@ -273,7 +273,7 @@ export const AdminDataProvider: React.FC<AdminDataProviderProps> = ({
                 const handelAccidentUpdate = (
                     data: Record<string, unknown>
                 ) => {
-                    console.log("들어온 traffic-update 데이터: ", data);
+                    console.log("들어온 accident-update 데이터: ", data);
                     setAccidentData(data as unknown as AccidentData[]);
 
                     if (error) {
