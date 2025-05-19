@@ -82,26 +82,14 @@ export default function MyPage() {
     };
 
     return (
-        <div className="w-full min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center py-6 px-4">
+        <div className="relative w-full min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center py-6 px-4">
             {/* Back Button (Absolute positioned) */}
-            <div className="absolute top-4 left-4 z-30">
+            <div className="absolute bottom-4 left-4 z-30">
                 <button
-                    className="bg-white shadow-lg px-3 py-2 text-indigo-600 font-semibold hover:bg-indigo-600 hover:text-white transition-all duration-300 rounded-full flex items-center"
+                    className="bg-white shadow-md px-6 py-3 text-indigo-500 font-semibold rounded-full hover:bg-indigo-500 hover:text-white transition"
                     onClick={() => window.fullpage_api?.moveSlideLeft()}
                 >
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-5 w-5 mr-1"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                    >
-                        <path
-                            fillRule="evenodd"
-                            d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"
-                            clipRule="evenodd"
-                        />
-                    </svg>
-                    <span className="hidden sm:inline">맵으로</span>
+                    <span className="hidden sm:inline">← 맵으로</span>
                 </button>
             </div>
 
