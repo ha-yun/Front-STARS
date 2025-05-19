@@ -10,6 +10,12 @@ export default function PlaceSuggestionBtn({
         setIsSuggestionOpen((prev) => !prev);
     };
 
+    // 닫기 핸들러 추가
+    const handleClose = () => {
+        console.log("닫기 함수 호출됨");
+        setIsSuggestionOpen(false);
+    };
+
 
    return(
         <div>
@@ -25,7 +31,8 @@ export default function PlaceSuggestionBtn({
                 onClick={toggleSuggestion}>
                     장소 추천
                 </button>
-                <UserPlaceSuggestion isOpen={isSuggestionOpen} />         
+                <UserPlaceSuggestion isOpen={isSuggestionOpen}
+                 onClose={handleClose} />         
 
             </div>
         </div>
