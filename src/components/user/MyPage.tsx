@@ -189,10 +189,10 @@ export default function MyPage() {
                                     {listItems.map((item) => (
                                         <button
                                             key={item.id}
-                                            className={`w-full text-left mb-2 p-3 rounded-xl transition-all duration-300 flex items-center ${
+                                            className={`w-full text-left mb-2 p-3 rounded-xl transition-all duration-300 flex items-center shadow ${
                                                 selectedItem.id === item.id
                                                     ? "bg-indigo-100 text-indigo-700 font-medium shadow-sm"
-                                                    : "text-gray-700 hover:bg-gray-100"
+                                                    : "bg-white text-gray-700 hover:bg-gray-100"
                                             }`}
                                             onClick={() =>
                                                 handleSelectItem(item)
