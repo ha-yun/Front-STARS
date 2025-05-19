@@ -229,12 +229,15 @@ const AdminDetail = () => {
 
                     <PieCard datas={gender} name="남여 비율" />
 
-                    <PopulationRateCard population={ppltnRate} />
-
                     <PieCard datas={resnt} name="거주자 비율" />
 
+                    <PopulationRateCard population={ppltnRate} />
+
                     {forecastData.length > 0 && (
-                        <ForecastPopulationCard fcst_ppltn={forecastData} />
+                        <ForecastPopulationCard
+                            fcst_ppltn={forecastData}
+                            className="md:col-span-2"
+                        />
                     )}
                 </div>
             </div>

@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import { motion } from "framer-motion";
 import {
     LineChart,
     Line,
@@ -21,6 +22,7 @@ interface ForecastPopulation {
 
 interface ForecastPopulationCardProps {
     fcst_ppltn: ForecastPopulation[];
+    className?: string;
 }
 
 // Get color based on congestion level
@@ -69,6 +71,7 @@ const formatTimeToKoreanHour = (timeString: string): string => {
 
 const ForecastPopulationCard = ({
     fcst_ppltn,
+    className = "",
 }: ForecastPopulationCardProps) => {
     const [windowWidth, setWindowWidth] = useState(window.innerWidth);
     const [chartData, setChartData] = useState<any[]>([]);
@@ -133,42 +136,55 @@ const ForecastPopulationCard = ({
         return value.toString();
     };
 
-    // Custom tooltip component
+    // Custom tooltip component - 더 눈에 띄게 개선
     const CustomTooltip = ({ active, payload, label }: any) => {
         if (active && payload && payload.length) {
             const data = payload[0].payload;
 
             return (
-                <div className="bg-white p-3 border shadow-lg rounded-lg">
-                    <p className="font-bold text-gray-800">{label}</p>
-                    <div className="mt-2">
+                <div
+                    className="bg-white p-4 border-2 shadow-xl rounded-lg text-black"
+                    style={{ minWidth: "180px" }}
+                >
+                    <p className="font-bold text-lg text-gray-800 mb-2">
+                        {label}
+                    </p>
+                    <div className="mt-2 space-y-2">
                         <div className="flex items-center justify-between gap-4">
-                            <span className="text-blue-500 text-sm">최소:</span>
-                            <span className="font-medium">
+                            <span className="text-blue-600 text-sm font-medium">
+                                최소:
+                            </span>
+                            <span className="font-bold">
                                 {data.min.toLocaleString()}명
                             </span>
                         </div>
                         <div className="flex items-center justify-between gap-4">
-                            <span className="text-red-500 text-sm">최대:</span>
-                            <span className="font-medium">
+                            <span className="text-red-600 text-sm font-medium">
+                                최대:
+                            </span>
+                            <span className="font-bold">
                                 {data.max.toLocaleString()}명
                             </span>
                         </div>
                         <div className="flex items-center justify-between gap-4">
-                            <span className="text-purple-500 text-sm">
+                            <span className="text-purple-600 text-sm font-medium">
                                 평균:
                             </span>
-                            <span className="font-medium">
+                            <span className="font-bold">
                                 {data.average.toLocaleString()}명
                             </span>
                         </div>
                     </div>
-                    <div className="mt-2 pt-2 border-t">
-                        <p className="text-sm flex justify-between">
-                            <span>혼잡도:</span>
+                    <div className="mt-3 pt-2 border-t">
+                        <p className="text-sm flex justify-between items-center">
+                            <span className="font-medium">혼잡도:</span>
                             <span
-                                className="font-medium"
-                                style={{ color: data.color }}
+                                className="font-bold text-base px-2 py-1 rounded-full"
+                                style={{
+                                    backgroundColor: data.color,
+                                    color: "white",
+                                    textShadow: "0px 0px 1px rgba(0,0,0,0.7)",
+                                }}
                             >
                                 {data.level}
                             </span>
@@ -184,7 +200,9 @@ const ForecastPopulationCard = ({
     // 데이터가 없는 경우 대체 UI
     if (!chartData || chartData.length === 0) {
         return (
-            <div className="bg-white rounded-lg shadow p-4 h-full flex flex-col">
+            <div
+                className={`bg-white rounded-lg shadow p-4 h-full flex flex-col ${className}`}
+            >
                 <div className="mb-4">
                     <h3 className="font-semibold text-lg text-gray-700">
                         인구 예측 추이
@@ -202,8 +220,68 @@ const ForecastPopulationCard = ({
         );
     }
 
+    // 각 지점별 색상 렌더링 함수 - 크기를 더 키우고 테두리를 명확하게 표시
+    const renderDot = (props: any) => {
+        const { cx, cy, payload } = props;
+
+        return (
+            <g>
+                {/* 외부 흰색 테두리 - 더 명확하게 표시 */}
+                <circle cx={cx} cy={cy} r={6} fill="white" />
+                {/* 내부 컬러 도트 */}
+                <circle
+                    cx={cx}
+                    cy={cy}
+                    r={4.5}
+                    fill={payload.color}
+                    stroke="white"
+                    strokeWidth={1}
+                />
+            </g>
+        );
+    };
+
+    // 활성화된 도트 - 훨씬 더 큰 사이즈와 애니메이션 효과
+    const renderActiveDot = (props: any) => {
+        const { cx, cy, payload } = props;
+
+        return (
+            <g>
+                {/* 큰 외부 링 - 반투명 */}
+                <circle
+                    cx={cx}
+                    cy={cy}
+                    r={14}
+                    fill={payload.color}
+                    opacity={0.2}
+                />
+                {/* 중간 크기 링 */}
+                <circle
+                    cx={cx}
+                    cy={cy}
+                    r={10}
+                    fill={payload.color}
+                    opacity={0.4}
+                    stroke="white"
+                    strokeWidth={1}
+                />
+                {/* 내부 도트 - 색상 강조 */}
+                <circle
+                    cx={cx}
+                    cy={cy}
+                    r={6}
+                    fill={payload.color}
+                    stroke="white"
+                    strokeWidth={2}
+                />
+            </g>
+        );
+    };
+
     return (
-        <div className="bg-white rounded-lg shadow p-4 h-full flex flex-col">
+        <div
+            className={`bg-white rounded-lg shadow p-4 h-full flex flex-col ${className}`}
+        >
             <div className="mb-4">
                 <h3 className="font-semibold text-lg text-gray-700">
                     인구 예측 추이
@@ -273,7 +351,14 @@ const ForecastPopulationCard = ({
                             axisLine={{ stroke: "#E5E7EB" }}
                         />
 
-                        <Tooltip content={<CustomTooltip />} />
+                        <Tooltip
+                            content={<CustomTooltip />}
+                            cursor={{
+                                stroke: "#ddd",
+                                strokeWidth: 2,
+                                strokeDasharray: "5 5",
+                            }}
+                        />
 
                         <Legend
                             verticalAlign="top"
@@ -300,35 +385,34 @@ const ForecastPopulationCard = ({
                             name="최대 인구"
                         />
 
-                        {/* Line for average */}
+                        {/* Line for average with custom dot */}
                         <Line
                             type="monotone"
                             dataKey="average"
                             stroke="#8B5CF6"
                             strokeWidth={3}
-                            dot={{ r: 4, strokeWidth: 2 }}
+                            dot={renderDot}
                             name="평균 인구"
-                            activeDot={{
-                                r: 8,
-                                stroke: "#8B5CF6",
-                                strokeWidth: 2,
-                            }}
+                            activeDot={renderActiveDot}
+                            isAnimationActive={true}
                         />
                     </ComposedChart>
                 </ResponsiveContainer>
             </div>
 
             {/* Color legend for congestion levels */}
-            <div className="flex flex-wrap mt-4 justify-end gap-2 pt-2 border-t border-gray-100">
+            <div className="flex flex-wrap mt-4 justify-end gap-3 pt-2 border-t border-gray-100">
                 {["여유", "보통", "약간 붐빔", "붐빔"].map((level) => (
                     <div key={level} className="flex items-center">
                         <div
-                            className="w-3 h-3 rounded-full mr-1"
+                            className="w-4 h-4 md:w-5 md:h-5 rounded-full mr-1 md:mr-2 border border-gray-200"
                             style={{
                                 backgroundColor: getCongestionColor(level),
                             }}
                         />
-                        <span className="text-xs text-gray-600">{level}</span>
+                        <span className="text-xs text-gray-800 font-medium">
+                            {level}
+                        </span>
                     </div>
                 ))}
             </div>
