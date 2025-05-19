@@ -10,6 +10,8 @@ import { getAreaList } from "../../../api/starsApi";
 import AreaFocusCard from "./AreaFocusCard";
 import { SearchResult } from "../../../api/searchApi";
 import type { Feature, Point } from "geojson"; // 추가
+import PlaceSuggestionBtn from "./PlaceSuggestionBtn";
+
 
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
 const categoryMap: Record<string, string> = {
@@ -305,6 +307,10 @@ export default function MapSectionComponent() {
                 onSingleResultClick={handleSingleResultClick}
             />
 
+            {/* 챗봇 */}
+            <PlaceSuggestionBtn />
+
+            {/* Mapbox 지도 */}
             <div className="w-full h-full" ref={mapContainer} />
 
             {selectedAreaId && (
