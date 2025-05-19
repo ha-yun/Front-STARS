@@ -405,6 +405,7 @@ const AdminUserFavorite = () => {
                                                             categoryMap={
                                                                 categoryMap
                                                             }
+                                                            idType="favorite_id"
                                                         />
                                                     );
                                                 }
@@ -460,6 +461,7 @@ const AdminUserFavorite = () => {
                                                                 categoryMap={
                                                                     categoryMap
                                                                 }
+                                                                idType="place_id"
                                                                 extra={
                                                                     <span className="absolute -top-2 -left-2 bg-blue-400 text-white rounded-full w-6 h-6 flex items-center justify-center font-bold text-lg shadow">
                                                                         {idx +
@@ -468,7 +470,7 @@ const AdminUserFavorite = () => {
                                                                 }
                                                             >
                                                                 <span className="text-xs text-gray-500">
-                                                                    {count}명
+                                                                    총 {count}명
                                                                 </span>
                                                             </FavoriteCard>
                                                         </div>
@@ -566,7 +568,7 @@ const AdminUserFavorite = () => {
                                             ))}
                                         </div>
                                     ) : filteredCurrentFavorites.length > 0 ? (
-                                        <div className="grid grid-cols-1 gap-4 mb-2 h-full">
+                                        <div className="grid grid-cols-1 gap-4 h-full">
                                             {filteredCurrentFavorites.map(
                                                 (item) => {
                                                     const typeStyles =
@@ -585,6 +587,7 @@ const AdminUserFavorite = () => {
                                                             categoryMap={
                                                                 categoryMap
                                                             }
+                                                            idType="favorite_id"
                                                         />
                                                     );
                                                 }
@@ -639,6 +642,7 @@ const AdminUserFavorite = () => {
                                                             categoryMap={
                                                                 categoryMap
                                                             }
+                                                            idType="place_id"
                                                             extra={
                                                                 <span className="absolute -top-2 -left-2 bg-blue-400 text-white rounded-full w-6 h-6 flex items-center justify-center font-bold text-lg shadow">
                                                                     {idx + 1}
@@ -646,7 +650,7 @@ const AdminUserFavorite = () => {
                                                             }
                                                         >
                                                             <span className="text-xs text-gray-500">
-                                                                {count}명
+                                                                총 {count}명
                                                             </span>
                                                         </FavoriteCard>
                                                     );
