@@ -52,7 +52,7 @@ const AdminTraffic = () => {
         // 지도 초기화
         const mapInstance = new mapboxgl.Map({
             container: mapContainer.current,
-            style: "mapbox://styles/mapbox/streets-v11",
+            style: "mapbox://styles/mapbox/light-v11",
             center: initialMapCenter,
             zoom: initialMapZoom,
             interactive: true,
@@ -119,45 +119,69 @@ const AdminTraffic = () => {
         const parkData = areaData.parkData;
 
         let centerLng, centerLat;
-        let zoomLevel = 15;
+        let zoomLevel = 14;
 
-        // 교통 데이터가 있으면 첫 번째 도로 세그먼트의 중간점으로 이동
+        // 교통 데이터가 있으면 모든 도로 세그먼트의 종점들의 중심점을 계산
         if (trafficData && trafficData.road_traffic_stts.length > 0) {
-            const firstRoad = trafficData.road_traffic_stts[0];
+            // 종점들의 모든 좌표를 수집
+            const allEndpoints: [number, number][] = [];
 
-            // xylist가 있으면 경로의 중간 지점으로 이동
-            if (firstRoad.xylist) {
-                const points = firstRoad.xylist.split("|");
-                // 경로 좌표의 중간 지점을 선택
-                const midPointIndex = Math.floor(points.length / 2);
-                const midPointCoords = points[midPointIndex]
-                    .split("_")
-                    .map(Number);
-                centerLng = midPointCoords[0];
-                centerLat = midPointCoords[1];
-            } else {
-                // xylist가 없으면 시작점과 끝점의 중간 지점 사용
-                const startCoords = firstRoad.start_nd_xy
-                    .split("_")
-                    .map(Number);
-                const endCoords = firstRoad.end_nd_xy.split("_").map(Number);
+            trafficData.road_traffic_stts.forEach((road) => {
+                // 시작점 추가
+                const startCoords = road.start_nd_xy.split("_").map(Number);
+                allEndpoints.push([startCoords[0], startCoords[1]]);
 
-                // Calculate center point between start and end
-                centerLng = (startCoords[0] + endCoords[0]) / 2;
-                centerLat = (startCoords[1] + endCoords[1]) / 2;
+                // 끝점 추가
+                const endCoords = road.end_nd_xy.split("_").map(Number);
+                allEndpoints.push([endCoords[0], endCoords[1]]);
+            });
+
+            // 모든 종점의 평균 위치 계산
+            if (allEndpoints.length > 0) {
+                const sumLng = allEndpoints.reduce(
+                    (sum, coord) => sum + coord[0],
+                    0
+                );
+                const sumLat = allEndpoints.reduce(
+                    (sum, coord) => sum + coord[1],
+                    0
+                );
+
+                centerLng = sumLng / allEndpoints.length;
+                centerLat = sumLat / allEndpoints.length;
             }
         }
-        // 주차장 데이터가 있고 교통 데이터가 없으면 첫 번째 주차장 위치로 이동
+        // 주차장 데이터가 있고 교통 데이터가 없으면 모든 주차장의 중심점으로 이동
         else if (parkData && parkData.prk_stts.length > 0) {
-            const firstPark = parkData.prk_stts[0];
-            centerLng = firstPark.lon;
-            centerLat = firstPark.lat;
+            const validParkingSpots = parkData.prk_stts.filter(
+                (park) => park.lon && park.lat
+            );
+
+            if (validParkingSpots.length > 0) {
+                const sumLng = validParkingSpots.reduce(
+                    (sum, park) => sum + park.lon,
+                    0
+                );
+                const sumLat = validParkingSpots.reduce(
+                    (sum, park) => sum + park.lat,
+                    0
+                );
+
+                centerLng = sumLng / validParkingSpots.length;
+                centerLat = sumLat / validParkingSpots.length;
+            }
         }
         // 데이터가 없으면 기본 위치로 이동
         else {
             centerLng = initialMapCenter[0];
             centerLat = initialMapCenter[1];
             zoomLevel = initialMapZoom;
+        }
+
+        // 계산된 중심점이 유효한지 확인
+        if (!centerLng || !centerLat) {
+            centerLng = initialMapCenter[0];
+            centerLat = initialMapCenter[1];
         }
 
         // Fly to the center of the selected area
@@ -233,6 +257,7 @@ const AdminTraffic = () => {
     };
 
     // 특정 지역의 도로 그리기
+    // 특정 지역의 도로 그리기
     const drawRoadsForArea = (trafficData: TrafficData) => {
         if (!map.current || !mapLoaded) {
             console.log("Map not ready yet");
@@ -297,28 +322,6 @@ const AdminTraffic = () => {
                         "line-opacity": 0.8,
                     },
                 });
-
-                // 시작점과 끝점 마커 추가
-                if (pathCoordinates.length > 0) {
-                    const startPoint = pathCoordinates[0];
-                    const endPoint =
-                        pathCoordinates[pathCoordinates.length - 1];
-
-                    const startMarker = addPointMarker(
-                        startPoint,
-                        road.start_nd_nm,
-                        "#1e88e5"
-                    );
-                    const endMarker = addPointMarker(
-                        endPoint,
-                        road.end_nd_nm,
-                        "#d81b60"
-                    );
-
-                    // 마커 참조 저장
-                    if (startMarker) markerRefs.current.push(startMarker);
-                    if (endMarker) markerRefs.current.push(endMarker);
-                }
             } catch (error) {
                 console.error("Error adding source or layer:", error);
             }
