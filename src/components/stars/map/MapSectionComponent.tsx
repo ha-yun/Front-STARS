@@ -180,7 +180,7 @@ export default function MapSectionComponent() {
                             number,
                             number,
                         ],
-                        zoom: 14,
+                        zoom: 16,
                         pitch: 45,
                     });
                     map.once("moveend", () => {
@@ -290,7 +290,7 @@ export default function MapSectionComponent() {
     return (
         <div className="relative w-screen app-full-height">
             {isLogin && (
-                <div className="absolute bottom-8 right-8 z-20">
+                <div className="absolute bottom-4 right-4 z-10">
                     <button
                         className="bg-white shadow-md px-6 py-3 text-indigo-500 font-semibold rounded-full hover:bg-indigo-500 hover:text-white transition"
                         onClick={() => window.fullpage_api?.moveSlideRight()}
