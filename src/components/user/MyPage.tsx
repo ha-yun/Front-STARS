@@ -1,66 +1,70 @@
-// MyPage.tsx
+// Enhanced MyPage.tsx with improved design and responsiveness
 import React, { useState, useEffect } from "react";
 import UserInfo from "./Info/UserInfo";
 import UserFavorite from "./Favorite/UserFavorite";
+import { motion, AnimatePresence } from "framer-motion";
 
-interface item {
+interface MenuItem {
     id: number;
     title: string;
+    icon: string;
 }
 
 export default function MyPage() {
-    // 선택된 항목의 상태를 관리합니다
-    const [selectedItem, setSelectedItem] = useState<item>({
+    // Selected menu item state
+    const [selectedItem, setSelectedItem] = useState<MenuItem>({
         id: 1,
-        title: "회원정보", // 기본 선택 항목을 회원정보로 변경
+        title: "회원정보",
+        icon: "👤",
     });
 
-    // 목록 데이터
-    const listItems: item[] = [
+    // Menu data with icons
+    const listItems: MenuItem[] = [
         {
             id: 1,
             title: "회원정보",
+            icon: "👤",
         },
         {
             id: 2,
             title: "즐겨찾기",
+            icon: "⭐",
         },
     ];
 
-    // 모바일 여부를 저장하는 상태
+    // Mobile state detection
     const [isMobile, setIsMobile] = useState(false);
-
-    // 모바일 메뉴 표시 상태
+    // Mobile menu drawer state
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-    // 화면 크기가 변경될 때 모바일 여부 감지
+    // Detect mobile screen size
     useEffect(() => {
         const checkIfMobile = () => {
             setIsMobile(window.innerWidth < 768);
         };
 
-        // 초기 체크
+        // Initial check
         checkIfMobile();
 
-        // 리사이즈 이벤트 리스너 추가
+        // Add resize event listener
         window.addEventListener("resize", checkIfMobile);
 
-        // 컴포넌트 언마운트 시 이벤트 리스너 제거
+        // Clean up event listener
         return () => {
             window.removeEventListener("resize", checkIfMobile);
         };
     }, []);
 
-    // 항목 선택 핸들러
-    const handleSelectItem = (item: item) => {
+    // Handle menu item selection
+    const handleSelectItem = (item: MenuItem) => {
         setSelectedItem(item);
-        // 모바일에서 항목 선택 시 드롭다운 메뉴 닫기
+        // Close mobile menu drawer when item is selected
         if (isMobile) {
             setMobileMenuOpen(false);
         }
     };
 
-    // 선택된 항목에 따라 적절한 컴포넌트를 렌더링하는 함수
+    // Render the selected component based on menu item
     const renderSelectedComponent = () => {
         switch (selectedItem.id) {
             case 1:
@@ -72,43 +76,44 @@ export default function MyPage() {
         }
     };
 
-    // 드롭다운 토글 핸들러
-    const toggleDropdown = () => {
-        if (isMobile) {
-            setMobileMenuOpen(!mobileMenuOpen);
-        }
+    // Toggle mobile menu drawer
+    const toggleDrawer = () => {
+        setMobileMenuOpen(!mobileMenuOpen);
     };
 
     return (
-        <div className="w-full min-h-screen bg-gray-100 flex items-center justify-center relative py-4 md:py-10">
+        <div className="relative w-full min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center py-6 px-4">
             {/* Back Button (Absolute positioned) */}
-            <div className="absolute md:top-6 top-4 left-4 md:left-6 z-10 flex justify-center items-center">
+            <div className="absolute bottom-4 left-4 z-30">
                 <button
-                    className="bg-white shadow-md px-3 py-1 md:px-4 md:py-2 text-indigo-500 font-semibold hover:bg-indigo-500 hover:text-white transition text-sm md:text-base"
+                    className="bg-white shadow-md px-6 py-3 text-indigo-500 font-semibold rounded-full hover:bg-indigo-500 hover:text-white transition"
                     onClick={() => window.fullpage_api?.moveSlideLeft()}
                 >
-                    ← 메인으로
+                    <span className="hidden sm:inline">← 맵으로</span>
                 </button>
             </div>
 
-            {/* Main Content Container - 모바일에서는 전체 너비, 데스크탑에서는 중앙 정렬 */}
-            <div className="flex flex-col md:flex-row w-11/12 lg:w-10/12 h-auto md:h-4/5 mx-auto gap-4 mt-12 md:mt-0">
-                {/* Mobile Menu Toggle Button with Dropdown - 모바일에서만 표시 */}
-                {isMobile && (
-                    <div className="relative">
-                        <div className="flex justify-between items-center bg-white p-4 rounded-lg shadow-lg mb-4">
-                            <h2 className="text-xl font-bold text-gray-800">
-                                마이페이지: {selectedItem.title}
+            {/* Main Container with Glass Effect */}
+            <div className="w-full max-w-6xl mx-auto rounded-2xl overflow-hidden shadow-xl bg-white/80 backdrop-blur-sm border border-white/50 h-[80vh] mt-10">
+                <div className="h-full flex flex-col md:flex-row">
+                    {/* Mobile Header with Menu Toggle */}
+                    {isMobile && (
+                        <div className="flex justify-between items-center bg-indigo-600 text-white p-4 sticky top-0 z-20">
+                            <h2 className="text-xl font-bold flex items-center">
+                                <span className="mr-2 text-xl">
+                                    {selectedItem.icon}
+                                </span>
+                                {selectedItem.title}
                             </h2>
                             <button
-                                onClick={toggleDropdown}
-                                className="bg-indigo-100 text-indigo-500 p-2 rounded-lg flex items-center"
+                                onClick={toggleDrawer}
+                                className="p-2 rounded-lg bg-indigo-700 hover:bg-indigo-800 transition-colors flex items-center"
                             >
-                                <span>
+                                <span className="mr-1">
                                     {mobileMenuOpen ? "메뉴 닫기" : "메뉴 열기"}
                                 </span>
                                 <svg
-                                    className={`w-4 h-4 ml-2 transition-transform ${mobileMenuOpen ? "rotate-180" : ""}`}
+                                    className={`w-4 h-4 transition-transform duration-300 ${mobileMenuOpen ? "rotate-180" : ""}`}
                                     xmlns="http://www.w3.org/2000/svg"
                                     fill="none"
                                     viewBox="0 0 24 24"
@@ -123,72 +128,120 @@ export default function MyPage() {
                                 </svg>
                             </button>
                         </div>
+                    )}
 
-                        {/* Dropdown Menu - 모바일에서 토글 시에만 표시 */}
-                        {mobileMenuOpen && (
-                            <div className="absolute w-full bg-white p-4 shadow-lg rounded-lg z-20">
-                                <ul className="space-y-2">
-                                    {/* 목록 항목을 동적으로 생성 */}
+                    {/* Mobile Menu Drawer - Animated with Framer Motion */}
+                    <AnimatePresence>
+                        {isMobile && mobileMenuOpen && (
+                            <motion.div
+                                initial={{ opacity: 0, y: -20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -20 }}
+                                transition={{ duration: 0.3 }}
+                                className="absolute inset-x-0 top-16 z-50 bg-white shadow-lg rounded-b-2xl overflow-hidden"
+                            >
+                                <ul className="py-2">
                                     {listItems.map((item) => (
                                         <li
                                             key={item.id}
-                                            className={`p-2 rounded cursor-pointer transition text-black ${
+                                            className={`p-4 cursor-pointer transition-colors ${
                                                 selectedItem.id === item.id
-                                                    ? "bg-indigo-100"
-                                                    : "hover:bg-indigo-50"
+                                                    ? "bg-indigo-50 text-indigo-700 font-medium"
+                                                    : "hover:bg-gray-50 text-gray-700"
                                             }`}
                                             onClick={() =>
                                                 handleSelectItem(item)
                                             }
                                         >
-                                            {item.title}
+                                            <div className="flex items-center">
+                                                <span className="text-xl mr-3">
+                                                    {item.icon}
+                                                </span>
+                                                <span>{item.title}</span>
+                                            </div>
                                         </li>
                                     ))}
                                 </ul>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+
+                    {/* Desktop Sidebar - Always visible on larger screens */}
+                    {!isMobile && (
+                        <div className="w-64 border-r border-gray-200 h-full bg-white/90 backdrop-blur-sm flex-shrink-0">
+                            <div className="p-6">
+                                <h2 className="text-2xl font-bold text-indigo-700 mb-6">
+                                    마이페이지
+                                </h2>
+                                <nav>
+                                    {listItems.map((item) => (
+                                        <button
+                                            key={item.id}
+                                            className={`w-full text-left mb-2 p-3 rounded-xl transition-all duration-300 flex items-center shadow ${
+                                                selectedItem.id === item.id
+                                                    ? "bg-indigo-100 text-indigo-700 font-medium shadow-sm"
+                                                    : "bg-white text-gray-700 hover:bg-gray-100"
+                                            }`}
+                                            onClick={() =>
+                                                handleSelectItem(item)
+                                            }
+                                        >
+                                            <span className="text-xl mr-3">
+                                                {item.icon}
+                                            </span>
+                                            <span>{item.title}</span>
+                                            {selectedItem.id === item.id && (
+                                                <span className="ml-auto">
+                                                    <svg
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                        className="h-5 w-5 text-indigo-600"
+                                                        viewBox="0 0 20 20"
+                                                        fill="currentColor"
+                                                    >
+                                                        <path
+                                                            fillRule="evenodd"
+                                                            d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                                                            clipRule="evenodd"
+                                                        />
+                                                    </svg>
+                                                </span>
+                                            )}
+                                        </button>
+                                    ))}
+                                </nav>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Main Content */}
+                    <div className="flex-1 h-full overflow-y-auto relative">
+                        {/* Desktop Header */}
+                        {!isMobile && (
+                            <div className="p-6 border-b border-gray-200">
+                                <div className="flex items-center">
+                                    <span className="text-2xl mr-3">
+                                        {selectedItem.icon}
+                                    </span>
+                                    <h2 className="text-2xl font-bold text-gray-800">
+                                        {selectedItem.title}
+                                    </h2>
+                                </div>
                             </div>
                         )}
-                    </div>
-                )}
 
-                {/* Left Column - List Card (데스크탑에서만 표시) */}
-                {!isMobile && (
-                    <div className="w-1/3 bg-white p-4 shadow-lg rounded-lg mb-4 md:mb-0">
-                        <h2 className="text-xl font-bold mb-4 text-gray-800">
-                            마이페이지
-                        </h2>
-                        <ul className="space-y-2">
-                            {/* 목록 항목을 동적으로 생성 */}
-                            {listItems.map((item) => (
-                                <li
-                                    key={item.id}
-                                    className={`p-2 rounded cursor-pointer transition text-black ${
-                                        selectedItem.id === item.id
-                                            ? "bg-indigo-100"
-                                            : "hover:bg-indigo-50"
-                                    }`}
-                                    onClick={() => handleSelectItem(item)}
-                                >
-                                    {item.title}
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-                )}
-
-                {/* Right Column - Detail Card */}
-                <div
-                    className={`w-full ${!isMobile ? "md:w-2/3" : ""} bg-white p-4 md:p-6 shadow-lg rounded-lg overflow-auto`}
-                >
-                    {/* 데스크탑에서만 제목 표시 - 모바일은 상단 토글 메뉴에 표시됨 */}
-                    {!isMobile && (
-                        <h2 className="text-2xl font-bold mb-4 text-gray-800">
-                            {selectedItem.title}
-                        </h2>
-                    )}
-                    {/* 상단 구분바가 있는 div이므로 삭제금지 */}
-                    <div className="border-t border-gray-200 pt-4">
-                        {/* 선택된 항목에 따라 다른 컴포넌트 렌더링 */}
-                        {renderSelectedComponent()}
+                        {/* Content Area with Animation */}
+                        <AnimatePresence mode="wait">
+                            <motion.div
+                                key={selectedItem.id}
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: 10 }}
+                                transition={{ duration: 0.3 }}
+                                className="p-4 md:p-6 h-full"
+                            >
+                                {renderSelectedComponent()}
+                            </motion.div>
+                        </AnimatePresence>
                     </div>
                 </div>
             </div>
