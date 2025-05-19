@@ -26,6 +26,8 @@ export default function AccidentCard({
                 return "🏥";
             case "공사":
                 return "🚧";
+            case "집회및행사":
+                return "🎤";
             default:
                 return "⚠️";
         }
