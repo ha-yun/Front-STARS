@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { UserFavoriteList, Favorite } from "../../data/adminData";
 import AdminHeader from "./AdminHeader";
 import { getFavoriteList } from "../../api/adminApi";
-import { useLocation, useParams } from "react-router-dom"; // 라우팅 정보를 가져오기 위해 추가
+import { useLocation, useParams } from "react-router-dom";
 
 // 로딩 스켈레톤 컴포넌트
 const UserSkeleton = () => (
@@ -29,8 +29,8 @@ const FavoriteSkeleton = () => (
 );
 
 const AdminUserFavorite = () => {
-    const location = useLocation(); // 현재 라우트 위치 정보를 가져옴
-    const params = useParams(); // URL 파라미터를 가져옴
+    const location = useLocation();
+    const params = useParams();
 
     const [userFavorites, setUserFavorites] = useState<UserFavoriteList[]>([]);
     const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
@@ -39,11 +39,37 @@ const AdminUserFavorite = () => {
     const [filteredUsers, setFilteredUsers] = useState<UserFavoriteList[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [favoriteLoading, setFavoriteLoading] = useState<boolean>(false);
-    const [dataFetched, setDataFetched] = useState<boolean>(false); // 데이터 페칭 상태 추적
+    const [dataFetched, setDataFetched] = useState<boolean>(false);
+    const [isMobileView, setIsMobileView] = useState<boolean>(false);
+    const [showUsersList, setShowUsersList] = useState<boolean>(true);
+
+    // 윈도우 크기 변경 감지 핸들러
+    useEffect(() => {
+        const handleResize = () => {
+            setIsMobileView(window.innerWidth < 768);
+        };
+
+        // 초기 설정
+        handleResize();
+
+        // 리사이즈 이벤트 리스너 등록
+        window.addEventListener("resize", handleResize);
+
+        // 컴포넌트 언마운트 시 이벤트 리스너 제거
+        return () => {
+            window.removeEventListener("resize", handleResize);
+        };
+    }, []);
+
+    // 모바일에서 사용자 선택 시 자동으로 즐겨찾기 목록으로 전환
+    useEffect(() => {
+        if (isMobileView && selectedUserId) {
+            setShowUsersList(false);
+        }
+    }, [selectedUserId, isMobileView]);
 
     // API 호출을 하는 함수
     const fetchData = async () => {
-        // 이미 로딩 중이거나 데이터가 이미 페칭된 경우 중복 호출 방지
         if (loading && dataFetched) {
             return;
         }
@@ -55,11 +81,11 @@ const AdminUserFavorite = () => {
 
             setUserFavorites(response);
             setFilteredUsers(response);
-            // 첫 번째 사용자 선택
+
             if (response.length > 0 && !selectedUserId) {
                 setSelectedUserId(response[0].user_id);
             }
-            setDataFetched(true); // 데이터가 성공적으로 페칭됨
+            setDataFetched(true);
         } catch (error) {
             console.error("Error fetching data:", error);
         } finally {
@@ -68,21 +94,18 @@ const AdminUserFavorite = () => {
     };
 
     // 라우팅 정보가 변경될 때마다 데이터 다시 로드
-    // location.pathname이 변경될 때 다시 호출됨
     useEffect(() => {
         console.log("Route changed:", location.pathname);
-        setDataFetched(false); // 라우트가 변경되면 데이터 페칭 상태 초기화
+        setDataFetched(false);
         fetchData();
 
-        // 컴포넌트 정리 함수 - 언마운트 시 실행
         return () => {
             console.log(
                 "AdminUserFavorite unmounting from:",
                 location.pathname
             );
-            // 필요시 중단해야 할 작업이 있다면 여기에 추가
         };
-    }, [location.pathname]); // 라우트 경로 변경 시 실행
+    }, [location.pathname]);
 
     // 선택된 사용자가 변경될 때 즐겨찾기 로드
     useEffect(() => {
@@ -126,20 +149,17 @@ const AdminUserFavorite = () => {
         }
     }, [searchTerm, userFavorites]);
 
-    // 사용자 ID 기반 색상 생성 (사용자 목록용)
+    // 사용자 ID 기반 색상 생성
     const getUserColor = (userId: string | undefined) => {
-        // userId가 undefined이면 기본 색상 반환
         if (!userId) {
             return "bg-gray-100";
         }
 
-        // 간단한 해시 함수 (userId 문자열을 숫자로 변환)
         let hash = 0;
         for (let i = 0; i < userId.length; i++) {
             hash = userId.charCodeAt(i) + ((hash << 5) - hash);
         }
 
-        // 4가지 색상 중 하나를 선택
         const colors = [
             "bg-blue-100",
             "bg-green-100",
@@ -201,215 +221,305 @@ const AdminUserFavorite = () => {
         }
     };
 
-    // 수동 새로고침 핸들러 추가
+    // 새로고침 핸들러
     const handleRefresh = () => {
         setDataFetched(false);
         setLoading(true);
         fetchData();
     };
 
+    // 뒤로가기 핸들러 (모바일용)
+    const handleBack = () => {
+        setShowUsersList(true);
+    };
+
+    // 사용자 유형 필터 - 모바일에서는 수평 스크롤 가능
+    const TypeFilter = () => (
+        <div className="p-3 border-b overflow-x-auto scrollbar-hide whitespace-nowrap flex gap-2">
+            <span className="text-sm font-medium text-gray-700 self-center flex-shrink-0">
+                타입:
+            </span>
+            {["cafe", "restaurant", "accommodation", "attraction"].map(
+                (type) => {
+                    const styles = getTypeStylesAndIcon(type);
+                    return (
+                        <button
+                            key={type}
+                            className={`px-3 py-1 rounded-full text-xs font-medium flex-shrink-0
+                            ${type === "전체" ? "bg-gray-200 text-gray-800" : `${styles.tag} ${styles.tagText}`}`}
+                        >
+                            {type === "전체"
+                                ? "전체"
+                                : `${styles.icon} ${type}`}
+                        </button>
+                    );
+                }
+            )}
+        </div>
+    );
+
     return (
-        <div className="bg-gray-100 min-h-screen flex flex-col w-full">
+        <div className="bg-gray-100 min-h-screen flex flex-col w-full h-screen overflow-hidden">
             {/* Header */}
             <AdminHeader path={"/manage"} />
-            {/* End of Header */}
 
             {/* Main Container */}
-            <div className="flex flex-col md:flex-row p-4 space-y-4 md:space-y-0 md:space-x-4">
-                {/* 사용자 목록 섹션 - 왼쪽에 배치 */}
-                <div className="w-full md:w-1/3 bg-white rounded-lg shadow-md">
-                    <h2 className="text-lg md:text-xl p-3 font-bold text-black border-b flex justify-between items-center">
-                        <span>사용자 목록</span>
-                        <div className="flex items-center">
-                            {loading && (
-                                <span className="text-sm text-blue-500 font-normal mr-2">
-                                    로딩 중...
-                                </span>
-                            )}
+            <div className="p-2 sm:p-4 flex-1 overflow-hidden flex flex-col">
+                {/* 모바일 뷰에서 토글 버튼 */}
+                {isMobileView && (
+                    <div className="mb-2 flex">
+                        {!showUsersList && selectedUserId && (
                             <button
-                                onClick={handleRefresh}
-                                className="ml-2 text-sm bg-white text-black hover:text-blue-500"
-                                title="새로고침"
-                                disabled={loading}
+                                onClick={handleBack}
+                                className="flex items-center text-blue-600 mb-1 bg-white    "
                             >
-                                새로고침
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    className="h-5 w-5 mr-1"
+                                    viewBox="0 0 20 20"
+                                    fill="currentColor"
+                                >
+                                    <path
+                                        fillRule="evenodd"
+                                        d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"
+                                        clipRule="evenodd"
+                                    />
+                                </svg>
+                                사용자 목록으로 돌아가기
                             </button>
-                        </div>
-                    </h2>
-
-                    {/* 검색창 */}
-                    <div className="p-3 border-b">
-                        <input
-                            type="text"
-                            placeholder="사용자 ID 검색..."
-                            className="w-full px-3 py-2 border rounded-lg text-black bg-gray-50 focus:ring-2 focus:ring-blue-500"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            disabled={loading}
-                        />
+                        )}
                     </div>
+                )}
 
-                    {/* 사용자 목록 */}
-                    <div className="overflow-y-auto max-h-[calc(100vh-250px)]">
-                        {loading ? (
-                            // 로딩 중 스켈레톤 UI
-                            [...Array(5)].map((_, index) => (
-                                <UserSkeleton key={index} />
-                            ))
-                        ) : filteredUsers.length > 0 ? (
-                            // 사용자 목록 표시
-                            filteredUsers.map((user) => (
-                                <div
-                                    key={user.user_id}
-                                    className={`p-3 border-b cursor-pointer text-black hover:bg-gray-100 transition-colors ${
-                                        selectedUserId === user.user_id
-                                            ? "bg-blue-50"
-                                            : ""
-                                    }`}
-                                    onClick={() =>
-                                        setSelectedUserId(user.user_id)
-                                    }
-                                >
-                                    <div className="flex items-center">
-                                        <div
-                                            className={`w-8 h-8 rounded-full mr-3 flex items-center justify-center ${getUserColor(user.user_id)}`}
-                                        >
-                                            {user.user_id
-                                                ? user.user_id
-                                                      .charAt(0)
-                                                      .toUpperCase()
-                                                : "?"}
-                                        </div>
-                                        <div>
-                                            <div className="font-medium">
-                                                @{user.user_id}
-                                            </div>
-                                            <div className="text-gray-500 text-sm">
-                                                즐겨찾기 {user.content.length}개
-                                            </div>
-                                        </div>
-                                    </div>
+                <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4 flex-1 overflow-hidden">
+                    {/* 사용자 목록 섹션 */}
+                    {(!isMobileView || (isMobileView && showUsersList)) && (
+                        <div className="w-full md:w-1/3 bg-white rounded-lg shadow-md flex flex-col h-full">
+                            <h2 className="text-lg md:text-xl p-3 font-bold text-black border-b flex justify-between items-center flex-shrink-0">
+                                <span>사용자 목록</span>
+                                <div className="flex items-center">
+                                    {loading && (
+                                        <span className="text-sm text-blue-500 font-normal mr-2">
+                                            로딩 중...
+                                        </span>
+                                    )}
+                                    <button
+                                        onClick={handleRefresh}
+                                        className="ml-2 text-sm bg-white text-black hover:text-blue-500"
+                                        title="새로고침"
+                                        disabled={loading}
+                                    >
+                                        새로고침
+                                    </button>
                                 </div>
-                            ))
-                        ) : (
-                            // 검색 결과 없음
-                            <div className="p-4 text-center text-gray-500">
-                                검색 결과가 없습니다.
+                            </h2>
+
+                            {/* 검색창 */}
+                            <div className="p-3 border-b flex-shrink-0">
+                                <input
+                                    type="text"
+                                    placeholder="사용자 ID 검색..."
+                                    className="w-full px-3 py-2 border rounded-lg text-black bg-gray-50 focus:ring-2 focus:ring-blue-500"
+                                    value={searchTerm}
+                                    onChange={(e) =>
+                                        setSearchTerm(e.target.value)
+                                    }
+                                    disabled={loading}
+                                />
                             </div>
-                        )}
-                    </div>
-                </div>
 
-                {/* 즐겨찾기 목록 섹션 - 오른쪽에 배치 */}
-                <div className="w-full md:w-2/3 bg-white rounded-lg shadow-md">
-                    <h2 className="text-lg md:text-xl p-3 font-bold text-black border-b flex justify-between items-center">
-                        <span>
-                            {selectedUserId
-                                ? `@${selectedUserId}님의 즐겨찾기`
-                                : "즐겨찾기 목록"}
-                        </span>
-                        <div className="flex items-center">
-                            {favoriteLoading && (
-                                <span className="text-sm text-blue-500 font-normal mr-2">
-                                    로딩 중...
-                                </span>
-                            )}
-                            <span className="text-sm text-gray-500 font-normal">
-                                총 {currentFavorites.length}개
-                            </span>
-                        </div>
-                    </h2>
-
-                    {/* 타입별 필터 */}
-                    <div className="p-3 border-b flex flex-wrap gap-2">
-                        <span className="text-sm font-medium text-gray-700 self-center">
-                            타입:
-                        </span>
-                        {[
-                            "cafe",
-                            "restaurant",
-                            "accommodation",
-                            "attraction",
-                        ].map((type) => {
-                            const styles = getTypeStylesAndIcon(type);
-                            return (
-                                <button
-                                    key={type}
-                                    className={`px-3 py-1 rounded-full text-xs font-medium 
-                                    ${type === "전체" ? "bg-gray-200 text-gray-800" : `${styles.tag} ${styles.tagText}`}`}
-                                >
-                                    {type === "전체"
-                                        ? "전체"
-                                        : `${styles.icon} ${type}`}
-                                </button>
-                            );
-                        })}
-                    </div>
-
-                    {/* 즐겨찾기 그리드 */}
-                    <div className="p-4">
-                        {loading || favoriteLoading ? (
-                            // 로딩 중 스켈레톤 UI
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                {[...Array(4)].map((_, index) => (
-                                    <FavoriteSkeleton key={index} />
-                                ))}
-                            </div>
-                        ) : currentFavorites.length > 0 ? (
-                            // 즐겨찾기 목록 표시
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                {currentFavorites.map((item) => {
-                                    const typeStyles = getTypeStylesAndIcon(
-                                        item.type
-                                    );
-                                    return (
+                            {/* 사용자 목록 */}
+                            <div
+                                className="overflow-y-auto flex-1"
+                                style={{ WebkitOverflowScrolling: "touch" }}
+                            >
+                                {loading ? (
+                                    [...Array(5)].map((_, index) => (
+                                        <UserSkeleton key={index} />
+                                    ))
+                                ) : filteredUsers.length > 0 ? (
+                                    filteredUsers.map((user) => (
                                         <div
-                                            key={item.favorite_id}
-                                            className={`p-3 rounded-lg shadow border ${typeStyles.bg} ${typeStyles.border} hover:shadow-lg transition-shadow duration-300`}
+                                            key={user.user_id}
+                                            className={`p-3 border-b cursor-pointer text-black hover:bg-gray-100 transition-colors ${
+                                                selectedUserId === user.user_id
+                                                    ? "bg-blue-50"
+                                                    : ""
+                                            }`}
+                                            onClick={() =>
+                                                setSelectedUserId(user.user_id)
+                                            }
                                         >
-                                            <div className="flex items-center justify-between">
-                                                <div className="flex items-center">
-                                                    <span className="mr-2">
-                                                        {typeStyles.icon}
-                                                    </span>
-                                                    <span
-                                                        className={`font-bold text-base ${typeStyles.text}`}
-                                                    >
-                                                        {item.name}
-                                                    </span>
+                                            <div className="flex items-center">
+                                                <div
+                                                    className={`w-8 h-8 rounded-full mr-3 flex items-center justify-center ${getUserColor(
+                                                        user.user_id
+                                                    )}`}
+                                                >
+                                                    {user.user_id
+                                                        ? user.user_id
+                                                              .charAt(0)
+                                                              .toUpperCase()
+                                                        : "?"}
                                                 </div>
-                                                <div className="flex">
-                                                    <span
-                                                        className={`text-xs px-2 py-1 rounded-full ${typeStyles.tag} ${typeStyles.tagText}`}
-                                                    >
-                                                        {item.type}
-                                                    </span>
+                                                <div>
+                                                    <div className="font-medium">
+                                                        @{user.user_id}
+                                                    </div>
+                                                    <div className="text-gray-500 text-sm">
+                                                        즐겨찾기{" "}
+                                                        {user.content.length}개
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <p className="text-gray-600 text-sm mt-1">
-                                                {item.address}
-                                            </p>
-                                            <div className="mt-2 text-right">
-                                                <span className="text-gray-500 text-xs">
-                                                    ID: {item.favorite_id}
-                                                </span>
                                             </div>
                                         </div>
-                                    );
-                                })}
+                                    ))
+                                ) : (
+                                    <div className="p-4 text-center text-gray-500">
+                                        검색 결과가 없습니다.
+                                    </div>
+                                )}
                             </div>
-                        ) : (
-                            // 즐겨찾기 없음
-                            <div className="p-8 text-center bg-gray-50 rounded-lg border border-gray-200 text-gray-500">
-                                {selectedUserId
-                                    ? "사용자의 즐겨찾기 항목이 없습니다."
-                                    : "사용자를 선택해주세요."}
+                        </div>
+                    )}
+
+                    {/* 즐겨찾기 목록 섹션 */}
+                    {(!isMobileView || (isMobileView && !showUsersList)) && (
+                        <div className="w-full md:w-2/3 bg-white rounded-lg shadow-md flex flex-col h-[calc(100vh-150px)]">
+                            <h2 className="text-lg md:text-xl p-3 font-bold text-black border-b flex justify-between items-center flex-shrink-0">
+                                <span>
+                                    {selectedUserId
+                                        ? `@${selectedUserId}님의 즐겨찾기`
+                                        : "즐겨찾기 목록"}
+                                </span>
+                                <div className="flex items-center">
+                                    {favoriteLoading && (
+                                        <span className="text-sm text-blue-500 font-normal mr-2">
+                                            로딩 중...
+                                        </span>
+                                    )}
+                                    <span className="text-sm text-gray-500 font-normal">
+                                        총 {currentFavorites.length}개
+                                    </span>
+                                </div>
+                            </h2>
+
+                            {/* 타입별 필터 */}
+                            <TypeFilter />
+
+                            {/* 즐겨찾기 그리드 - 스크롤 가능하도록 설정 */}
+                            <div className="p-4 overflow-y-auto max-h-[calc(100vh-200px)] md:max-h-[calc(100vh-220px)]">
+                                {loading || favoriteLoading ? (
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        {[...Array(4)].map((_, index) => (
+                                            <FavoriteSkeleton key={index} />
+                                        ))}
+                                    </div>
+                                ) : currentFavorites.length > 0 ? (
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pb-16 md:pb-4">
+                                        {currentFavorites.map((item) => {
+                                            const typeStyles =
+                                                getTypeStylesAndIcon(item.type);
+                                            return (
+                                                <div
+                                                    key={item.favorite_id}
+                                                    className={`p-3 rounded-lg shadow border ${typeStyles.bg} ${typeStyles.border} hover:shadow-lg transition-shadow duration-300`}
+                                                >
+                                                    <div className="flex items-center justify-between">
+                                                        <div className="flex items-center">
+                                                            <span className="mr-2">
+                                                                {
+                                                                    typeStyles.icon
+                                                                }
+                                                            </span>
+                                                            <span
+                                                                className={`font-bold text-base ${typeStyles.text}`}
+                                                            >
+                                                                {item.name}
+                                                            </span>
+                                                        </div>
+                                                        <div className="flex">
+                                                            <span
+                                                                className={`text-xs px-2 py-1 rounded-full ${typeStyles.tag} ${typeStyles.tagText}`}
+                                                            >
+                                                                {item.type}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                    <p className="text-gray-600 text-sm mt-1">
+                                                        {item.address}
+                                                    </p>
+                                                    <div className="mt-2 text-right">
+                                                        <span className="text-gray-500 text-xs">
+                                                            ID:{" "}
+                                                            {item.favorite_id}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                ) : (
+                                    <div className="p-8 text-center bg-gray-50 rounded-lg border border-gray-200 text-gray-500">
+                                        {selectedUserId
+                                            ? "사용자의 즐겨찾기 항목이 없습니다."
+                                            : "사용자를 선택해주세요."}
+                                    </div>
+                                )}
                             </div>
-                        )}
-                    </div>
+                        </div>
+                    )}
                 </div>
             </div>
-            {/* End of Main Container */}
+
+            {/* 모바일 하단 네비게이션 (선택사항) */}
+            {isMobileView && (
+                <div className="fixed bottom-0 left-0 right-0 bg-white border-t py-2 px-4 flex justify-around z-10">
+                    <button
+                        onClick={() => setShowUsersList(true)}
+                        className={`flex flex-col items-center ${showUsersList ? "text-blue-600" : "text-gray-500"} bg-white`}
+                    >
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-6 w-6"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
+                            />
+                        </svg>
+                        <span className="text-xs mt-1">사용자</span>
+                    </button>
+                    <button
+                        onClick={() => {
+                            if (selectedUserId) setShowUsersList(false);
+                        }}
+                        className={`flex flex-col items-center ${!showUsersList ? "text-blue-600" : "text-gray-500"} bg-white`}
+                        disabled={!selectedUserId}
+                    >
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-6 w-6"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                            />
+                        </svg>
+                        <span className="text-xs mt-1">즐겨찾기</span>
+                    </button>
+                </div>
+            )}
         </div>
     );
 };
