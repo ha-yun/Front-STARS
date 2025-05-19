@@ -5,12 +5,14 @@ import { AccidentData } from "../../../data/adminData";
 
 interface AccidentCardProps {
     datas: AccidentData;
-    isMobile?: boolean; // 모바일 여부를 전달받는 새 속성
+    isMobile?: boolean; // 모바일 여부를 전달받는 속성
+    onClick?: () => void; // 클릭 핸들러 추가
 }
 
 export default function AccidentCard({
     datas,
     isMobile = false,
+    onClick, // onClick 속성 추가
 }: AccidentCardProps) {
     // 사고 타입에 따른 아이콘 선택 로직
     const getAccidentIcon = (type: string) => {
@@ -45,46 +47,41 @@ export default function AccidentCard({
 
     return (
         <div
-            className={`p-3 bg-white border rounded-lg text-black shadow-sm ${getAccidentBgColor(datas.acdnt_type)}`}
+            className={`p-2 bg-white border rounded-lg text-black shadow-sm ${getAccidentBgColor(
+                datas.acdnt_type
+            )} cursor-pointer hover:shadow-md transition-shadow h-full flex flex-col`}
+            onClick={onClick} // onClick 이벤트 추가
+            style={{ minHeight: isMobile ? "100px" : "130px" }} // 카드 높이 축소
         >
-            <h3 className="font-bold text-center mb-2">{datas.area_nm}</h3>
+            <h3 className="font-bold text-center mb-1 overflow-hidden text-ellipsis">
+                {datas.area_nm}
+            </h3>
 
-            <div className="flex justify-center mb-2">
-                <div className="w-8 h-8 flex items-center justify-center bg-white rounded-full shadow-sm text-lg">
+            <div className="flex justify-center mb-1">
+                <div className="w-6 h-6 flex items-center justify-center bg-white rounded-full shadow-sm text-sm">
                     {getAccidentIcon(datas.acdnt_type)}
                 </div>
             </div>
 
-            <div className="text-center font-semibold text-sm">
+            <div className="text-center font-semibold text-xs">
                 {datas.acdnt_type}
             </div>
 
             {/* 모바일이 아닐 때만 상세 정보 표시 */}
             {!isMobile && (
-                <div className="mt-2">
-                    <div className="text-xs text-gray-600 text-center mt-1">
+                <div className="mt-1 flex flex-col flex-grow overflow-hidden">
+                    <div className="text-xs text-gray-600 text-center overflow-hidden text-ellipsis">
                         {datas.acdnt_occr_dt}
                     </div>
-                    <div className="text-xs text-gray-600 text-center mt-1">
+                    <div className="text-xs text-gray-600 text-center overflow-hidden text-ellipsis">
                         {datas.acdnt_info}
                     </div>
-                    {/*{datas.status && (*/}
-                    {/*    <div*/}
-                    {/*        className={`text-xs text-center mt-2 p-1 rounded ${*/}
-                    {/*            datas.status === "진행중"*/}
-                    {/*                ? "bg-red-200 text-red-800"*/}
-                    {/*                : "bg-green-200 text-green-800"*/}
-                    {/*        }`}*/}
-                    {/*    >*/}
-                    {/*        {datas.status}*/}
-                    {/*    </div>*/}
-                    {/*)}*/}
                 </div>
             )}
 
             {/* 모바일일 때는 간략 정보만 표시 */}
             {isMobile && (
-                <div className="text-xs text-gray-600 text-center mt-1">
+                <div className="text-xs text-gray-600 text-center overflow-hidden text-ellipsis">
                     {datas.acdnt_occr_dt}
                 </div>
             )}
