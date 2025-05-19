@@ -1,4 +1,3 @@
-// src/components/admin/AdminComponent.tsx
 import { useNavigate } from "react-router-dom";
 import { useAdminData } from "../../context/AdminContext";
 import SpotCard from "./cards/spotCard";
@@ -128,23 +127,6 @@ export default function AdminComponent() {
             <div className="h-4 bg-gray-200 rounded w-2/3 mx-auto"></div>
         </div>
     );
-
-    // const TableRowSkeleton = () => (
-    //     <div className="flex py-3 border-b animate-pulse">
-    //         <div className="w-1/4 px-1">
-    //             <div className="h-4 bg-gray-200 rounded"></div>
-    //         </div>
-    //         <div className="w-1/4 px-1">
-    //             <div className="h-4 bg-gray-200 rounded"></div>
-    //         </div>
-    //         <div className="w-1/4 px-1">
-    //             <div className="h-4 bg-gray-200 rounded"></div>
-    //         </div>
-    //         <div className="w-1/4 flex justify-center">
-    //             <div className="h-4 bg-gray-200 rounded w-16"></div>
-    //         </div>
-    //     </div>
-    // );
 
     return (
         <div className="bg-gray-100 flex flex-col w-full h-screen">
@@ -411,16 +393,13 @@ export default function AdminComponent() {
                                             {!isMobile && (
                                                 <>
                                                     <div className="w-1/4 text-center text-black overflow-hidden text-ellipsis px-1">
-                                                        {
-                                                            info.population
-                                                                ?.area_cd
-                                                        }
+                                                        {info.population
+                                                            ?.area_cd || "N/A"}
                                                     </div>
                                                     <div className="w-1/4 text-center text-black overflow-hidden text-ellipsis px-1">
-                                                        {
-                                                            info.population
-                                                                ?.ppltn_time
-                                                        }
+                                                        {info.population
+                                                            ?.ppltn_time ||
+                                                            "N/A"}
                                                     </div>
                                                 </>
                                             )}
@@ -429,8 +408,9 @@ export default function AdminComponent() {
                                             >
                                                 <CongestionTag
                                                     level={
-                                                        info.population!
-                                                            .area_congest_lvl
+                                                        info.population
+                                                            ?.area_congest_lvl ||
+                                                        "여유"
                                                     }
                                                     size={
                                                         isMobile ? "xs" : "sm"
