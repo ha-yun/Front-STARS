@@ -61,6 +61,16 @@ export default function MapSectionComponent() {
             }),
             "right"
         );
+        map.addControl(
+            new mapboxgl.GeolocateControl({
+                positionOptions: {
+                    enableHighAccuracy: true,
+                },
+                trackUserLocation: true,
+                showUserHeading: true,
+            }),
+            "right"
+        );
         mapRef.current = map;
 
         getAreaList().then((areaList: Area[]) => {
