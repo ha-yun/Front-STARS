@@ -280,7 +280,7 @@ const AdminUserFavorite = () => {
     const handleBack = () => setMobileTab(0);
 
     return (
-        <div className="bg-gray-100 min-h-screen flex flex-col w-full h-screen overflow-hidden">
+        <div className="bg-gray-100 flex flex-col w-full app-full-height overflow-hidden">
             <AdminHeader path={"/manage"} />
             <div className="p-2 sm:p-4 flex-1 overflow-hidden flex flex-col">
                 {/* 모바일: 사용자 목록에서 즐겨찾기/전체순위로 이동 시 뒤로가기 */}
