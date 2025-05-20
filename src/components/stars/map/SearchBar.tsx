@@ -1,17 +1,37 @@
 import { useState, useRef, useEffect } from "react";
 import { FaBars, FaSearch } from "react-icons/fa";
 import Menu from "./Menu";
+import { getAreaList } from "../../../api/starsApi";
 import {
     searchByKeyword,
     searchByAddress,
     SearchResult,
 } from "../../../api/searchApi";
+import type { Area } from "./MapSectionComponent";
 
 interface SearchBarProps {
     onSearch?: (query: string) => void;
     onResultClick?: (items: SearchResult[]) => void;
-    onSingleResultClick?: (item: SearchResult) => void; // 추가
+    onSingleResultClick?: (item: SearchResult) => void;
 }
+
+// 거리 계산 함수 (Haversine 공식)
+const getDistance = (
+    lat1: number,
+    lon1: number,
+    lat2: number,
+    lon2: number
+) => {
+    const toRad = (v: number) => (v * Math.PI) / 180;
+    const R = 6371; // km
+    const dLat = toRad(lat2 - lat1);
+    const dLon = toRad(lon2 - lon1);
+    const a =
+        Math.sin(dLat / 2) ** 2 +
+        Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+};
 
 export default function SearchBarWithMenu({
     onSearch,
@@ -41,10 +61,33 @@ export default function SearchBarWithMenu({
                     (v) => v.name === item.name && v.address === item.address
                 ) === idx
         );
-        setSearchResults(merged);
+
+        // area_id 매핑
+        const areaList = await getAreaList();
+        const withAreaId = merged.map((item) => {
+            if (item.area_id) return item;
+            let minDist = Infinity;
+            let nearestAreaId: number | undefined = undefined;
+            areaList.forEach((area: Area) => {
+                const dist = getDistance(
+                    item.lat,
+                    item.lon,
+                    area.lat,
+                    area.lon
+                );
+                if (dist < minDist) {
+                    minDist = dist;
+                    nearestAreaId =
+                        area.area_id !== null ? area.area_id : undefined;
+                }
+            });
+            return { ...item, area_id: nearestAreaId };
+        });
+
+        setSearchResults(withAreaId);
         setIsMenuOpen(true);
         if (onSearch) onSearch(query);
-        if (onResultClick) onResultClick(merged); // 배열 전체 전달
+        if (onResultClick) onResultClick(withAreaId);
     };
 
     useEffect(() => {
@@ -100,7 +143,7 @@ export default function SearchBarWithMenu({
                 isOpen={isMenuOpen}
                 searchData={searchResults}
                 hasSearched={hasSearched}
-                onResultClick={onSingleResultClick} // 단일 클릭 핸들러 전달
+                onResultClick={onSingleResultClick}
             />
         </div>
     );
