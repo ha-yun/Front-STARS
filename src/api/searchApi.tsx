@@ -10,7 +10,10 @@ export interface SearchResult {
     type: string;
     lat: number;
     lon: number;
+    phone?: string;
+    kakaomap_url?: string;
     title?: string;
+    area_id?: number; // 추가
 }
 
 // 통합 이름 검색
