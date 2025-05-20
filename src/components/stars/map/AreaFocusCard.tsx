@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { CountUp } from "countup.js";
 import { getAreaList, getPlaceListByArea } from "../../../api/starsApi";
 import { SearchResult } from "../../../api/searchApi";
+import { usePlace } from "../../../context/PlaceContext";
 
 interface AreaFocusCardProps {
     areaId: number;

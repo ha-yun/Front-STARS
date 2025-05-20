@@ -20,6 +20,9 @@ const AdminTraffic = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [filteredMapData, setFilteredMapData] = useState<MapData[]>([]);
 
+    // 범례 표시 상태 추가
+    const [showLegend, setShowLegend] = useState<boolean>(true);
+
     const { mapData } = useAdminData();
 
     // 검색어에 따라 필터링된 지역 데이터 업데이트
@@ -52,7 +55,7 @@ const AdminTraffic = () => {
         // 지도 초기화
         const mapInstance = new mapboxgl.Map({
             container: mapContainer.current,
-            style: "mapbox://styles/mapbox/streets-v11",
+            style: "mapbox://styles/mapbox/light-v11",
             center: initialMapCenter,
             zoom: initialMapZoom,
             interactive: true,
@@ -119,45 +122,69 @@ const AdminTraffic = () => {
         const parkData = areaData.parkData;
 
         let centerLng, centerLat;
-        let zoomLevel = 15;
+        let zoomLevel = 14;
 
-        // 교통 데이터가 있으면 첫 번째 도로 세그먼트의 중간점으로 이동
+        // 교통 데이터가 있으면 모든 도로 세그먼트의 종점들의 중심점을 계산
         if (trafficData && trafficData.road_traffic_stts.length > 0) {
-            const firstRoad = trafficData.road_traffic_stts[0];
+            // 종점들의 모든 좌표를 수집
+            const allEndpoints: [number, number][] = [];
 
-            // xylist가 있으면 경로의 중간 지점으로 이동
-            if (firstRoad.xylist) {
-                const points = firstRoad.xylist.split("|");
-                // 경로 좌표의 중간 지점을 선택
-                const midPointIndex = Math.floor(points.length / 2);
-                const midPointCoords = points[midPointIndex]
-                    .split("_")
-                    .map(Number);
-                centerLng = midPointCoords[0];
-                centerLat = midPointCoords[1];
-            } else {
-                // xylist가 없으면 시작점과 끝점의 중간 지점 사용
-                const startCoords = firstRoad.start_nd_xy
-                    .split("_")
-                    .map(Number);
-                const endCoords = firstRoad.end_nd_xy.split("_").map(Number);
+            trafficData.road_traffic_stts.forEach((road) => {
+                // 시작점 추가
+                const startCoords = road.start_nd_xy.split("_").map(Number);
+                allEndpoints.push([startCoords[0], startCoords[1]]);
 
-                // Calculate center point between start and end
-                centerLng = (startCoords[0] + endCoords[0]) / 2;
-                centerLat = (startCoords[1] + endCoords[1]) / 2;
+                // 끝점 추가
+                const endCoords = road.end_nd_xy.split("_").map(Number);
+                allEndpoints.push([endCoords[0], endCoords[1]]);
+            });
+
+            // 모든 종점의 평균 위치 계산
+            if (allEndpoints.length > 0) {
+                const sumLng = allEndpoints.reduce(
+                    (sum, coord) => sum + coord[0],
+                    0
+                );
+                const sumLat = allEndpoints.reduce(
+                    (sum, coord) => sum + coord[1],
+                    0
+                );
+
+                centerLng = sumLng / allEndpoints.length;
+                centerLat = sumLat / allEndpoints.length;
             }
         }
-        // 주차장 데이터가 있고 교통 데이터가 없으면 첫 번째 주차장 위치로 이동
+        // 주차장 데이터가 있고 교통 데이터가 없으면 모든 주차장의 중심점으로 이동
         else if (parkData && parkData.prk_stts.length > 0) {
-            const firstPark = parkData.prk_stts[0];
-            centerLng = firstPark.lon;
-            centerLat = firstPark.lat;
+            const validParkingSpots = parkData.prk_stts.filter(
+                (park) => park.lon && park.lat
+            );
+
+            if (validParkingSpots.length > 0) {
+                const sumLng = validParkingSpots.reduce(
+                    (sum, park) => sum + park.lon,
+                    0
+                );
+                const sumLat = validParkingSpots.reduce(
+                    (sum, park) => sum + park.lat,
+                    0
+                );
+
+                centerLng = sumLng / validParkingSpots.length;
+                centerLat = sumLat / validParkingSpots.length;
+            }
         }
         // 데이터가 없으면 기본 위치로 이동
         else {
             centerLng = initialMapCenter[0];
             centerLat = initialMapCenter[1];
             zoomLevel = initialMapZoom;
+        }
+
+        // 계산된 중심점이 유효한지 확인
+        if (!centerLng || !centerLat) {
+            centerLng = initialMapCenter[0];
+            centerLat = initialMapCenter[1];
         }
 
         // Fly to the center of the selected area
@@ -297,28 +324,6 @@ const AdminTraffic = () => {
                         "line-opacity": 0.8,
                     },
                 });
-
-                // 시작점과 끝점 마커 추가
-                if (pathCoordinates.length > 0) {
-                    const startPoint = pathCoordinates[0];
-                    const endPoint =
-                        pathCoordinates[pathCoordinates.length - 1];
-
-                    const startMarker = addPointMarker(
-                        startPoint,
-                        road.start_nd_nm,
-                        "#1e88e5"
-                    );
-                    const endMarker = addPointMarker(
-                        endPoint,
-                        road.end_nd_nm,
-                        "#d81b60"
-                    );
-
-                    // 마커 참조 저장
-                    if (startMarker) markerRefs.current.push(startMarker);
-                    if (endMarker) markerRefs.current.push(endMarker);
-                }
             } catch (error) {
                 console.error("Error adding source or layer:", error);
             }
@@ -348,26 +353,26 @@ const AdminTraffic = () => {
 
         console.log("park info: ", park);
 
-        // Create popup content
+        // Create popup content - Improved for mobile
         const popupContent = `
             <div class="parking-popup">
-                <h3 class="font-bold text-md text-black">${park.prk_nm}</h3>
-                <p class="text-sm text-black">주소: ${park.address || park.road_addr || "정보 없음"}</p>
-                <p class="text-sm text-black">
+                <h3 class="font-bold text-sm md:text-md text-black">${park.prk_nm}</h3>
+                <p class="text-xs md:text-sm text-black">주소: ${park.address || park.road_addr || "정보 없음"}</p>
+                <p class="text-xs md:text-sm text-black">
                     <span class="font-semibold text-black">남은자리:</span> 
                     ${park.cur_prk_cnt !== undefined ? `${park.cur_prk_cnt}/${park.cpcty || "?"}대` : "정보 없음"}
                 </p>
-                <p class="text-sm text-black">
+                <p class="text-xs md:text-sm text-black">
                     <span class="font-semibold text-black">요금:</span> 
                     ${park.pay_yn === "Y" ? "유료" : park.pay_yn === "N" ? "무료" : "정보 없음"}
                     ${park.rates !== undefined ? ` (기본 ${park.rates}원/${park.time_rates || "?"}분)` : ""}
                 </p>
-                <p class="text-sm text-black">
+                <p class="text-xs md:text-sm text-black">
                     <span class="font-semibold text-black">추가요금:</span>
                     ${park.add_rates !== undefined ? ` ${park.add_rates}원/${park.add_time_rates || "?"}분` : ""}
                 </p>
                 
-                <p class="text-sm text-gray-500 text-black">업데이트: ${park.cur_prk_time || "정보 없음"}</p>
+                <p class="text-xs text-gray-500 text-black">업데이트: ${park.cur_prk_time || "정보 없음"}</p>
             </div>
         `;
 
@@ -389,25 +394,29 @@ const AdminTraffic = () => {
             color = "#FFC107"; // 노란색 (50% 미만 남음)
         }
 
-        // Create a popup
-        const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(popupContent);
+        // Create a popup with responsive settings
+        const popup = new mapboxgl.Popup({
+            offset: 15,
+            closeButton: false,
+            maxWidth: "260px",
+        }).setHTML(popupContent);
 
-        // Create a DOM element for the marker
+        // Create a DOM element for the marker - Adjusted for better mobile visibility
         const el = document.createElement("div");
         el.className = "parking-marker";
-        el.style.width = "20px";
-        el.style.height = "20px";
+        el.style.width = "18px";
+        el.style.height = "18px";
         el.style.borderRadius = "50%";
         el.style.backgroundColor = color;
         el.style.border = "2px solid white";
-        el.style.boxShadow = "0 2px 4px rgba(0,0,0,0.3)";
+        el.style.boxShadow = "0 1px 3px rgba(0,0,0,0.3)";
 
         // Add a P inside the marker to indicate it's a parking
         const text = document.createElement("div");
         text.textContent = "P";
         text.style.color = "white";
         text.style.fontWeight = "bold";
-        text.style.fontSize = "12px";
+        text.style.fontSize = "10px";
         text.style.display = "flex";
         text.style.alignItems = "center";
         text.style.justifyContent = "center";
@@ -418,36 +427,6 @@ const AdminTraffic = () => {
         // Add the marker to the map
         const marker = new mapboxgl.Marker(el)
             .setLngLat([park.lon, park.lat])
-            .setPopup(popup)
-            .addTo(map.current);
-
-        return marker;
-    };
-
-    // 포인트 마커 추가 함수
-    const addPointMarker = (
-        coords: [number, number],
-        name: string,
-        color: string
-    ): mapboxgl.Marker | null => {
-        if (!map.current) return null;
-
-        // Create a popup
-        const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(
-            `<strong>${name}</strong>`
-        );
-
-        // Create a DOM element for the marker
-        const el = document.createElement("div");
-        el.style.backgroundColor = color;
-        el.style.width = "12px";
-        el.style.height = "12px";
-        el.style.borderRadius = "50%";
-        el.style.border = "2px solid white";
-
-        // Add the marker to the map
-        const marker = new mapboxgl.Marker(el)
-            .setLngLat(coords)
             .setPopup(popup)
             .addTo(map.current);
 
@@ -505,7 +484,11 @@ const AdminTraffic = () => {
         setSearchTerm("");
     };
 
-    // Return statement with responsive JSX
+    // 범례 토글 핸들러
+    const toggleLegend = () => {
+        setShowLegend(!showLegend);
+    };
+
     // Return statement with responsive JSX
     return (
         <div className="bg-gray-100 flex flex-col w-full h-screen">
@@ -520,35 +503,40 @@ const AdminTraffic = () => {
                     {/* Mobile divider - visible only on mobile at the bottom of card section */}
                     <div className="md:hidden absolute bottom-0 left-0 right-0 h-2 bg-gradient-to-b from-gray-200 to-gray-300 shadow-md"></div>
                     {/* Fixed Header Section */}
+
                     <div className="p-2 md:p-4 border-b">
                         <div className="flex justify-between items-center mb-2 md:mb-3">
                             <h2 className="text-lg md:text-xl font-bold">
                                 교통 & 주차 현황
                             </h2>
 
-                            {/* 초기화 버튼 */}
-                            <button
-                                onClick={resetMapView}
-                                className="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 md:px-3 md:py-1.5 rounded-lg text-xs md:text-sm flex items-center shadow-md transition-colors duration-200"
-                            >
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    className="h-3 w-3 md:h-4 md:w-4 mr-1"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
+                            {/* 버튼 그룹 - 초기화와 전체 표시 버튼 */}
+                            <div className="flex space-x-2">
+                                {/* 초기화 버튼 */}
+                                <button
+                                    onClick={resetMapView}
+                                    className="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 md:px-3 md:py-1.5 rounded-lg text-xs md:text-sm flex items-center shadow-md transition-colors duration-200"
+                                    title="초기 화면으로 돌아가기"
                                 >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
-                                    />
-                                </svg>
-                                <span className="hidden sm:inline">
-                                    초기 화면
-                                </span>
-                            </button>
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        className="h-3 w-3 md:h-4 md:w-4 mr-1"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        stroke="currentColor"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth={2}
+                                            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+                                        />
+                                    </svg>
+                                    <span className="hidden sm:inline">
+                                        초기 화면
+                                    </span>
+                                </button>
+                            </div>
                         </div>
 
                         {/* 검색 입력 필드 추가 */}
@@ -583,8 +571,6 @@ const AdminTraffic = () => {
                             )}
                         </div>
                     </div>
-
-                    {/* Scrollable Content Area - More compact on mobile */}
                     <div className="h-48 md:h-auto md:flex-1 overflow-y-auto p-2 px-3 md:p-4 custom-scrollbar pb-6">
                         {filteredMapData.length > 0 ? (
                             filteredMapData.map((area, idx) => (
@@ -595,9 +581,9 @@ const AdminTraffic = () => {
                                             ? "bg-blue-50 border-blue-300 shadow-md"
                                             : "hover:bg-gray-50"
                                     }`}
-                                    onClick={() =>
-                                        setSelectedArea(area.area_nm)
-                                    }
+                                    onClick={() => {
+                                        setSelectedArea(area.area_nm);
+                                    }}
                                 >
                                     <h3 className="font-bold text-sm md:text-base">
                                         {area.area_nm}
@@ -625,6 +611,7 @@ const AdminTraffic = () => {
                             </div>
                         )}
                     </div>
+                    {/* Scrollable Content Area - More compact on mobile */}
                 </div>
 
                 {/* Map - Full width on mobile, remaining space on desktop */}
@@ -635,59 +622,148 @@ const AdminTraffic = () => {
                     <div className="hidden md:block absolute top-0 left-0 h-full w-1 bg-gray-300 shadow-md"></div>
                     <div ref={mapContainer} className="absolute inset-0" />
 
-                    {/* Legend - Redesigned with side-by-side layout */}
-                    <div className="absolute bottom-4 right-4 bg-white p-2 md:p-3 rounded-lg shadow-md z-10 text-black text-xs md:text-sm">
-                        <h3 className="font-bold mb-1 md:mb-2 text-center">
-                            범례
-                        </h3>
-                        <div className="flex flex-row">
-                            {/* Left column - Traffic status */}
-                            <div className="mr-3 md:mr-4">
-                                <h4 className="font-semibold mb-1">
-                                    교통 상태:
-                                </h4>
-                                <div className="flex items-center mb-1">
-                                    <div className="w-3 h-3 md:w-4 md:h-4 bg-green-500 mr-1 md:mr-2"></div>
-                                    <span>원활</span>
-                                </div>
-                                <div className="flex items-center mb-1">
-                                    <div className="w-3 h-3 md:w-4 md:h-4 bg-orange-500 mr-1 md:mr-2"></div>
-                                    <span>서행</span>
-                                </div>
-                                <div className="flex items-center">
-                                    <div className="w-3 h-3 md:w-4 md:h-4 bg-red-500 mr-1 md:mr-2"></div>
-                                    <span>정체</span>
-                                </div>
+                    {/* Legend Toggle Button - Improved for mobile */}
+                    <div className="absolute top-2 right-2 sm:top-4 sm:right-4 z-10">
+                        <button
+                            onClick={toggleLegend}
+                            className="bg-white p-1.5 sm:p-2 rounded-lg shadow-md text-gray-700 hover:bg-gray-50 transition-colors duration-200 flex items-center justify-center"
+                            title={showLegend ? "범례 숨기기" : "범례 보기"}
+                            aria-label={
+                                showLegend ? "범례 숨기기" : "범례 보기"
+                            }
+                        >
+                            {showLegend ? (
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    className="h-4 w-4 sm:h-5 sm:w-5"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M6 18L18 6M6 6l12 12"
+                                    />
+                                </svg>
+                            ) : (
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    className="h-4 w-4 sm:h-5 sm:w-5"
+                                    viewBox="0 0 20 20"
+                                    fill="currentColor"
+                                >
+                                    <path
+                                        fillRule="evenodd"
+                                        d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 5a1 1 0 011-1h6a1 1 0 110 2H4a1 1 0 01-1-1z"
+                                        clipRule="evenodd"
+                                    />
+                                </svg>
+                            )}
+                            <span className="ml-1 text-xs sm:text-sm hidden sm:inline">
+                                {showLegend ? "범례 숨기기" : "범례 보기"}
+                            </span>
+                        </button>
+                    </div>
+
+                    {/* Legend - Improved for mobile */}
+                    {showLegend && (
+                        <div className="absolute bottom-2 right-2 sm:bottom-4 sm:right-4 bg-white p-1.5 sm:p-3 rounded-lg shadow-md z-10 text-black text-xs transition-all duration-300 max-w-[calc(100%-16px)] sm:max-w-none">
+                            <div className="flex justify-between items-center mb-1">
+                                <h3 className="font-bold text-center text-xs sm:text-sm">
+                                    범례
+                                </h3>
+                                <button
+                                    onClick={toggleLegend}
+                                    className="text-gray-500 sm:hidden bg-white p-1 -mr-1 -mt-1 rounded-full hover:bg-gray-100"
+                                    aria-label="범례 닫기"
+                                >
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        className="h-3 w-3"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        stroke="currentColor"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth={3}
+                                            d="M6 18L18 6M6 6l12 12"
+                                        />
+                                    </svg>
+                                </button>
                             </div>
 
-                            {/* Right column - Parking status */}
-                            <div className="ml-1 md:ml-2 border-l border-gray-300 pl-3 md:pl-4">
-                                <h4 className="font-semibold mb-1">
-                                    주차장 상태:
-                                </h4>
-                                <div className="flex items-center mb-1">
-                                    <div className="w-3 h-3 md:w-4 md:h-4 bg-green-500 mr-1 md:mr-2 flex items-center justify-center text-white font-bold text-xxs md:text-xs">
-                                        P
+                            <div className="flex flex-col xs:flex-row gap-2">
+                                {/* Traffic status column - Compact for very small screens */}
+                                <div className="mr-0 xs:mr-3">
+                                    <h4 className="font-semibold mb-0.5 sm:mb-1 text-xs">
+                                        교통 상태:
+                                    </h4>
+                                    <div className="flex items-center mb-0.5 sm:mb-1">
+                                        <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 md:w-4 md:h-4 bg-green-500 mr-1 sm:mr-1.5"></div>
+                                        <span className="text-[0.625rem] sm:text-xs">
+                                            원활
+                                        </span>
                                     </div>
-                                    <span>여유</span>
+                                    <div className="flex items-center mb-0.5 sm:mb-1">
+                                        <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 md:w-4 md:h-4 bg-orange-500 mr-1 sm:mr-1.5"></div>
+                                        <span className="text-[0.625rem] sm:text-xs">
+                                            서행
+                                        </span>
+                                    </div>
+                                    <div className="flex items-center">
+                                        <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 md:w-4 md:h-4 bg-red-500 mr-1 sm:mr-1.5"></div>
+                                        <span className="text-[0.625rem] sm:text-xs">
+                                            정체
+                                        </span>
+                                    </div>
                                 </div>
-                                <div className="flex items-center mb-1">
-                                    <div className="w-3 h-3 md:w-4 md:h-4 bg-yellow-500 mr-1 md:mr-2 flex items-center justify-center text-white font-bold text-xxs md:text-xs">
-                                        P
+
+                                {/* Divider line - visible only on larger mobile screens */}
+                                <div className="hidden xs:block border-l border-gray-300 h-auto"></div>
+
+                                {/* Parking status column */}
+                                <div className="mt-1 xs:mt-0 xs:ml-1 pt-1 xs:pt-0 border-t xs:border-t-0 border-gray-200 xs:pl-2">
+                                    <h4 className="font-semibold mb-0.5 sm:mb-1 text-xs">
+                                        주차장 상태:
+                                    </h4>
+                                    <div className="flex items-center mb-0.5 sm:mb-1">
+                                        <div className="flex-shrink-0 w-2.5 h-2.5 sm:w-3 sm:h-3 md:w-4 md:h-4 bg-green-500 mr-1 sm:mr-1.5 flex items-center justify-center text-white font-bold">
+                                            <span className="text-[0.625rem] sm:text-xs">
+                                                P
+                                            </span>
+                                        </div>
+                                        <span className="text-[0.625rem] sm:text-xs">
+                                            여유
+                                        </span>
                                     </div>
-                                    <span>보통</span>
-                                </div>
-                                <div className="flex items-center">
-                                    <div className="w-3 h-3 md:w-4 md:h-4 bg-red-500 mr-1 md:mr-2 flex items-center justify-center text-white font-bold text-xxs md:text-xs">
-                                        P
+                                    <div className="flex items-center mb-0.5 sm:mb-1">
+                                        <div className="flex-shrink-0 w-2.5 h-2.5 sm:w-3 sm:h-3 md:w-4 md:h-4 bg-yellow-500 mr-1 sm:mr-1.5 flex items-center justify-center text-white font-bold">
+                                            <span className="text-[0.625rem] sm:text-xs">
+                                                P
+                                            </span>
+                                        </div>
+                                        <span className="text-[0.625rem] sm:text-xs">
+                                            보통
+                                        </span>
                                     </div>
-                                    <span>혼잡</span>
+                                    <div className="flex items-center">
+                                        <div className="flex-shrink-0 w-2.5 h-2.5 sm:w-3 sm:h-3 md:w-4 md:h-4 bg-red-500 mr-1 sm:mr-1.5 flex items-center justify-center text-white font-bold">
+                                            <span className="text-[0.625rem] sm:text-xs">
+                                                P
+                                            </span>
+                                        </div>
+                                        <span className="text-[0.625rem] sm:text-xs">
+                                            혼잡
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-
-                    {/* Map toggle button removed as requested */}
+                    )}
                 </div>
             </div>
         </div>

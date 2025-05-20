@@ -8,16 +8,7 @@ import React, {
     useMemo,
 } from "react";
 import { Navigate } from "react-router-dom";
-import {
-    // subscribeCongestionUpdate,
-    // subscribeCongestionAlert,
-    // subscribeWeatherUpdate,
-    // subscribeTrafficUpdate,
-    // subscribeParkUpdate,
-    // subscribeAccidentUpdate,
-    subscribeCongestions,
-    subscribeExternal,
-} from "../api/starsApi";
+import { subscribeCongestions, subscribeExternal } from "../api/starsApi";
 import {
     PopulationData,
     TouristSpot,
@@ -27,14 +18,12 @@ import {
     TrafficData,
     ParkData,
     MapData,
-    // TouristInfo,
 } from "../data/adminData";
-// test용 더미데이터, SSE 통신은 고려하지 않음
-// import { dummyTouristData } from "../data/dummy/population";
-// import { dummyWeatherData } from "../data/dummy/weather";
-// import { dummyAccidentData } from "../data/dummy/accident";
-// import { dummyTrafficData } from "../data/dummy/traffic";
 import { isAdmin } from "../slices/loginSlice";
+import { dummyTouristData } from "../data/dummy/population";
+import { dummyAccidentData } from "../data/dummy/accident";
+import { dummyTrafficData } from "../data/dummy/traffic";
+import { dummyWeatherData } from "../data/dummy/weather";
 
 // 컨텍스트에서 제공할 데이터 타입 정의
 interface AdminDataContextType {
@@ -49,7 +38,7 @@ interface AdminDataContextType {
     findAreaData: (areaId: number) => CombinedAreaData | undefined;
     isLoading: boolean;
     spotsLoading: boolean;
-    weatherLoading: boolean;
+    // weatherLoading: boolean;
     error: string | null;
     refreshAllData: () => Promise<void>; // 새로고침, 근데 이걸 넘길 필요가 있나?
     refreshing: boolean;
@@ -85,7 +74,7 @@ export const AdminDataProvider: React.FC<AdminDataProviderProps> = ({
     const [parkData, setParkData] = useState<ParkData[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [spotsLoading, setSpotsLoading] = useState<boolean>(true);
-    const [weatherLoading, setWeatherLoading] = useState<boolean>(true);
+    // const [weatherLoading, setWeatherLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const [refreshing, setRefreshing] = useState<boolean>(false);
     const eventSources = React.useRef<{
@@ -225,6 +214,9 @@ export const AdminDataProvider: React.FC<AdminDataProviderProps> = ({
 
                 // 연결 저장
                 eventSources.current.congestions = event;
+            } else {
+                // 테스트용, 더미데이터로 진행
+                setTouristSpotsData(dummyTouristData);
             }
         } catch (err) {
             console.error("Congestion 데이터 구독 오류:", err);
@@ -287,6 +279,11 @@ export const AdminDataProvider: React.FC<AdminDataProviderProps> = ({
                     handelAccidentUpdate
                 );
                 eventSources.current.externals = event;
+            } else {
+                setAccidentData(dummyAccidentData as unknown as AccidentData[]);
+                setTrafficData(dummyTrafficData as TrafficData[]);
+                setWeatherInfoData(dummyWeatherData as WeatherData[]);
+                // 주차 정보가 없음
             }
         } catch (err) {
             console.log(err);
@@ -535,7 +532,7 @@ export const AdminDataProvider: React.FC<AdminDataProviderProps> = ({
         findAreaData,
         isLoading: loading,
         spotsLoading,
-        weatherLoading,
+        // weatherLoading,
         error,
         refreshAllData,
         refreshing,

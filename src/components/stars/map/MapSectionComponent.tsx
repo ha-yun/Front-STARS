@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from "react";
-import mapboxgl, { LngLatLike } from "mapbox-gl";
+import mapboxgl, { LngLatLike, NavigationControl } from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { usePlace } from "../../../context/PlaceContext";
 import SearchBar from "./SearchBar";
@@ -57,6 +57,22 @@ export default function MapSectionComponent() {
             zoom: 10.8,
             minZoom: 10,
         });
+        map.addControl(
+            new NavigationControl({
+                visualizePitch: true,
+            }),
+            "right"
+        );
+        map.addControl(
+            new mapboxgl.GeolocateControl({
+                positionOptions: {
+                    enableHighAccuracy: true,
+                },
+                trackUserLocation: true,
+                showUserHeading: true,
+            }),
+            "right"
+        );
         mapRef.current = map;
 
         getAreaList().then((areaList: Area[]) => {

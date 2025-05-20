@@ -22,7 +22,7 @@ export default function AdminComponent() {
     const {
         touristSpotsData, // 혼잡도 3~4단계
         accidentData, // 사고정보
-        combinedAreaData, // 관광지 상세정보
+        combinedAreaData, // 관광지 상세정보 + 날씨
         isLoading, // 로딩중
         error,
         refreshAllData, // 모든 SSE 재구독
