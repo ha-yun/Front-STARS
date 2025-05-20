@@ -90,12 +90,12 @@ const ForecastPopulationCard = ({
     // Process forecast data
     useEffect(() => {
         if (fcst_ppltn && fcst_ppltn.length > 0) {
-            console.log("Original fcst_ppltn data:", fcst_ppltn);
+            // console.log("Original fcst_ppltn data:", fcst_ppltn);
 
             // Format data for chart
             const formattedData = fcst_ppltn.map((item) => {
                 // fcst_time 형식 로깅으로 디버깅
-                console.log("Processing fcst_time:", item.fcst_time);
+                // console.log("Processing fcst_time:", item.fcst_time);
 
                 // 안전하게 시간 형식 변환
                 let koreanTime;

@@ -81,7 +81,7 @@ export default function MyPageComponent() {
     };
 
     return (
-        <div className="relative w-screen app-full-height bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center py-6 px-4">
+        <div className="relative w-screen h-screen flex items-center justify-center py-2 px-2 bg-gradient-to-br from-gray-50 to-gray-100">
             {/* Back Button (Absolute positioned) */}
             <div className="absolute bottom-4 left-4 z-20">
                 <button
@@ -93,11 +93,11 @@ export default function MyPageComponent() {
             </div>
 
             {/* Main Container with Glass Effect */}
-            <div className="w-full max-w-6xl mx-auto rounded-2xl overflow-hidden shadow-xl bg-white/80 backdrop-blur-sm border border-white/50 overflow-y-scroll">
-                <div className="h-full flex flex-col md:flex-row overflow-y-scroll max-h-[80vh]">
+            <div className="w-full h-full max-w-6xl mx-auto rounded-2xl overflow-hidden shadow-xl bg-white/80 backdrop-blur-sm border border-white/50 flex flex-col">
+                <div className="flex flex-col md:flex-row h-full overflow-hidden">
                     {/* Mobile Header with Menu Toggle */}
                     {isMobile && (
-                        <div className="flex justify-between items-center mb-4 bg-indigo-600 text-white p-4 sticky top-0 z-20">
+                        <div className="flex justify-between items-center bg-indigo-600 text-white p-4 sticky top-0 z-20">
                             <h2 className="text-xl font-bold flex items-center">
                                 <span className="mr-2 text-xl">
                                     {selectedItem.icon}
@@ -167,7 +167,7 @@ export default function MyPageComponent() {
 
                     {/* Desktop Sidebar - Always visible on larger screens */}
                     {!isMobile && (
-                        <div className="w-64 border-r border-gray-200 h-full bg-white/90 backdrop-blur-sm flex-shrink-0">
+                        <div className="w-64 border-r border-gray-200 h-full bg-white/90 backdrop-blur-sm flex-shrink-0 overflow-y-auto">
                             <div className="p-6">
                                 <h2 className="text-2xl font-bold text-indigo-700 mb-6">
                                     마이페이지
@@ -213,10 +213,10 @@ export default function MyPageComponent() {
                     )}
 
                     {/* Main Content */}
-                    <div className="flex-1 h-full overflow-y-auto relative">
+                    <div className="flex-1 h-full flex flex-col overflow-hidden">
                         {/* Desktop Header */}
                         {!isMobile && (
-                            <div className="p-6 border-b border-gray-200">
+                            <div className="p-6 border-b border-gray-200 flex-shrink-0">
                                 <div className="flex items-center">
                                     <span className="text-2xl mr-3">
                                         {selectedItem.icon}
@@ -236,7 +236,7 @@ export default function MyPageComponent() {
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0, y: 10 }}
                                 transition={{ duration: 0.3 }}
-                                className="p-4 md:p-6 h-full"
+                                className="flex-1 overflow-y-auto p-4 md:p-6"
                             >
                                 {renderSelectedComponent()}
                             </motion.div>
