@@ -58,13 +58,10 @@ interface AdminDataProviderProps {
 // 컨텍스트 제공자 컴포넌트
 export const AdminDataProvider: React.FC<AdminDataProviderProps> = ({
     children,
-    test = true,
+    test = false,
 }) => {
     // 관리자 권한 확인
-    let adminCheck = isAdmin();
-    if (test) {
-        adminCheck = true;
-    }
+    const adminCheck = isAdmin();
 
     // 데이터 상태 및 로딩 상태
     const [touristInfoData, setTouristInfoData] = useState<PopulationData[]>(

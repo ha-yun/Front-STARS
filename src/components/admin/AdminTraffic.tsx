@@ -13,6 +13,7 @@ const AdminTraffic = () => {
     const [selectedArea, setSelectedArea] = useState<string | null>(null);
     const markerRefs = useRef<mapboxgl.Marker[]>([]);
     const parkingMarkerRefs = useRef<mapboxgl.Marker[]>([]);
+    const [showAllData, setShowAllData] = useState<boolean>(false); // 모든 점 그리기
     const initialMapCenter: LngLatLike = [126.978, 37.5665]; // Seoul
     const initialMapZoom = 11;
 
@@ -223,6 +224,158 @@ const AdminTraffic = () => {
         // 주차장 마커 제거
         parkingMarkerRefs.current.forEach((marker) => marker.remove());
         parkingMarkerRefs.current = [];
+    };
+
+    const displayAllAreaData = () => {
+        if (!map.current || !mapLoaded || !mapData || mapData.length === 0)
+            return;
+
+        // 먼저 모든 레이어 제거
+        clearAllLayers();
+
+        // 교통 데이터와 주차장 데이터를 따로 수집
+        let allTrafficData: any[] = [];
+        let allParkingData: ParkNode[] = [];
+
+        // 모든 지역 데이터 순회
+        mapData.forEach((area) => {
+            // 교통 데이터 수집
+            if (area.trafficData && area.trafficData.road_traffic_stts) {
+                allTrafficData = [
+                    ...allTrafficData,
+                    ...area.trafficData.road_traffic_stts,
+                ];
+            }
+
+            // 주차장 데이터 수집
+            if (area.parkData && area.parkData.prk_stts) {
+                allParkingData = [...allParkingData, ...area.parkData.prk_stts];
+            }
+        });
+
+        // 모든 지역의 중심점 계산을 위한 경계 상자 초기화
+        let minLng = Infinity;
+        let maxLng = -Infinity;
+        let minLat = Infinity;
+        let maxLat = -Infinity;
+
+        // 교통 데이터 표시
+        allTrafficData.forEach((road, index) => {
+            // xylist를 파싱하여 경로 좌표 배열 생성
+            let pathCoordinates: [number, number][] = [];
+
+            // xylist가 있으면 해당 좌표 사용
+            if (road.xylist) {
+                pathCoordinates = road.xylist
+                    .split("|")
+                    .map((point: string) => {
+                        const coords = point.split("_").map(Number);
+                        return [coords[0], coords[1]] as [number, number];
+                    });
+            }
+            // xylist가 없으면 시작점과 끝점만 사용
+            else {
+                const startCoords = road.start_nd_xy.split("_").map(Number);
+                const endCoords = road.end_nd_xy.split("_").map(Number);
+                pathCoordinates = [
+                    [startCoords[0], startCoords[1]],
+                    [endCoords[0], endCoords[1]],
+                ];
+            }
+
+            // 경계 상자 업데이트
+            pathCoordinates.forEach((coord) => {
+                minLng = Math.min(minLng, coord[0]);
+                maxLng = Math.max(maxLng, coord[0]);
+                minLat = Math.min(minLat, coord[1]);
+                maxLat = Math.max(maxLat, coord[1]);
+            });
+
+            // 소스 ID 생성
+            const sourceId = `traffic-source-all-${road.link_id}-${index}`;
+            const layerId = `traffic-layer-all-${road.link_id}-${index}`;
+
+            try {
+                // 소스 추가
+                map.current!.addSource(sourceId, {
+                    type: "geojson",
+                    data: {
+                        type: "Feature",
+                        properties: {
+                            name: road.road_nm,
+                            speed: road.spd,
+                            status: road.idx,
+                        },
+                        geometry: {
+                            type: "LineString",
+                            coordinates: pathCoordinates,
+                        },
+                    },
+                });
+
+                // 레이어 추가
+                map.current!.addLayer({
+                    id: layerId,
+                    type: "line",
+                    source: sourceId,
+                    layout: {
+                        "line-join": "round",
+                        "line-cap": "round",
+                    },
+                    paint: {
+                        "line-color": getTrafficColor(road.idx),
+                        "line-width": 3, // 전체 표시 시 약간 가늘게 표시
+                        "line-opacity": 0.7, // 약간 투명하게 표시
+                    },
+                });
+            } catch (error) {
+                console.error("Error adding source or layer:", error);
+            }
+        });
+
+        // 주차장 데이터 표시
+        allParkingData.forEach((park) => {
+            if (!park.lat || !park.lon) return;
+
+            // 경계 상자 업데이트
+            minLng = Math.min(minLng, park.lon);
+            maxLng = Math.max(maxLng, park.lon);
+            minLat = Math.min(minLat, park.lat);
+            maxLat = Math.max(maxLat, park.lat);
+
+            // 주차장 마커 생성
+            const marker = createParkingMarker(park);
+            if (marker) {
+                parkingMarkerRefs.current.push(marker);
+            }
+        });
+
+        // 경계 상자가 유효한 경우 지도 이동
+        if (
+            minLng !== Infinity &&
+            maxLng !== -Infinity &&
+            minLat !== Infinity &&
+            maxLat !== -Infinity
+        ) {
+            // 약간의 여백 추가
+            const padding = 0.01; // 약 1km 정도의 여백
+
+            // 경계 상자 설정
+            const bounds: mapboxgl.LngLatBoundsLike = [
+                [minLng - padding, minLat - padding],
+                [maxLng + padding, maxLat + padding],
+            ];
+
+            // 경계 상자에 맞춰 지도 이동
+            map.current.fitBounds(bounds, {
+                padding: 50, // 픽셀 단위 여백
+                maxZoom: 13, // 너무 가깝게 확대되지 않도록 제한
+            });
+        }
+
+        // 상태 업데이트
+        setShowAllData(true);
+        setSelectedArea(null);
     };
 
     // 모든 트래픽 레이어 제거
@@ -523,35 +676,40 @@ const AdminTraffic = () => {
                     {/* Mobile divider - visible only on mobile at the bottom of card section */}
                     <div className="md:hidden absolute bottom-0 left-0 right-0 h-2 bg-gradient-to-b from-gray-200 to-gray-300 shadow-md"></div>
                     {/* Fixed Header Section */}
+
                     <div className="p-2 md:p-4 border-b">
                         <div className="flex justify-between items-center mb-2 md:mb-3">
                             <h2 className="text-lg md:text-xl font-bold">
                                 교통 & 주차 현황
                             </h2>
 
-                            {/* 초기화 버튼 */}
-                            <button
-                                onClick={resetMapView}
-                                className="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 md:px-3 md:py-1.5 rounded-lg text-xs md:text-sm flex items-center shadow-md transition-colors duration-200"
-                            >
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    className="h-3 w-3 md:h-4 md:w-4 mr-1"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
+                            {/* 버튼 그룹 - 초기화와 전체 표시 버튼 */}
+                            <div className="flex space-x-2">
+                                {/* 초기화 버튼 */}
+                                <button
+                                    onClick={resetMapView}
+                                    className="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 md:px-3 md:py-1.5 rounded-lg text-xs md:text-sm flex items-center shadow-md transition-colors duration-200"
+                                    title="초기 화면으로 돌아가기"
                                 >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
-                                    />
-                                </svg>
-                                <span className="hidden sm:inline">
-                                    초기 화면
-                                </span>
-                            </button>
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        className="h-3 w-3 md:h-4 md:w-4 mr-1"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        stroke="currentColor"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth={2}
+                                            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+                                        />
+                                    </svg>
+                                    <span className="hidden sm:inline">
+                                        초기 화면
+                                    </span>
+                                </button>
+                            </div>
                         </div>
 
                         {/* 검색 입력 필드 추가 */}
@@ -586,8 +744,6 @@ const AdminTraffic = () => {
                             )}
                         </div>
                     </div>
-
-                    {/* Scrollable Content Area - More compact on mobile */}
                     <div className="h-48 md:h-auto md:flex-1 overflow-y-auto p-2 px-3 md:p-4 custom-scrollbar pb-6">
                         {filteredMapData.length > 0 ? (
                             filteredMapData.map((area, idx) => (
@@ -598,9 +754,10 @@ const AdminTraffic = () => {
                                             ? "bg-blue-50 border-blue-300 shadow-md"
                                             : "hover:bg-gray-50"
                                     }`}
-                                    onClick={() =>
-                                        setSelectedArea(area.area_nm)
-                                    }
+                                    onClick={() => {
+                                        setSelectedArea(area.area_nm);
+                                        setShowAllData(false); // 지역 선택 시 전체 표시 모드 해제
+                                    }}
                                 >
                                     <h3 className="font-bold text-sm md:text-base">
                                         {area.area_nm}
@@ -628,6 +785,7 @@ const AdminTraffic = () => {
                             </div>
                         )}
                     </div>
+                    {/* Scrollable Content Area - More compact on mobile */}
                 </div>
 
                 {/* Map - Full width on mobile, remaining space on desktop */}
