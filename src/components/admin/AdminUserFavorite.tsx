@@ -194,7 +194,7 @@ const AdminUserFavorite = () => {
         setSelected: (v: string) => void;
         label?: string;
     }) => (
-        <div className="p-3 border-b overflow-x-auto overflow-y-hidden scrollbar-hide whitespace-nowrap flex gap-2 items-center">
+        <div className="p-4 border-b overflow-x-auto overflow-y-hidden scrollbar-hide whitespace-nowrap flex gap-2 items-center">
             {categoryList.map((ko) => {
                 const type = reverseCategoryMap[ko];
                 const styles = getTypeStylesAndIcon(type ?? "");
@@ -437,7 +437,7 @@ const AdminUserFavorite = () => {
                                 />
                                 <div className="p-4 overflow-y-auto flex-1">
                                     {loading ? (
-                                        <div className="grid grid-cols-1 gap-4">
+                                        <div className="grid grid-cols-4 gap-4">
                                             {[...Array(4)].map((_, index) => (
                                                 <FavoriteSkeleton key={index} />
                                             ))}
@@ -607,7 +607,7 @@ const AdminUserFavorite = () => {
                         {/* 전체 순위 */}
                         {isMobileView && mobileTab === 2 && (
                             <div className="w-full bg-white rounded-lg shadow-md flex flex-col h-full">
-                                <h2 className="text-lg md:text-xl p-4 font-bold text-black border-b flex justify-between items-center flex-shrink-0">
+                                <h2 className="text-lg md:text-xl p-3 font-bold text-black border-b flex justify-between items-center flex-shrink-0">
                                     <span>전체 즐겨찾기 순위</span>
                                     <span className="text-sm text-gray-500 font-normal">
                                         총 {favoriteRanking.length}개

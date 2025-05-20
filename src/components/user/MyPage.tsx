@@ -82,23 +82,23 @@ export default function MyPage() {
     };
 
     return (
-        <div className="relative w-full min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center py-6 px-4">
+        <div className="relative w-screen app-full-height min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center py-6 px-4">
             {/* Back Button (Absolute positioned) */}
             <div className="absolute bottom-4 left-4 z-30">
                 <button
                     className="bg-white shadow-md px-6 py-3 text-indigo-500 font-semibold rounded-full hover:bg-indigo-500 hover:text-white transition"
                     onClick={() => window.fullpage_api?.moveSlideLeft()}
                 >
-                    <span className="hidden sm:inline">← 맵으로</span>
+                    ← 맵으로
                 </button>
             </div>
 
             {/* Main Container with Glass Effect */}
-            <div className="w-full max-w-6xl mx-auto rounded-2xl overflow-hidden shadow-xl bg-white/80 backdrop-blur-sm border border-white/50 h-[80vh] mt-10">
+            <div className="w-full max-w-6xl mx-auto rounded-2xl overflow-hidden shadow-xl bg-white/80 backdrop-blur-sm border border-white/50 h-[80vh] mb-10">
                 <div className="h-full flex flex-col md:flex-row">
                     {/* Mobile Header with Menu Toggle */}
                     {isMobile && (
-                        <div className="flex justify-between items-center bg-indigo-600 text-white p-4 sticky top-0 z-20">
+                        <div className="flex justify-between items-center mb-4 bg-indigo-600 text-white p-4 sticky top-0 z-20">
                             <h2 className="text-xl font-bold flex items-center">
                                 <span className="mr-2 text-xl">
                                     {selectedItem.icon}
