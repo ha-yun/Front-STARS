@@ -108,6 +108,23 @@ const AdminTour = () => {
         setSelectedEvent(null);
     };
 
+    // Esc 키로 모달 닫기 기능
+    useEffect(() => {
+        const handleEscKey = (event: KeyboardEvent) => {
+            if (event.key === "Escape" && selectedEvent) {
+                closeModal();
+            }
+        };
+
+        // 이벤트 리스너 등록
+        window.addEventListener("keydown", handleEscKey);
+
+        // 클린업 함수
+        return () => {
+            window.removeEventListener("keydown", handleEscKey);
+        };
+    }, [selectedEvent]);
+
     // 고유한 카테고리 목록 추출
     const categories = Array.from(new Set(list.map((item) => item.category)));
 
@@ -558,6 +575,8 @@ const AdminTour = () => {
                                 <button
                                     onClick={closeModal}
                                     className="text-gray-400 bg-white hover:text-gray-600"
+                                    aria-label="닫기"
+                                    title="닫기 (Esc)"
                                 >
                                     <svg
                                         xmlns="http://www.w3.org/2000/svg"
@@ -631,6 +650,7 @@ const AdminTour = () => {
                             <button
                                 onClick={closeModal}
                                 className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                                title="닫기 (Esc)"
                             >
                                 닫기
                             </button>
