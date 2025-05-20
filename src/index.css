@@ -107,6 +107,14 @@ button:focus-visible {
   background: #555; /* 호버 시 핸들 색상 */
 }
 
+.hide-scrollbar {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE 10+ */
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
 .custom-marker {
   width: 18px;
   height: 18px;
