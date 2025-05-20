@@ -13,7 +13,6 @@ const AdminTraffic = () => {
     const [selectedArea, setSelectedArea] = useState<string | null>(null);
     const markerRefs = useRef<mapboxgl.Marker[]>([]);
     const parkingMarkerRefs = useRef<mapboxgl.Marker[]>([]);
-    const [showAllData, setShowAllData] = useState<boolean>(false); // 모든 점 그리기
     const initialMapCenter: LngLatLike = [126.978, 37.5665]; // Seoul
     const initialMapZoom = 11;
 
@@ -229,158 +228,6 @@ const AdminTraffic = () => {
         parkingMarkerRefs.current = [];
     };
 
-    const displayAllAreaData = () => {
-        if (!map.current || !mapLoaded || !mapData || mapData.length === 0)
-            return;
-
-        // 먼저 모든 레이어 제거
-        clearAllLayers();
-
-        // 교통 데이터와 주차장 데이터를 따로 수집
-        let allTrafficData: any[] = [];
-        let allParkingData: ParkNode[] = [];
-
-        // 모든 지역 데이터 순회
-        mapData.forEach((area) => {
-            // 교통 데이터 수집
-            if (area.trafficData && area.trafficData.road_traffic_stts) {
-                allTrafficData = [
-                    ...allTrafficData,
-                    ...area.trafficData.road_traffic_stts,
-                ];
-            }
-
-            // 주차장 데이터 수집
-            if (area.parkData && area.parkData.prk_stts) {
-                allParkingData = [...allParkingData, ...area.parkData.prk_stts];
-            }
-        });
-
-        // 모든 지역의 중심점 계산을 위한 경계 상자 초기화
-        let minLng = Infinity;
-        let maxLng = -Infinity;
-        let minLat = Infinity;
-        let maxLat = -Infinity;
-
-        // 교통 데이터 표시
-        allTrafficData.forEach((road, index) => {
-            // xylist를 파싱하여 경로 좌표 배열 생성
-            let pathCoordinates: [number, number][] = [];
-
-            // xylist가 있으면 해당 좌표 사용
-            if (road.xylist) {
-                pathCoordinates = road.xylist
-                    .split("|")
-                    .map((point: string) => {
-                        const coords = point.split("_").map(Number);
-                        return [coords[0], coords[1]] as [number, number];
-                    });
-            }
-            // xylist가 없으면 시작점과 끝점만 사용
-            else {
-                const startCoords = road.start_nd_xy.split("_").map(Number);
-                const endCoords = road.end_nd_xy.split("_").map(Number);
-                pathCoordinates = [
-                    [startCoords[0], startCoords[1]],
-                    [endCoords[0], endCoords[1]],
-                ];
-            }
-
-            // 경계 상자 업데이트
-            pathCoordinates.forEach((coord) => {
-                minLng = Math.min(minLng, coord[0]);
-                maxLng = Math.max(maxLng, coord[0]);
-                minLat = Math.min(minLat, coord[1]);
-                maxLat = Math.max(maxLat, coord[1]);
-            });
-
-            // 소스 ID 생성
-            const sourceId = `traffic-source-all-${road.link_id}-${index}`;
-            const layerId = `traffic-layer-all-${road.link_id}-${index}`;
-
-            try {
-                // 소스 추가
-                map.current!.addSource(sourceId, {
-                    type: "geojson",
-                    data: {
-                        type: "Feature",
-                        properties: {
-                            name: road.road_nm,
-                            speed: road.spd,
-                            status: road.idx,
-                        },
-                        geometry: {
-                            type: "LineString",
-                            coordinates: pathCoordinates,
-                        },
-                    },
-                });
-
-                // 레이어 추가
-                map.current!.addLayer({
-                    id: layerId,
-                    type: "line",
-                    source: sourceId,
-                    layout: {
-                        "line-join": "round",
-                        "line-cap": "round",
-                    },
-                    paint: {
-                        "line-color": getTrafficColor(road.idx),
-                        "line-width": 3, // 전체 표시 시 약간 가늘게 표시
-                        "line-opacity": 0.7, // 약간 투명하게 표시
-                    },
-                });
-            } catch (error) {
-                console.error("Error adding source or layer:", error);
-            }
-        });
-
-        // 주차장 데이터 표시
-        allParkingData.forEach((park) => {
-            if (!park.lat || !park.lon) return;
-
-            // 경계 상자 업데이트
-            minLng = Math.min(minLng, park.lon);
-            maxLng = Math.max(maxLng, park.lon);
-            minLat = Math.min(minLat, park.lat);
-            maxLat = Math.max(maxLat, park.lat);
-
-            // 주차장 마커 생성
-            const marker = createParkingMarker(park);
-            if (marker) {
-                parkingMarkerRefs.current.push(marker);
-            }
-        });
-
-        // 경계 상자가 유효한 경우 지도 이동
-        if (
-            minLng !== Infinity &&
-            maxLng !== -Infinity &&
-            minLat !== Infinity &&
-            maxLat !== -Infinity
-        ) {
-            // 약간의 여백 추가
-            const padding = 0.01; // 약 1km 정도의 여백
-
-            // 경계 상자 설정
-            const bounds: mapboxgl.LngLatBoundsLike = [
-                [minLng - padding, minLat - padding],
-                [maxLng + padding, maxLat + padding],
-            ];
-
-            // 경계 상자에 맞춰 지도 이동
-            map.current.fitBounds(bounds, {
-                padding: 50, // 픽셀 단위 여백
-                maxZoom: 13, // 너무 가깝게 확대되지 않도록 제한
-            });
-        }
-
-        // 상태 업데이트
-        setShowAllData(true);
-        setSelectedArea(null);
-    };
-
     // 모든 트래픽 레이어 제거
     const clearAllTrafficLayers = () => {
         if (!map.current) return;
@@ -586,36 +433,6 @@ const AdminTraffic = () => {
         return marker;
     };
 
-    // 포인트 마커 추가 함수
-    const addPointMarker = (
-        coords: [number, number],
-        name: string,
-        color: string
-    ): mapboxgl.Marker | null => {
-        if (!map.current) return null;
-
-        // Create a popup
-        const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(
-            `<strong>${name}</strong>`
-        );
-
-        // Create a DOM element for the marker
-        const el = document.createElement("div");
-        el.style.backgroundColor = color;
-        el.style.width = "12px";
-        el.style.height = "12px";
-        el.style.borderRadius = "50%";
-        el.style.border = "2px solid white";
-
-        // Add the marker to the map
-        const marker = new mapboxgl.Marker(el)
-            .setLngLat(coords)
-            .setPopup(popup)
-            .addTo(map.current);
-
-        return marker;
-    };
-
     // 선택된 지역이 변경될 때 지도 이동 및 데이터 표시
     useEffect(() => {
         if (!mapLoaded) return;
@@ -766,7 +583,6 @@ const AdminTraffic = () => {
                                     }`}
                                     onClick={() => {
                                         setSelectedArea(area.area_nm);
-                                        setShowAllData(false); // 지역 선택 시 전체 표시 모드 해제
                                     }}
                                 >
                                     <h3 className="font-bold text-sm md:text-base">

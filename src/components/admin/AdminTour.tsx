@@ -61,7 +61,7 @@ const AdminTour = () => {
                     event_name: e.event_name,
                     start_date: e.start_date,
                     end_date: e.end_date,
-                    is_free: e.event_fee === "",
+                    is_free: e.event_fee === "" || e.event_fee === "무료",
                     event_fee: e.event_fee,
                 }));
 
@@ -181,7 +181,7 @@ const AdminTour = () => {
     );
 
     return (
-        <div className="bg-gray-100 min-h-screen flex flex-col w-full overflow-y-auto">
+        <div className="app-full-height bg-gray-100 min-h-screen flex flex-col w-full overflow-y-auto">
             {/* Header */}
             <AdminHeader path={"/manage"} />
 

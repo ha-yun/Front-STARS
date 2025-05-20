@@ -21,6 +21,7 @@ import {
     getPlaceListByArea,
     subscribeWeatherUpdate,
 } from "../../../api/starsApi";
+import { MapData } from "../../../data/adminData";
 
 interface Area {
     area_id: number;
@@ -113,6 +114,7 @@ export default function DashboardComponent() {
         triggerCountUp,
         setTriggerCountUp,
         congestionInfo,
+        mapData,
     } = usePlace();
 
     const [areaName, setAreaName] = useState("");
@@ -124,6 +126,11 @@ export default function DashboardComponent() {
     const [events, setEvents] = useState<CulturalEvent[]>([]);
 
     const [weatherList, setWeatherList] = useState<WeatherData[]>([]);
+
+    // 선택된 위치 교통 정보 찾기
+    const map: MapData | undefined = mapData?.find(
+        (map: MapData) => map.area_id === selectedAreaId
+    );
 
     const visitorCountRef = useRef<HTMLSpanElement | null>(null);
 
@@ -361,6 +368,7 @@ export default function DashboardComponent() {
                 <TrafficInfoCard
                     style={cardStyles[8]}
                     cardRef={(el) => (cardRefs.current[8] = el)}
+                    mapData={map}
                 />
 
                 <ParkingInfoCard
