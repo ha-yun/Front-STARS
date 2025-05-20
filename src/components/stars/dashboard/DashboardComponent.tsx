@@ -10,6 +10,7 @@ import POICardList from "./POICardList";
 import ReviewAnalysisCard from "./ReviewAnalysisCard";
 import TrafficInfoCard from "./TrafficInfoCard";
 import ParkingInfoCard from "./ParkingInfoCard";
+import AccidentAlertCard from "./AccidentAlertCard";
 import CongestionStatusCard from "./CongestionStatusCard";
 import AttractionCard from "./AttractionCard";
 import CulturalEventCard from "./CulturalEventCard";
@@ -365,9 +366,14 @@ export default function DashboardComponent() {
                     cardRef={(el) => (cardRefs.current[7] = el)}
                 />
 
-                <TrafficInfoCard
+                <AccidentAlertCard
                     style={cardStyles[8]}
                     cardRef={(el) => (cardRefs.current[8] = el)}
+                />
+
+                <TrafficInfoCard
+                    style={cardStyles[9]}
+                    cardRef={(el) => (cardRefs.current[9] = el)}
                     mapData={map}
                 />
 
