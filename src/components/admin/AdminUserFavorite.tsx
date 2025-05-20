@@ -560,7 +560,7 @@ const AdminUserFavorite = () => {
                                     selected={selectedTypeCategory}
                                     setSelected={setSelectedTypeCategory}
                                 />
-                                <div className="p-4 overflow-y-auto mb-2 max-h-auto">
+                                <div className="p-4 overflow-y-auto mb-4 max-h-auto">
                                     {loading || favoriteLoading ? (
                                         <div className="grid grid-cols-1 gap-4">
                                             {[...Array(4)].map((_, index) => (
@@ -617,7 +617,7 @@ const AdminUserFavorite = () => {
                                     selected={selectedRankingCategory}
                                     setSelected={setSelectedRankingCategory}
                                 />
-                                <div className="p-4 overflow-y-auto mb-2 max-h-auto">
+                                <div className="p-4 overflow-y-auto mb-4 max-h-auto">
                                     {loading ? (
                                         <div className="grid grid-cols-1 gap-4">
                                             {[...Array(4)].map((_, index) => (
@@ -670,7 +670,7 @@ const AdminUserFavorite = () => {
             </div>
             {/* 모바일 하단 네비게이션 */}
             {isMobileView && (
-                <div className="flex bottom-0 left-0 right-0 bg-white border-t py-2 px-4 justify-around z-10">
+                <div className="flex bottom-0 left-0 right-0 bg-white border-t px-4 justify-around z-10">
                     <button
                         onClick={() => setMobileTab(0)}
                         className={`flex flex-col items-center ${mobileTab === 0 ? "text-blue-600" : "text-gray-500"} bg-white`}
