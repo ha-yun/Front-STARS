@@ -371,10 +371,10 @@ export default function DashboardComponent() {
                     mapData={map}
                 />
 
-                <ParkingInfoCard
-                    style={cardStyles[9]}
-                    cardRef={(el) => (cardRefs.current[9] = el)}
-                />
+                {/*<ParkingInfoCard*/}
+                {/*    style={cardStyles[9]}*/}
+                {/*    cardRef={(el) => (cardRefs.current[9] = el)}*/}
+                {/*/>*/}
 
                 {/* 관광지 카드들 */}
                 {attractions.map((a, i) => (
