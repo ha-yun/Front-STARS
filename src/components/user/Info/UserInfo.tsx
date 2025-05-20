@@ -269,7 +269,7 @@ const UserInfo = () => {
                         )}
 
                         <button
-                            className="w-full sm:w-auto bg-red-600 text-white py-2 px-6 rounded-lg hover:bg-red-700 transition-colors shadow-sm flex-1 sm:flex-none flex items-center justify-center"
+                            className="w-full sm:w-auto bg-red-600 text-white py-2 px-6 mb-4 rounded-lg hover:bg-red-700 transition-colors shadow-sm flex-1 sm:flex-none flex items-center justify-center"
                             onClick={handleDeleteAccount}
                             disabled={isSubmitting}
                         >
