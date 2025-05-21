@@ -243,7 +243,6 @@ export default function AdminComponent() {
 
                 {/* 오른쪽 컨텐츠 컨테이너 */}
                 <div className="flex-1 flex flex-col w-full lg:w-2/3 space-y-4 order-2 overflow-hidden">
-                    {/* 사고 정보 섹션 - 모바일 최적화 수정 */}
                     <div className="w-full border rounded-lg shadow-md bg-white">
                         <h2 className="text-lg md:text-xl p-3 font-bold text-black border-b flex justify-between items-center">
                             <span>사고 정보</span>
@@ -289,11 +288,39 @@ export default function AdminComponent() {
                                         </div>
                                     ))
                                 ) : accidentData.length > 0 ? (
-                                    // 실제 데이터 - 모바일 여부 전달
+                                    // 실제 데이터 - 모바일 여부 전달 및 클릭 이벤트 추가
                                     accidentData.map((data, idx) => (
                                         <div
                                             key={idx}
-                                            className="w-32 md:w-40 flex-none"
+                                            className="w-32 md:w-40 flex-none cursor-pointer"
+                                            onClick={() => {
+                                                // 사고 데이터에서 지역명 추출 (구현에 따라 달라질 수 있음)
+                                                const accidentLocation =
+                                                    data.area_nm;
+
+                                                // 지역명과 일치하는 combinedAreaData 찾기
+                                                const matchedArea =
+                                                    combinedAreaData.find(
+                                                        (area) =>
+                                                            area.area_nm ===
+                                                            accidentLocation
+                                                    );
+
+                                                if (matchedArea) {
+                                                    // 일치하는 지역 데이터가 있으면 상세 페이지로 이동
+                                                    handleSpotClick(
+                                                        matchedArea
+                                                    );
+                                                } else {
+                                                    // 일치하는 지역이 없을 경우 사용자에게 알림
+                                                    console.log(
+                                                        `관련 지역 정보를 찾을 수 없습니다: ${accidentLocation}`
+                                                    );
+                                                    alert(
+                                                        `관련 지역 정보를 찾을 수 없습니다: ${accidentLocation}`
+                                                    );
+                                                }
+                                            }}
                                         >
                                             <AccidentCard
                                                 datas={data}
