@@ -20,6 +20,18 @@ interface PopulationRateProps {
     population: Data[];
 }
 
+// Define proper type for the tooltip props
+interface CustomTooltipProps {
+    active?: boolean;
+    payload?: Array<{
+        payload: Data;
+        value: number;
+        dataKey: string;
+        name: string;
+    }>;
+    label?: string;
+}
+
 const PopulationRateCard = ({ population }: PopulationRateProps) => {
     const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
@@ -46,8 +58,8 @@ const PopulationRateCard = ({ population }: PopulationRateProps) => {
         return 40; // Desktop screens
     };
 
-    // Customize tooltip content
-    const CustomTooltip = ({ active, payload }: any) => {
+    // Customize tooltip content with proper typing
+    const CustomTooltip = ({ active, payload }: CustomTooltipProps) => {
         if (active && payload && payload.length) {
             const data = payload[0].payload;
             return (

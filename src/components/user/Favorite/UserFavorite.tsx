@@ -69,7 +69,7 @@ const UserFavorite = () => {
     const [searchTerm, setSearchTerm] = useState<string>("");
 
     // 모바일 여부를 저장하는 상태
-    const [isMobile, setIsMobile] = useState(false);
+    // const [isMobile, setIsMobile] = useState(false);
 
     // 즐겨찾기 데이터 로드 함수
     const loadFavorites = async () => {
@@ -96,22 +96,22 @@ const UserFavorite = () => {
     };
 
     // 화면 크기가 변경될 때 모바일 여부 감지
-    useEffect(() => {
-        const checkIfMobile = () => {
-            setIsMobile(window.innerWidth < 768);
-        };
-
-        // 초기 체크
-        checkIfMobile();
-
-        // 리사이즈 이벤트 리스너 추가
-        window.addEventListener("resize", checkIfMobile);
-
-        // 컴포넌트 언마운트 시 이벤트 리스너 제거
-        return () => {
-            window.removeEventListener("resize", checkIfMobile);
-        };
-    }, []);
+    // useEffect(() => {
+    //     const checkIfMobile = () => {
+    //         setIsMobile(window.innerWidth < 768);
+    //     };
+    //
+    //     // 초기 체크
+    //     checkIfMobile();
+    //
+    //     // 리사이즈 이벤트 리스너 추가
+    //     window.addEventListener("resize", checkIfMobile);
+    //
+    //     // 컴포넌트 언마운트 시 이벤트 리스너 제거
+    //     return () => {
+    //         window.removeEventListener("resize", checkIfMobile);
+    //     };
+    // }, []);
 
     // 컴포넌트 마운트 시 즐겨찾기 데이터 로드
     useEffect(() => {
