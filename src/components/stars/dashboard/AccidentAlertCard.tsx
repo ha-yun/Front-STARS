@@ -1,13 +1,24 @@
-// ✅ src/components/.../AccidentAlertCard.tsx
-
 import { motion } from "framer-motion";
 import { AccidentData } from "../../../data/adminData";
 
 interface AccidentAlertCardProps {
     style: { opacity: number; y: number; scale: number };
     cardRef: (el: HTMLDivElement | null) => void;
-    accidents: AccidentData[]; // ✅ 이 부분 추가!
+    accidents: AccidentData[];
 }
+
+const getAccidentIcon = (type: string): string => {
+    switch (type) {
+        case "공사":
+            return "🔧";
+        case "낙하물":
+            return "⚠️";
+        case "사고":
+            return "🚧";
+        default:
+            return "❗️";
+    }
+};
 
 export default function AccidentAlertCard({
     style,
@@ -16,7 +27,7 @@ export default function AccidentAlertCard({
 }: AccidentAlertCardProps) {
     return (
         <motion.div
-            className="col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-8 bg-white rounded-3xl shadow-lg p-4 my-2"
+            className="col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-8 bg-white rounded-3xl shadow-lg p-5 my-2"
             whileHover={{ y: -6 }}
             animate={
                 style
@@ -26,7 +37,7 @@ export default function AccidentAlertCard({
             style={style}
             ref={cardRef}
         >
-            <h2 className="text-xl font-semibold text-gray-800 mb-2">
+            <h2 className="text-xl font-bold text-gray-800 mb-3">
                 사건·사고 알림
             </h2>
 
@@ -35,22 +46,34 @@ export default function AccidentAlertCard({
                     현재 이 관광특구에는 사고 정보가 없습니다.
                 </p>
             ) : (
-                <ul className="space-y-2 text-sm text-gray-700">
-                    {accidents.map((accident, idx) => (
-                        <li key={idx} className="border-b pb-2">
-                            <p className="font-medium">
-                                {accident.acdnt_type} - {accident.acdnt_dtype}
+                <div className="grid grid-cols-1 gap-3">
+                    {accidents.map((acc, idx) => (
+                        <div
+                            key={idx}
+                            className="bg-white border rounded-xl shadow-lg p-3 text-sm"
+                        >
+                            <div className="flex items-center gap-2 mb-1">
+                                {/* 아이콘과 유형 뱃지 */}
+                                <span className="text-xl">
+                                    {getAccidentIcon(acc.acdnt_type)}
+                                </span>
+                                <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-red-500 text-white">
+                                    {acc.acdnt_type}
+                                </span>
+                                <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-yellow-500 text-white">
+                                    {acc.acdnt_dtype}
+                                </span>
+                            </div>
+                            <p className="text-sm text-gray-800 leading-snug">
+                                {acc.acdnt_info}
                             </p>
-                            <p className="text-gray-600">
-                                {accident.acdnt_info}
+                            <p className="text-xs text-gray-500 mt-1">
+                                발생: {acc.acdnt_occr_dt} / 해제:{" "}
+                                {acc.exp_clr_dt}
                             </p>
-                            <p className="text-gray-500">
-                                발생: {accident.acdnt_occr_dt} / 해제 예정:{" "}
-                                {accident.exp_clr_dt}
-                            </p>
-                        </li>
+                        </div>
                     ))}
-                </ul>
+                </div>
             )}
         </motion.div>
     );
