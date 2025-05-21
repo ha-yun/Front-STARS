@@ -5,7 +5,7 @@ import UserInfoShow from "./UserInfoShow";
 import UserInfoEdit from "./UserInfoEdit";
 
 import { UserInfo as UserInfoType } from "../../../data/UserInfoData";
-import { editUserProfile, getUserProfile } from "../../../api/mypageApi";
+import { getUserProfile } from "../../../api/mypageApi";
 import { signoutUser } from "../../../api/authApi";
 import useCustomLogin from "../../../hooks/useCustomLogin";
 import { isAdmin } from "../../../slices/loginSlice";
@@ -24,13 +24,10 @@ const initialUserData: UserInfoType = {
 
 const UserInfo = () => {
     const [editMode, setEditMode] = useState<boolean>(false);
-    const [isFormValid, setIsFormValid] = useState<boolean>(true);
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const [userData, setUserData] = useState<UserInfoType | null>(null);
-    const [userInfoToSubmit, setUserInfoToSubmit] =
-        useState<UserInfoType>(initialUserData);
 
     const { doLogout, moveToPath } = useCustomLogin();
     const adminCheck = isAdmin();
@@ -45,17 +42,14 @@ const UserInfo = () => {
 
             if (response) {
                 setUserData(response);
-                setUserInfoToSubmit(response);
             } else {
                 setError("사용자 정보를 불러오는데 실패했습니다.");
                 setUserData(initialUserData);
-                setUserInfoToSubmit(initialUserData);
             }
         } catch (err) {
             console.error(err);
             setError("네트워크 오류가 발생했습니다. 다시 시도해주세요.");
             setUserData(initialUserData);
-            setUserInfoToSubmit(initialUserData);
         } finally {
             setIsLoading(false);
         }
@@ -68,12 +62,6 @@ const UserInfo = () => {
 
     const handleEditToggle = () => {
         setEditMode(!editMode);
-        setIsFormValid(true);
-    };
-
-    // Form validation state change handler
-    const handleFormValidationChange = (isValid: boolean) => {
-        setIsFormValid(isValid);
     };
 
     // Handle user info submit after edit
@@ -286,9 +274,6 @@ const UserInfo = () => {
                         {/* Pass onCancel prop to UserInfoEdit */}
                         <UserInfoEdit
                             userInfo={userData || initialUserData}
-                            onPasswordValidationChange={
-                                handleFormValidationChange
-                            }
                             onUserInfoSubmit={handleUserInfoSubmit}
                             onCancel={handleEditToggle}
                         />

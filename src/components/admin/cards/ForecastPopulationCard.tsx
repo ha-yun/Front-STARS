@@ -1,7 +1,5 @@
-import React, { useEffect, useRef, useState } from "react";
-import { motion } from "framer-motion";
+import React, { useEffect, useState } from "react";
 import {
-    LineChart,
     Line,
     XAxis,
     YAxis,
@@ -11,6 +9,7 @@ import {
     ResponsiveContainer,
     Area,
     ComposedChart,
+    TooltipProps,
 } from "recharts";
 
 interface ForecastPopulation {
@@ -23,6 +22,16 @@ interface ForecastPopulation {
 interface ForecastPopulationCardProps {
     fcst_ppltn: ForecastPopulation[];
     className?: string;
+}
+
+interface ChartDataItem {
+    time: string;
+    originalTime: string;
+    min: number;
+    max: number;
+    average: number;
+    level: string;
+    color: string;
 }
 
 // Get color based on congestion level
@@ -74,7 +83,7 @@ const ForecastPopulationCard = ({
     className = "",
 }: ForecastPopulationCardProps) => {
     const [windowWidth, setWindowWidth] = useState(window.innerWidth);
-    const [chartData, setChartData] = useState<any[]>([]);
+    const [chartData, setChartData] = useState<ChartDataItem[]>([]);
 
     useEffect(() => {
         const handleResize = () => {
@@ -137,7 +146,11 @@ const ForecastPopulationCard = ({
     };
 
     // Custom tooltip component - 더 눈에 띄게 개선
-    const CustomTooltip = ({ active, payload, label }: any) => {
+    const CustomTooltip = ({
+        active,
+        payload,
+        label,
+    }: TooltipProps<number, string>) => {
         if (active && payload && payload.length) {
             const data = payload[0].payload;
 
@@ -220,8 +233,18 @@ const ForecastPopulationCard = ({
         );
     }
 
+    // Define proper types for dot props
+    interface RenderDotProps {
+        cx: number;
+        cy: number;
+        payload: ChartDataItem;
+        index: number;
+        dataKey: string;
+        value: number;
+    }
+
     // 각 지점별 색상 렌더링 함수 - 크기를 더 키우고 테두리를 명확하게 표시
-    const renderDot = (props: any) => {
+    const renderDot = (props: RenderDotProps) => {
         const { cx, cy, payload } = props;
 
         return (
@@ -236,43 +259,6 @@ const ForecastPopulationCard = ({
                     fill={payload.color}
                     stroke="white"
                     strokeWidth={1}
-                />
-            </g>
-        );
-    };
-
-    // 활성화된 도트 - 훨씬 더 큰 사이즈와 애니메이션 효과
-    const renderActiveDot = (props: any) => {
-        const { cx, cy, payload } = props;
-
-        return (
-            <g>
-                {/* 큰 외부 링 - 반투명 */}
-                <circle
-                    cx={cx}
-                    cy={cy}
-                    r={14}
-                    fill={payload.color}
-                    opacity={0.2}
-                />
-                {/* 중간 크기 링 */}
-                <circle
-                    cx={cx}
-                    cy={cy}
-                    r={10}
-                    fill={payload.color}
-                    opacity={0.4}
-                    stroke="white"
-                    strokeWidth={1}
-                />
-                {/* 내부 도트 - 색상 강조 */}
-                <circle
-                    cx={cx}
-                    cy={cy}
-                    r={6}
-                    fill={payload.color}
-                    stroke="white"
-                    strokeWidth={2}
                 />
             </g>
         );
@@ -393,7 +379,7 @@ const ForecastPopulationCard = ({
                             strokeWidth={3}
                             dot={renderDot}
                             name="평균 인구"
-                            activeDot={renderActiveDot}
+                            // activeDot={renderActiveDot}
                             isAnimationActive={true}
                         />
                     </ComposedChart>

@@ -37,7 +37,7 @@ interface AdminDataContextType {
     mapData: MapData[];
     findAreaData: (areaId: number) => CombinedAreaData | undefined;
     isLoading: boolean;
-    spotsLoading: boolean;
+    // spotsLoading: boolean;
     // weatherLoading: boolean;
     error: string | null;
     refreshAllData: () => Promise<void>; // 새로고침, 근데 이걸 넘길 필요가 있나?
@@ -73,8 +73,7 @@ export const AdminDataProvider: React.FC<AdminDataProviderProps> = ({
     const [accidentData, setAccidentData] = useState<AccidentData[]>([]);
     const [parkData, setParkData] = useState<ParkData[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
-    const [spotsLoading, setSpotsLoading] = useState<boolean>(true);
-    // const [weatherLoading, setWeatherLoading] = useState<boolean>(true);
+    // const [spotsLoading, setSpotsLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const [refreshing, setRefreshing] = useState<boolean>(false);
     const eventSources = React.useRef<{
@@ -531,7 +530,6 @@ export const AdminDataProvider: React.FC<AdminDataProviderProps> = ({
         mapData,
         findAreaData,
         isLoading: loading,
-        spotsLoading,
         // weatherLoading,
         error,
         refreshAllData,
