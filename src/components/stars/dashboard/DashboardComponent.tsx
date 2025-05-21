@@ -128,6 +128,13 @@ export default function DashboardComponent() {
 
     const [weatherList, setWeatherList] = useState<WeatherData[]>([]);
 
+    const { accidentData } = usePlace();
+
+    const selectedAccidents = useMemo(() => {
+        if (!selectedAreaId || !accidentData) return [];
+        return accidentData.filter((acc) => acc.area_id === selectedAreaId);
+    }, [accidentData, selectedAreaId]);
+
     // 선택된 위치 교통 정보 찾기
     const map: MapData | undefined = mapData?.find(
         (map: MapData) => map.area_id === selectedAreaId
@@ -369,6 +376,7 @@ export default function DashboardComponent() {
                 <AccidentAlertCard
                     style={cardStyles[8]}
                     cardRef={(el) => (cardRefs.current[8] = el)}
+                    accidents={selectedAccidents}
                 />
 
                 <TrafficInfoCard
