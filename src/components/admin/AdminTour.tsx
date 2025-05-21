@@ -302,7 +302,7 @@ const AdminTour = () => {
                             중
                         </span>
                         {loading && (
-                            <span className="text-sm text-blue-500 font-normal ml-2 flex items-center inline-flex">
+                            <span className="text-sm text-blue-500 font-normal ml-2 items-center inline-flex">
                                 <svg
                                     className="animate-spin -ml-1 mr-2 h-4 w-4 text-blue-500"
                                     xmlns="http://www.w3.org/2000/svg"
