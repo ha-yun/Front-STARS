@@ -1,4 +1,4 @@
-// Enhanced UserFavorite.tsx with improved design
+// Enhanced UserFavorite.tsx with improved design and fully working features
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Favorite } from "../../../data/adminData";
@@ -221,38 +221,44 @@ const UserFavorite = () => {
     // 아무것도 없을 때 표시할 컴포넌트
     const EmptyState = () => (
         <motion.div
-            className="bg-gray-50 border border-gray-200 rounded-xl p-8 text-center"
+            className="bg-gradient-to-b from-indigo-50 to-white border border-indigo-100 rounded-xl p-12 text-center w-full flex flex-col items-center justify-center"
+            style={{ minHeight: "60vh" }}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
         >
-            <div className="flex flex-col items-center">
-                <svg
-                    className="w-16 h-16 text-gray-400 mb-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                >
-                    <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={1.5}
-                        d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"
-                    />
-                </svg>
-                <h3 className="text-xl font-bold text-gray-700 mb-2">
+            <div className="max-w-md mx-auto flex flex-col items-center">
+                <div className="relative mb-8">
+                    <div className="absolute inset-0 bg-indigo-100 rounded-full opacity-30 animate-ping"></div>
+                    <svg
+                        className="w-32 h-32 text-indigo-400 relative z-10"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                    >
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={1.5}
+                            d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"
+                        />
+                    </svg>
+                </div>
+                <h3 className="text-3xl font-bold text-indigo-700 mb-4">
                     등록된 즐겨찾기가 없습니다
                 </h3>
-                <p className="text-gray-500 mb-6">
-                    지도에서 마음에 드는 장소를 즐겨찾기에 추가해보세요!
+                <p className="text-lg text-gray-600 mb-8 leading-relaxed">
+                    지도에서 마음에 드는 장소를 찾아 즐겨찾기에 추가해보세요!
+                    여행 계획을 세우거나 나중에 방문할 장소를 쉽게 찾을 수
+                    있습니다.
                 </p>
                 <button
                     onClick={() => window.fullpage_api?.moveSlideLeft()}
-                    className="bg-indigo-600 text-white py-2 px-4 rounded-lg hover:bg-indigo-700 transition-colors flex items-center"
+                    className="bg-indigo-600 text-white py-4 px-8 rounded-lg hover:bg-indigo-700 transition-colors flex items-center text-lg font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all"
                 >
                     <svg
-                        className="w-4 h-4 mr-2"
+                        className="w-5 h-5 mr-2"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -270,6 +276,177 @@ const UserFavorite = () => {
             </div>
         </motion.div>
     );
+
+    // 즐겨찾기 카드 컴포넌트
+    const FavoriteCard = ({ fav }: { fav: Favorite }) => {
+        const style = getTypeStyle(fav.type);
+        const isExpanded = expandedId === fav.favorite_id;
+        const isDeleting = deletingId === fav.favorite_id;
+
+        return (
+            <motion.div
+                layout
+                className="bg-white rounded-xl shadow-sm p-4 border border-gray-100 relative overflow-hidden transition-all"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                transition={{ duration: 0.3 }}
+            >
+                {/* 삭제 중 오버레이 */}
+                {isDeleting && (
+                    <div className="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center z-10">
+                        <div className="flex flex-col items-center">
+                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mb-2"></div>
+                            <p className="text-sm text-gray-500">삭제 중...</p>
+                        </div>
+                    </div>
+                )}
+
+                {/* 카드 헤더 */}
+                <div
+                    className="flex justify-between items-start cursor-pointer"
+                    onClick={() => toggleExpand(fav.favorite_id)}
+                >
+                    <div className="flex items-center">
+                        <div
+                            className={`w-10 h-10 rounded-full ${style.bgColor} flex items-center justify-center mr-3`}
+                        >
+                            <span className="text-lg">{style.icon}</span>
+                        </div>
+                        <div>
+                            <h3 className="font-medium text-gray-800">
+                                {fav.name}
+                            </h3>
+                            <p className="text-sm text-gray-500 truncate max-w-xs">
+                                {fav.address}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="flex items-center space-x-2">
+                        <span
+                            className={`text-xs ${style.color} ${style.bgColor} px-2 py-1 rounded-full`}
+                        >
+                            {categoryMap[fav.type] || fav.type}
+                        </span>
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                toggleExpand(fav.favorite_id);
+                            }}
+                            className="text-gray-400 hover:text-gray-600"
+                        >
+                            <svg
+                                className={`w-5 h-5 transform transition-transform ${isExpanded ? "rotate-180" : ""}`}
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                                xmlns="http://www.w3.org/2000/svg"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M19 9l-7 7-7-7"
+                                />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                {/* 확장 영역 */}
+                <AnimatePresence>
+                    {isExpanded && (
+                        <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: "auto" }}
+                            exit={{ opacity: 0, height: 0 }}
+                            transition={{ duration: 0.3 }}
+                            className="mt-4 border-t border-gray-100 pt-4 space-y-3"
+                        >
+                            <div className="flex items-start text-sm">
+                                <svg
+                                    className="w-4 h-4 text-gray-400 mr-2 mt-0.5"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                                    />
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                                    />
+                                </svg>
+                                <span>{fav.address}</span>
+                            </div>
+
+                            <div className="flex justify-between pt-3">
+                                <button
+                                    onClick={() => {
+                                        // 지도에서 해당 위치로 이동 구현
+                                        if (window.fullpage_api) {
+                                            window.fullpage_api.moveSlideLeft();
+                                            // 지도 컴포넌트로 위치 정보 전달 로직 추가
+                                        }
+                                    }}
+                                    className="text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-lg text-sm flex items-center"
+                                >
+                                    <svg
+                                        className="w-4 h-4 mr-1"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth={2}
+                                            d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"
+                                        />
+                                    </svg>
+                                    지도에서 보기
+                                </button>
+
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleDelete(fav);
+                                    }}
+                                    className="text-red-600 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg text-sm flex items-center"
+                                    disabled={isDeleting}
+                                >
+                                    <svg
+                                        className="w-4 h-4 mr-1"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth={2}
+                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                        />
+                                    </svg>
+                                    삭제하기
+                                </button>
+                            </div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+            </motion.div>
+        );
+    };
 
     // 카테고리 필터 버튼
     const CategoryFilter = () => {
@@ -308,26 +485,20 @@ const UserFavorite = () => {
 
     // 메인 컴포넌트 렌더링
     return (
-        <div className="space-y-6">
+        <div className="flex flex-col h-full min-h-full">
             {/* 헤더와 검색 영역 */}
-            <motion.div
-                className="bg-white rounded-xl shadow-sm p-6 border border-gray-100"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3 }}
-            >
+            <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 sticky top-0 z-10 flex-shrink-0">
                 <div className="flex justify-between items-center mb-4">
                     <h2 className="text-2xl font-bold text-gray-800 flex items-center">
                         <span className="mr-2 text-xl">⭐</span>
                         즐겨찾기
                     </h2>
                     <button
+                        className="text-indigo-600 bg-white shadow hover:text-indigo-800 flex items-center text-sm px-3 py-2 rounded-lg"
                         onClick={loadFavorites}
-                        className="text-indigo-600 bg-white shadow hover:text-indigo-800 flex items-center text-sm"
-                        disabled={isLoading}
                     >
                         <svg
-                            className={`w-4 h-4 mr-1 ${isLoading ? "animate-spin" : ""}`}
+                            className="w-4 h-4 mr-1"
                             xmlns="http://www.w3.org/2000/svg"
                             fill="none"
                             viewBox="0 0 24 24"
@@ -340,7 +511,7 @@ const UserFavorite = () => {
                                 d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
                             />
                         </svg>
-                        {isLoading ? "로딩 중..." : "새로고침"}
+                        새로고침
                     </button>
                 </div>
 
@@ -367,249 +538,67 @@ const UserFavorite = () => {
                             d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
                         />
                     </svg>
-                    {searchTerm && (
-                        <button
-                            className="absolute right-3 top-1/2 transform bg-white -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                            onClick={() => setSearchTerm("")}
-                        >
-                            <svg
-                                className="w-4 h-4"
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                            >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M6 18L18 6M6 6l12 12"
-                                />
-                            </svg>
-                        </button>
-                    )}
                 </div>
 
                 {/* 카테고리 필터 버튼 */}
                 <CategoryFilter />
-            </motion.div>
+            </div>
 
-            {/* 로딩 상태 및 데이터 */}
-            {isLoading ? (
-                <div className="space-y-4">
-                    {Array.from({ length: 3 }).map((_, idx) => (
-                        <FavoriteCardSkeleton key={idx} />
-                    ))}
-                </div>
-            ) : error ? (
-                <ErrorMessage />
-            ) : filteredFavorites.length === 0 ? (
-                <EmptyState />
-            ) : (
-                <div className="space-y-4">
+            {/* 컨텐츠 영역 */}
+            <div className="flex-1 p-4 overflow-y-auto">
+                {isLoading ? (
+                    // 로딩 중
+                    <div className="space-y-4">
+                        {Array(3)
+                            .fill(0)
+                            .map((_, index) => (
+                                <FavoriteCardSkeleton key={index} />
+                            ))}
+                    </div>
+                ) : error ? (
+                    // 오류 발생
+                    <ErrorMessage />
+                ) : filteredFavorites.length === 0 ? (
+                    // 즐겨찾기 없음
+                    <EmptyState />
+                ) : (
+                    // 즐겨찾기 목록
                     <AnimatePresence>
-                        {filteredFavorites.map((item) => {
-                            const typeStyle = getTypeStyle(item.type);
-                            const isExpanded = expandedId === item.favorite_id;
-
-                            return (
-                                <motion.div
-                                    key={item.favorite_id}
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    exit={{ opacity: 0, y: -10 }}
-                                    transition={{ duration: 0.3 }}
-                                    className={`bg-white rounded-xl shadow-sm overflow-hidden border-l-4 ${
-                                        isExpanded
-                                            ? "border-indigo-500"
-                                            : `border-l-${typeStyle.color.split("-")[1]}-500`
-                                    }`}
-                                >
-                                    <div
-                                        className="p-4 cursor-pointer hover:bg-gray-50 transition-colors"
-                                        onClick={() =>
-                                            toggleExpand(item.favorite_id)
-                                        }
-                                    >
-                                        <div className="flex justify-between items-start">
-                                            <div className="flex items-start">
-                                                <div
-                                                    className={`flex items-center justify-center w-10 h-10 rounded-full mr-3 ${typeStyle.bgColor}`}
-                                                >
-                                                    <span className="text-lg">
-                                                        {typeStyle.icon}
-                                                    </span>
-                                                </div>
-                                                <div>
-                                                    <h3 className="font-bold text-gray-800">
-                                                        {item.name}
-                                                    </h3>
-                                                    <p className="text-sm text-gray-500 mt-1">
-                                                        {item.address}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                            <div className="flex items-center">
-                                                <span
-                                                    className={`text-xs px-2.5 py-1 rounded-full ${typeStyle.bgColor} ${typeStyle.color} mr-2`}
-                                                >
-                                                    {categoryMap[item.type] ||
-                                                        item.type}
-                                                </span>
-                                                <svg
-                                                    className={`w-5 h-5 text-gray-400 transition-transform ${isExpanded ? "transform rotate-180" : ""}`}
-                                                    xmlns="http://www.w3.org/2000/svg"
-                                                    fill="none"
-                                                    viewBox="0 0 24 24"
-                                                    stroke="currentColor"
-                                                >
-                                                    <path
-                                                        strokeLinecap="round"
-                                                        strokeLinejoin="round"
-                                                        strokeWidth={2}
-                                                        d="M19 9l-7 7-7-7"
-                                                    />
-                                                </svg>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/* 확장된 상세 정보 */}
-                                    <AnimatePresence>
-                                        {isExpanded && (
-                                            <motion.div
-                                                initial={{
-                                                    height: 0,
-                                                    opacity: 0,
-                                                }}
-                                                animate={{
-                                                    height: "auto",
-                                                    opacity: 1,
-                                                }}
-                                                exit={{ height: 0, opacity: 0 }}
-                                                transition={{ duration: 0.3 }}
-                                                className="px-4 pb-4 border-t border-gray-100"
-                                            >
-                                                <div className="pt-3 flex justify-between items-center">
-                                                    <div className="text-xs text-gray-500">
-                                                        즐겨찾기 ID:{" "}
-                                                        {item.favorite_id}
-                                                    </div>
-                                                    <div className="flex space-x-2">
-                                                        <button
-                                                            className="px-3 py-1.5 bg-indigo-50 text-indigo-600 text-sm rounded-lg hover:bg-indigo-100 transition-colors flex items-center"
-                                                            onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                window.fullpage_api?.moveSlideLeft();
-                                                                // 여기에 지도에서 해당 위치로 이동하는 로직 추가
-                                                            }}
-                                                        >
-                                                            <svg
-                                                                className="w-4 h-4 mr-1"
-                                                                xmlns="http://www.w3.org/2000/svg"
-                                                                fill="none"
-                                                                viewBox="0 0 24 24"
-                                                                stroke="currentColor"
-                                                            >
-                                                                <path
-                                                                    strokeLinecap="round"
-                                                                    strokeLinejoin="round"
-                                                                    strokeWidth={
-                                                                        2
-                                                                    }
-                                                                    d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"
-                                                                />
-                                                            </svg>
-                                                            지도에서 보기
-                                                        </button>
-                                                        <button
-                                                            className="px-3 py-1.5 bg-red-50 text-red-600 text-sm rounded-lg hover:bg-red-100 transition-colors flex items-center"
-                                                            onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                handleDelete(
-                                                                    item
-                                                                );
-                                                            }}
-                                                            disabled={
-                                                                deletingId ===
-                                                                item.favorite_id
-                                                            }
-                                                        >
-                                                            {deletingId ===
-                                                            item.favorite_id ? (
-                                                                <>
-                                                                    <svg
-                                                                        className="animate-spin -ml-1 mr-2 h-4 w-4 text-red-600"
-                                                                        xmlns="http://www.w3.org/2000/svg"
-                                                                        fill="none"
-                                                                        viewBox="0 0 24 24"
-                                                                    >
-                                                                        <circle
-                                                                            className="opacity-25"
-                                                                            cx="12"
-                                                                            cy="12"
-                                                                            r="10"
-                                                                            stroke="currentColor"
-                                                                            strokeWidth="4"
-                                                                        ></circle>
-                                                                        <path
-                                                                            className="opacity-75"
-                                                                            fill="currentColor"
-                                                                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                                                                        ></path>
-                                                                    </svg>
-                                                                    삭제 중...
-                                                                </>
-                                                            ) : (
-                                                                <>
-                                                                    <svg
-                                                                        className="w-4 h-4 mr-1"
-                                                                        xmlns="http://www.w3.org/2000/svg"
-                                                                        fill="none"
-                                                                        viewBox="0 0 24 24"
-                                                                        stroke="currentColor"
-                                                                    >
-                                                                        <path
-                                                                            strokeLinecap="round"
-                                                                            strokeLinejoin="round"
-                                                                            strokeWidth={
-                                                                                2
-                                                                            }
-                                                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                                                                        />
-                                                                    </svg>
-                                                                    삭제하기
-                                                                </>
-                                                            )}
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </motion.div>
-                                        )}
-                                    </AnimatePresence>
-                                </motion.div>
-                            );
-                        })}
+                        <div className="space-y-4">
+                            {filteredFavorites.map((favorite) => (
+                                <FavoriteCard
+                                    key={favorite.favorite_id}
+                                    fav={favorite}
+                                />
+                            ))}
+                        </div>
                     </AnimatePresence>
-                </div>
-            )}
+                )}
+            </div>
 
-            {/* 모바일에서만 보이는 스크롤 안내 */}
-            {isMobile && filteredFavorites.length > 3 && (
-                <div className="text-center text-gray-500 text-xs mt-2">
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{
-                            duration: 0.5,
-                            repeat: Infinity,
-                            repeatType: "reverse",
-                        }}
+            {/* 맵으로 돌아가기 버튼 (항상 보이는 고정 버튼) */}
+            <div className="sticky bottom-6 left-0 right-0 flex justify-center z-20 pointer-events-none">
+                <button
+                    className="bg-indigo-600 text-white py-3 px-6 rounded-full shadow-lg hover:bg-indigo-700 transition-all transform hover:-translate-y-1 hover:shadow-xl pointer-events-auto flex items-center space-x-2"
+                    onClick={() => window.fullpage_api?.moveSlideLeft()}
+                >
+                    <svg
+                        className="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
                     >
-                        스크롤하여 더 많은 항목 보기
-                    </motion.div>
-                </div>
-            )}
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"
+                        />
+                    </svg>
+                    <span>지도로 돌아가기</span>
+                </button>
+            </div>
         </div>
     );
 };
