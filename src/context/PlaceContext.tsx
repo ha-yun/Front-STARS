@@ -1,7 +1,12 @@
 // src/context/PlaceContext.tsx
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { subscribeCongestionUpdate, subscribeExternal } from "../api/starsApi";
-import { MapData, ParkData, TrafficData } from "../data/adminData";
+import {
+    MapData,
+    ParkData,
+    TrafficData,
+    AccidentData,
+} from "../data/adminData";
 
 // 🔷 혼잡도 데이터 타입 정의
 interface ForecastPopulation {
@@ -34,6 +39,8 @@ interface PlaceContextType {
     congestionInfo: CongestionData | null;
 
     mapData: MapData[] | null;
+
+    accidentData: AccidentData[];
 }
 
 const PlaceContext = createContext<PlaceContextType | undefined>(undefined);
@@ -46,7 +53,7 @@ export function PlaceProvider({ children }: { children: React.ReactNode }) {
 
     const [trafficData, setTrafficData] = useState<TrafficData[]>([]);
     const [parkData, setParkData] = useState<ParkData[]>([]);
-
+    const [accidentData, setAccidentData] = useState<AccidentData[]>([]);
     const [allCongestions, setAllCongestions] = useState<CongestionData[]>([]);
     const [congestionInfo, setCongestionInfo] = useState<CongestionData | null>(
         null
@@ -72,7 +79,8 @@ export function PlaceProvider({ children }: { children: React.ReactNode }) {
             setParkData(data as unknown as ParkData[]);
         };
         const handelAccidentUpdate = (data: Record<string, unknown>) => {
-            console.log("들어온 accident-update 데이터(사용안함): ", data);
+            console.log("들어온 accident-update 데이터: ", data);
+            setAccidentData(data as unknown as AccidentData[]);
         };
         const event = subscribeExternal(
             handelWeatherUpdate,
@@ -145,6 +153,7 @@ export function PlaceProvider({ children }: { children: React.ReactNode }) {
                 setSelectedAreaId,
                 congestionInfo,
                 mapData,
+                accidentData,
             }}
         >
             {children}
