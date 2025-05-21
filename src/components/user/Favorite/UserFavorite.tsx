@@ -334,7 +334,7 @@ const UserFavorite = () => {
                                 e.stopPropagation();
                                 toggleExpand(fav.favorite_id);
                             }}
-                            className="text-gray-400 hover:text-gray-600"
+                            className="text-gray-400 bg-white hover:text-gray-600"
                         >
                             <svg
                                 className={`w-5 h-5 transform transition-transform ${isExpanded ? "rotate-180" : ""}`}
@@ -364,30 +364,6 @@ const UserFavorite = () => {
                             transition={{ duration: 0.3 }}
                             className="mt-4 border-t border-gray-100 pt-4 space-y-3"
                         >
-                            <div className="flex items-start text-sm">
-                                <svg
-                                    className="w-4 h-4 text-gray-400 mr-2 mt-0.5"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                                    />
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                                    />
-                                </svg>
-                                <span>{fav.address}</span>
-                            </div>
-
                             <div className="flex justify-between pt-3">
                                 <button
                                     onClick={() => {
@@ -488,33 +464,6 @@ const UserFavorite = () => {
         <div className="flex flex-col h-full min-h-full">
             {/* 헤더와 검색 영역 */}
             <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100 sticky top-0 z-10 flex-shrink-0">
-                <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-2xl font-bold text-gray-800 flex items-center">
-                        <span className="mr-2 text-xl">⭐</span>
-                        즐겨찾기
-                    </h2>
-                    <button
-                        className="text-indigo-600 bg-white shadow hover:text-indigo-800 flex items-center text-sm px-3 py-2 rounded-lg"
-                        onClick={loadFavorites}
-                    >
-                        <svg
-                            className="w-4 h-4 mr-1"
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                        >
-                            <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                            />
-                        </svg>
-                        새로고침
-                    </button>
-                </div>
-
                 {/* 검색 입력 필드 */}
                 <div className="relative mb-4">
                     <input
@@ -540,8 +489,32 @@ const UserFavorite = () => {
                     </svg>
                 </div>
 
-                {/* 카테고리 필터 버튼 */}
-                <CategoryFilter />
+                {/* 카테고리 필터 버튼과 새로고침 버튼 */}
+                <div className="flex justify-between items-center mb-4">
+                    <div className="flex-1">
+                        <CategoryFilter />
+                    </div>
+                    <button
+                        className="text-indigo-600 bg-white shadow hover:text-indigo-800 flex items-center text-sm px-3 py-2 rounded-lg ml-4"
+                        onClick={loadFavorites}
+                    >
+                        <svg
+                            className="w-4 h-4 mr-1"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                            />
+                        </svg>
+                        새로고침
+                    </button>
+                </div>
             </div>
 
             {/* 컨텐츠 영역 */}
