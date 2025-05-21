@@ -1,18 +1,20 @@
 import { motion } from "framer-motion";
-import { MapData } from "../../../data/adminData";
-import TrafficMap from "../../admin/TrafficMapComponent";
+import { AccidentData, MapData } from "../../../data/adminData";
+// import TrafficMap from "../../admin/TrafficMapComponent";
 import TrafficMapDemo from "../../admin/TrafficMapComponentDemo";
 
 interface TrafficInfoCardProps {
     style: { opacity: number; y: number; scale: number };
     cardRef: (el: HTMLDivElement | null) => void;
     mapData?: MapData;
+    accidentData?: AccidentData[];
 }
 
 export default function TrafficInfoCard({
     style,
     cardRef,
     mapData,
+    accidentData,
 }: TrafficInfoCardProps) {
     return (
         <motion.div
@@ -30,6 +32,7 @@ export default function TrafficInfoCard({
                 <TrafficMapDemo
                     trafficData={mapData.trafficData || undefined}
                     parkData={mapData.parkData || undefined}
+                    accidentData={accidentData}
                 />
             )}
         </motion.div>

@@ -383,6 +383,7 @@ export default function DashboardComponent() {
                     style={cardStyles[9]}
                     cardRef={(el) => (cardRefs.current[9] = el)}
                     mapData={map}
+                    accidentData={selectedAccidents}
                 />
 
                 {/*<ParkingInfoCard*/}

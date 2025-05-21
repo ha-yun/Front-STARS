@@ -2,13 +2,14 @@
 import React, { useEffect, useRef, useState } from "react";
 import mapboxgl, { LngLatLike, NavigationControl } from "mapbox-gl";
 import MapboxLanguage from "@mapbox/mapbox-gl-language";
-import { ParkNode, TrafficData } from "../../data/adminData";
+import { ParkNode, TrafficData, AccidentData } from "../../data/adminData";
 
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
 
 interface TrafficMapProps {
     trafficData?: TrafficData;
     parkData?: { prk_stts: ParkNode[] };
+    accidentData?: AccidentData[];
     initialCenter?: LngLatLike;
     initialZoom?: number;
     height?: string;
@@ -18,6 +19,7 @@ interface TrafficMapProps {
 const TrafficMapDemo: React.FC<TrafficMapProps> = ({
     trafficData,
     parkData,
+    accidentData,
     initialCenter = [126.978, 37.5665],
     initialZoom = 11,
     height = "500px",
@@ -158,8 +160,10 @@ const TrafficMapDemo: React.FC<TrafficMapProps> = ({
             if (!map.current) return;
             if (trafficData) drawRoads(map.current, trafficData);
             if (parkData?.prk_stts) drawParking(map.current, parkData.prk_stts);
+            if (accidentData?.length)
+                drawAccidentMarkers(map.current, accidentData);
         }, 100);
-    }, [trafficData, parkData, mapLoaded]);
+    }, [trafficData, parkData, accidentData, mapLoaded]);
 
     const clearAllLayers = () => {
         const mapRef = map.current;
@@ -257,6 +261,55 @@ const TrafficMapDemo: React.FC<TrafficMapProps> = ({
         });
     };
 
+    const drawAccidentMarkers = (
+        map: mapboxgl.Map,
+        accidents: AccidentData[]
+    ) => {
+        accidents.forEach((acc) => {
+            const el = document.createElement("div");
+            el.className = "accident-marker";
+            el.style.width = "22px";
+            el.style.height = "22px";
+            el.style.fontSize = "18px";
+            el.style.borderRadius = "50%";
+            el.style.display = "flex";
+            el.style.alignItems = "center";
+            el.style.justifyContent = "center";
+            el.style.background = "white";
+            el.style.border = "2px solid #ccc";
+            el.style.boxShadow = "0 0 4px rgba(0,0,0,0.3)";
+
+            // 이모지 아이콘
+            el.innerText = getAccidentIcon(acc.acdnt_type);
+
+            const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(`
+            <strong>${acc.acdnt_type} - ${acc.acdnt_dtype}</strong><br/>
+            ${acc.acdnt_info}<br/>
+            <span class="text-sm text-gray-500">(${acc.acdnt_occr_dt} ~ ${acc.exp_clr_dt})</span>
+        `);
+
+            const marker = new mapboxgl.Marker(el)
+                .setLngLat([acc.acdnt_x, acc.acdnt_y])
+                .setPopup(popup)
+                .addTo(map);
+
+            markerRefs.current.push(marker); // ✅ 필요 시 별도 관리
+        });
+    };
+
+    const getAccidentIcon = (type: string): string => {
+        switch (type) {
+            case "공사":
+                return "🔧";
+            case "낙하물":
+                return "⚠️";
+            case "사고":
+                return "🚧";
+            default:
+                return "❗️";
+        }
+    };
+
     const getTrafficColor = (status: string): string => {
         switch (status) {
             case "서행":
@@ -292,44 +345,52 @@ const TrafficMapDemo: React.FC<TrafficMapProps> = ({
                 </div>
             )}
 
-            {mapLoaded && (
-                <div className="absolute bottom-4 right-4 bg-white p-2 md:p-3 rounded-lg shadow-md z-10 text-black text-xs md:text-sm">
-                    <h3 className="font-bold mb-1 md:mb-2 text-center">범례</h3>
-                    <div className="flex flex-row">
-                        {/* Left column - Traffic status */}
-                        <div className="mr-3 md:mr-4">
-                            <h4 className="font-semibold mb-1">교통 상태:</h4>
+            {mapLoaded && trafficData && (
+                <div className="absolute bottom-4 right-4 bg-white p-3 rounded-lg shadow-md z-10 text-black text-xs md:text-sm w-fit">
+                    {/* ✅ 평균 속도 - 한 줄 표시 */}
+                    <div className="flex justify-between items-center mb-2 px-1">
+                        <span className="font-semibold">평균 속도</span>
+                        <span className="text-blue-600 font-bold ml-2">
+                            {trafficData.road_traffic_spd} km/h
+                        </span>
+                    </div>
+
+                    {/* ✅ 교통 / 주차 상태 - 두 열 그리드 */}
+                    <div className="grid grid-cols-2 gap-4 border-t pt-2 mt-2">
+                        {/* 교통 상태 */}
+                        <div>
+                            <h4 className="font-semibold mb-1">교통 상태</h4>
                             <div className="flex items-center mb-1">
-                                <div className="w-3 h-3 md:w-4 md:h-4 bg-green-500 mr-1 md:mr-2"></div>
+                                <div className="w-3 h-3 bg-green-500 mr-2 rounded-full" />
                                 <span>원활</span>
                             </div>
                             <div className="flex items-center mb-1">
-                                <div className="w-3 h-3 md:w-4 md:h-4 bg-orange-500 mr-1 md:mr-2"></div>
+                                <div className="w-3 h-3 bg-orange-500 mr-2 rounded-full" />
                                 <span>서행</span>
                             </div>
                             <div className="flex items-center">
-                                <div className="w-3 h-3 md:w-4 md:h-4 bg-red-500 mr-1 md:mr-2"></div>
+                                <div className="w-3 h-3 bg-red-500 mr-2 rounded-full" />
                                 <span>정체</span>
                             </div>
                         </div>
 
-                        {/* Right column - Parking status */}
-                        <div className="ml-1 md:ml-2 border-l border-gray-300 pl-3 md:pl-4">
-                            <h4 className="font-semibold mb-1">주차장 상태:</h4>
+                        {/* 주차 상태 */}
+                        <div className="pl-2 border-l border-gray-300">
+                            <h4 className="font-semibold mb-1">주차장 상태</h4>
                             <div className="flex items-center mb-1">
-                                <div className="w-3 h-3 md:w-4 md:h-4 bg-green-500 mr-1 md:mr-2 flex items-center justify-center text-white font-bold text-xxs md:text-xs">
+                                <div className="w-4 h-4 bg-green-500 mr-2 flex items-center justify-center text-white text-[10px] font-bold rounded-full">
                                     P
                                 </div>
                                 <span>여유</span>
                             </div>
                             <div className="flex items-center mb-1">
-                                <div className="w-3 h-3 md:w-4 md:h-4 bg-yellow-500 mr-1 md:mr-2 flex items-center justify-center text-white font-bold text-xxs md:text-xs">
+                                <div className="w-4 h-4 bg-yellow-500 mr-2 flex items-center justify-center text-white text-[10px] font-bold rounded-full">
                                     P
                                 </div>
                                 <span>보통</span>
                             </div>
                             <div className="flex items-center">
-                                <div className="w-3 h-3 md:w-4 md:h-4 bg-red-500 mr-1 md:mr-2 flex items-center justify-center text-white font-bold text-xxs md:text-xs">
+                                <div className="w-4 h-4 bg-red-500 mr-2 flex items-center justify-center text-white text-[10px] font-bold rounded-full">
                                     P
                                 </div>
                                 <span>혼잡</span>
