@@ -7,9 +7,9 @@ import AreaInfoCard from "./AreaInfoCard";
 import WeatherCard from "./WeatherCard";
 import ChartCard from "./ChartCard";
 import POICardList from "./POICardList";
-import ReviewAnalysisCard from "./ReviewAnalysisCard";
+import RatesCard from "./RatesCard";
 import TrafficInfoCard from "./TrafficInfoCard";
-import ParkingInfoCard from "./ParkingInfoCard";
+// import ParkingInfoCard from "./ParkingInfoCard";
 import AccidentAlertCard from "./AccidentAlertCard";
 import CongestionStatusCard from "./CongestionStatusCard";
 import AttractionCard from "./AttractionCard";
@@ -364,11 +364,7 @@ export default function DashboardComponent() {
                     cardRef={(el) => (cardRefs.current[6] = el)}
                 />
 
-                <ReviewAnalysisCard
-                    datas={[
-                        { name: "좋아요", value: 70, fill: "#00bc7d" },
-                        { name: "별로예요", value: 30, fill: "#ef4444" },
-                    ]}
+                <RatesCard
                     style={cardStyles[7]}
                     cardRef={(el) => (cardRefs.current[7] = el)}
                 />

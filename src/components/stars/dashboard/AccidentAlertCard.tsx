@@ -27,7 +27,7 @@ export default function AccidentAlertCard({
 }: AccidentAlertCardProps) {
     return (
         <motion.div
-            className="col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-8 bg-white rounded-3xl shadow-lg p-5 my-2"
+            className="col-span-12 sm:col-span-6 md:col-span-4 lg:col-span-4 bg-blue-500 rounded-3xl shadow-lg p-5 my-2"
             whileHover={{ y: -6 }}
             animate={
                 style
@@ -37,12 +37,12 @@ export default function AccidentAlertCard({
             style={style}
             ref={cardRef}
         >
-            <h2 className="text-xl font-bold text-gray-800 mb-3">
+            <h2 className="text-lg font-bold text-white mb-3">
                 사건·사고 알림
             </h2>
 
             {accidents.length === 0 ? (
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-white flex items-center justify-center">
                     현재 이 관광특구에는 사고 정보가 없습니다.
                 </p>
             ) : (
@@ -50,7 +50,7 @@ export default function AccidentAlertCard({
                     {accidents.map((acc, idx) => (
                         <div
                             key={idx}
-                            className="bg-white border rounded-xl shadow-lg p-3 text-sm"
+                            className="bg-blue-100 rounded-2xl shadow-lg p-3 text-sm"
                         >
                             <div className="flex items-center gap-2 mb-1">
                                 {/* 아이콘과 유형 뱃지 */}
@@ -60,14 +60,14 @@ export default function AccidentAlertCard({
                                 <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-red-500 text-white">
                                     {acc.acdnt_type}
                                 </span>
-                                <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-yellow-500 text-white">
+                                <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-blue-500 text-white">
                                     {acc.acdnt_dtype}
                                 </span>
                             </div>
                             <p className="text-sm text-gray-800 leading-snug">
                                 {acc.acdnt_info}
                             </p>
-                            <p className="text-xs text-gray-500 mt-1">
+                            <p className="text-xs text-blue-500 mt-1">
                                 발생: {acc.acdnt_occr_dt} / 해제:{" "}
                                 {acc.exp_clr_dt}
                             </p>
