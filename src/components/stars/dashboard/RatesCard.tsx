@@ -5,7 +5,6 @@ import {
     Bar,
     XAxis,
     YAxis,
-    Tooltip,
     LabelList,
     ResponsiveContainer,
 } from "recharts";
@@ -89,21 +88,6 @@ export default function RatesCard({ style, cardRef }: RatesCardProps) {
                                 tick={{ fill: "#6366f1", fontSize: 12 }}
                                 axisLine={false}
                                 tickLine={false}
-                            />
-                            {/* 툴팁 */}
-                            <Tooltip
-                                cursor={false}
-                                contentStyle={{
-                                    backgroundColor: "white",
-                                    border: "none",
-                                    borderRadius: "0.5rem",
-                                    boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
-                                    fontSize: "12px",
-                                    color: "#4f46e5", // indigo-600
-                                }}
-                                formatter={(value: number) =>
-                                    `${value.toFixed(1)}%`
-                                }
                             />
                             {/* Bar 그래프 */}
                             <Bar
