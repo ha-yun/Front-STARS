@@ -1,3 +1,5 @@
+// Updated AdminDetail.tsx with always-rendered ForecastPopulationCard
+
 import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import PieCard from "./cards/PieCard";
@@ -138,6 +140,9 @@ const AdminDetail = () => {
                 }
             );
             setForecastData(forecastChartData);
+        } else {
+            // Make sure forecastData is set to an empty array if data.fcst_ppltn is undefined/null
+            setForecastData([]);
         }
     };
 
@@ -233,12 +238,11 @@ const AdminDetail = () => {
 
                     <PopulationRateCard population={ppltnRate} />
 
-                    {forecastData.length > 0 && (
-                        <ForecastPopulationCard
-                            fcst_ppltn={forecastData}
-                            className="md:col-span-2"
-                        />
-                    )}
+                    {/* Always render ForecastPopulationCard component */}
+                    <ForecastPopulationCard
+                        fcst_ppltn={forecastData}
+                        className="md:col-span-2"
+                    />
                 </div>
             </div>
             {/* End of Main Container */}

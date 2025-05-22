@@ -1,7 +1,5 @@
-import React, { useEffect, useRef, useState } from "react";
-import { motion } from "framer-motion";
+import React, { useEffect, useState } from "react";
 import {
-    LineChart,
     Line,
     XAxis,
     YAxis,
@@ -11,6 +9,7 @@ import {
     ResponsiveContainer,
     Area,
     ComposedChart,
+    TooltipProps,
 } from "recharts";
 
 interface ForecastPopulation {
@@ -23,6 +22,16 @@ interface ForecastPopulation {
 interface ForecastPopulationCardProps {
     fcst_ppltn: ForecastPopulation[];
     className?: string;
+}
+
+interface ChartDataItem {
+    time: string;
+    originalTime: string;
+    min: number;
+    max: number;
+    average: number;
+    level: string;
+    color: string;
 }
 
 // Get color based on congestion level
@@ -74,7 +83,9 @@ const ForecastPopulationCard = ({
     className = "",
 }: ForecastPopulationCardProps) => {
     const [windowWidth, setWindowWidth] = useState(window.innerWidth);
-    const [chartData, setChartData] = useState<any[]>([]);
+    const [chartData, setChartData] = useState<ChartDataItem[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [hasError, setHasError] = useState(false);
 
     useEffect(() => {
         const handleResize = () => {
@@ -89,42 +100,52 @@ const ForecastPopulationCard = ({
 
     // Process forecast data
     useEffect(() => {
-        if (fcst_ppltn && fcst_ppltn.length > 0) {
-            console.log("Original fcst_ppltn data:", fcst_ppltn);
+        setIsLoading(true);
+        setHasError(false);
 
-            // Format data for chart
-            const formattedData = fcst_ppltn.map((item) => {
-                // fcst_time 형식 로깅으로 디버깅
-                console.log("Processing fcst_time:", item.fcst_time);
+        try {
+            if (fcst_ppltn && fcst_ppltn.length > 0) {
+                // Format data for chart
+                const formattedData = fcst_ppltn.map((item) => {
+                    // 안전하게 시간 형식 변환
+                    let koreanTime;
+                    try {
+                        koreanTime = formatTimeToKoreanHour(item.fcst_time);
+                    } catch (error) {
+                        console.error(
+                            "Error formatting time:",
+                            error,
+                            item.fcst_time
+                        );
+                        koreanTime = item.fcst_time; // 오류 시 원본 시간 유지
+                    }
 
-                // 안전하게 시간 형식 변환
-                let koreanTime;
-                try {
-                    koreanTime = formatTimeToKoreanHour(item.fcst_time);
-                } catch (error) {
-                    console.error(
-                        "Error formatting time:",
-                        error,
-                        item.fcst_time
-                    );
-                    koreanTime = item.fcst_time; // 오류 시 원본 시간 유지
-                }
+                    return {
+                        time: koreanTime,
+                        originalTime: item.fcst_time, // 원본 시간 보존
+                        min: item.fcst_ppltn_min,
+                        max: item.fcst_ppltn_max,
+                        average: Math.round(
+                            (item.fcst_ppltn_min + item.fcst_ppltn_max) / 2
+                        ),
+                        level: item.fcst_congest_lvl,
+                        color: getCongestionColor(item.fcst_congest_lvl),
+                    };
+                });
 
-                return {
-                    time: koreanTime,
-                    originalTime: item.fcst_time, // 원본 시간 보존
-                    min: item.fcst_ppltn_min,
-                    max: item.fcst_ppltn_max,
-                    average: Math.round(
-                        (item.fcst_ppltn_min + item.fcst_ppltn_max) / 2
-                    ),
-                    level: item.fcst_congest_lvl,
-                    color: getCongestionColor(item.fcst_congest_lvl),
-                };
-            });
-
-            console.log("Formatted chart data:", formattedData);
-            setChartData(formattedData);
+                console.log("Formatted chart data:", formattedData);
+                setChartData(formattedData);
+            } else {
+                // 데이터가 없는 경우
+                setChartData([]);
+                setHasError(true);
+            }
+        } catch (error) {
+            console.error("Error processing forecast data:", error);
+            setHasError(true);
+            setChartData([]);
+        } finally {
+            setIsLoading(false);
         }
     }, [fcst_ppltn]);
 
@@ -137,7 +158,11 @@ const ForecastPopulationCard = ({
     };
 
     // Custom tooltip component - 더 눈에 띄게 개선
-    const CustomTooltip = ({ active, payload, label }: any) => {
+    const CustomTooltip = ({
+        active,
+        payload,
+        label,
+    }: TooltipProps<number, string>) => {
         if (active && payload && payload.length) {
             const data = payload[0].payload;
 
@@ -197,8 +222,8 @@ const ForecastPopulationCard = ({
         return null;
     };
 
-    // 데이터가 없는 경우 대체 UI
-    if (!chartData || chartData.length === 0) {
+    // 데이터가 로딩 중인 경우 로딩 UI
+    if (isLoading) {
         return (
             <div
                 className={`bg-white rounded-lg shadow p-4 h-full flex flex-col ${className}`}
@@ -211,17 +236,73 @@ const ForecastPopulationCard = ({
                         향후 12시간 예상 인구 변화
                     </p>
                 </div>
-                <div className="flex-grow flex items-center justify-center">
-                    <p className="text-gray-500">
-                        예측 데이터를 불러오는 중이거나 데이터가 없습니다.
+                <div className="flex-grow flex flex-col items-center justify-center space-y-3">
+                    <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                    <p className="text-gray-500 text-sm">
+                        데이터를 불러오는 중입니다...
                     </p>
                 </div>
             </div>
         );
     }
 
+    // 데이터가 없거나 오류가 발생한 경우 대체 UI
+    if (hasError || !chartData || chartData.length === 0) {
+        return (
+            <div
+                className={`bg-white rounded-lg shadow p-4 h-full flex flex-col ${className}`}
+            >
+                <div className="mb-4">
+                    <h3 className="font-semibold text-lg text-gray-700">
+                        인구 예측 추이
+                    </h3>
+                    <p className="text-sm text-gray-500">
+                        향후 12시간 예상 인구 변화
+                    </p>
+                </div>
+                <div className="flex-grow flex flex-col items-center justify-center space-y-4">
+                    <div className="w-16 h-16 flex items-center justify-center rounded-full bg-gray-100">
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-8 w-8 text-gray-400"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                            />
+                        </svg>
+                    </div>
+                    <div className="text-center">
+                        <p className="text-gray-600 font-medium">
+                            데이터를 표시할 수 없습니다
+                        </p>
+                        <p className="text-gray-500 text-sm mt-1">
+                            예측 데이터가 없거나 불러오는 중 오류가
+                            발생했습니다.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    // Define proper types for dot props
+    interface RenderDotProps {
+        cx: number;
+        cy: number;
+        payload: ChartDataItem;
+        index: number;
+        dataKey: string;
+        value: number;
+    }
+
     // 각 지점별 색상 렌더링 함수 - 크기를 더 키우고 테두리를 명확하게 표시
-    const renderDot = (props: any) => {
+    const renderDot = (props: RenderDotProps) => {
         const { cx, cy, payload } = props;
 
         return (
@@ -236,43 +317,6 @@ const ForecastPopulationCard = ({
                     fill={payload.color}
                     stroke="white"
                     strokeWidth={1}
-                />
-            </g>
-        );
-    };
-
-    // 활성화된 도트 - 훨씬 더 큰 사이즈와 애니메이션 효과
-    const renderActiveDot = (props: any) => {
-        const { cx, cy, payload } = props;
-
-        return (
-            <g>
-                {/* 큰 외부 링 - 반투명 */}
-                <circle
-                    cx={cx}
-                    cy={cy}
-                    r={14}
-                    fill={payload.color}
-                    opacity={0.2}
-                />
-                {/* 중간 크기 링 */}
-                <circle
-                    cx={cx}
-                    cy={cy}
-                    r={10}
-                    fill={payload.color}
-                    opacity={0.4}
-                    stroke="white"
-                    strokeWidth={1}
-                />
-                {/* 내부 도트 - 색상 강조 */}
-                <circle
-                    cx={cx}
-                    cy={cy}
-                    r={6}
-                    fill={payload.color}
-                    stroke="white"
-                    strokeWidth={2}
                 />
             </g>
         );
@@ -393,7 +437,6 @@ const ForecastPopulationCard = ({
                             strokeWidth={3}
                             dot={renderDot}
                             name="평균 인구"
-                            activeDot={renderActiveDot}
                             isAnimationActive={true}
                         />
                     </ComposedChart>

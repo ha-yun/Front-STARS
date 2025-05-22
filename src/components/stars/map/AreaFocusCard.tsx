@@ -3,7 +3,6 @@ import { motion } from "framer-motion";
 import { CountUp } from "countup.js";
 import { getAreaList, getPlaceListByArea } from "../../../api/starsApi";
 import { SearchResult } from "../../../api/searchApi";
-import { usePlace } from "../../../context/PlaceContext";
 
 interface AreaFocusCardProps {
     areaId: number;
@@ -34,7 +33,8 @@ interface PlaceContent {
     address: string;
     lat: number;
     lon: number;
-    // 필요시 추가 필드
+    phone?: string; // 추가
+    kakaomap_url?: string; // 추가
 }
 
 const AreaFocusCard: React.FC<AreaFocusCardProps> = ({
@@ -97,7 +97,10 @@ const AreaFocusCard: React.FC<AreaFocusCardProps> = ({
                 address: place.address,
                 lon: place.lon,
                 lat: place.lat,
+                phone: place.phone,
+                kakaomap_url: place.kakaomap_url,
                 type,
+                area_id: areaId, // 추가
             })
         );
         onCategoryClick?.(items);

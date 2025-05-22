@@ -37,7 +37,7 @@ interface AdminDataContextType {
     mapData: MapData[];
     findAreaData: (areaId: number) => CombinedAreaData | undefined;
     isLoading: boolean;
-    spotsLoading: boolean;
+    // spotsLoading: boolean;
     // weatherLoading: boolean;
     error: string | null;
     refreshAllData: () => Promise<void>; // 새로고침, 근데 이걸 넘길 필요가 있나?
@@ -73,8 +73,7 @@ export const AdminDataProvider: React.FC<AdminDataProviderProps> = ({
     const [accidentData, setAccidentData] = useState<AccidentData[]>([]);
     const [parkData, setParkData] = useState<ParkData[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
-    const [spotsLoading, setSpotsLoading] = useState<boolean>(true);
-    // const [weatherLoading, setWeatherLoading] = useState<boolean>(true);
+    // const [spotsLoading, setSpotsLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const [refreshing, setRefreshing] = useState<boolean>(false);
     const eventSources = React.useRef<{
@@ -296,190 +295,6 @@ export const AdminDataProvider: React.FC<AdminDataProviderProps> = ({
         }
     };
 
-    // 관광지 정보 데이터 로드 함수
-    // 통합 코드 사용으로 미사용
-    // const fetchTouristInfo = async () => {
-    //     if (!adminCheck) return;
-    //
-    //     setLoading(true);
-    //     setError(null);
-    //
-    //     try {
-    //         // 테스트 모드가 아닐 때 실제 SSE 연결
-    //         if (!test) {
-    //             // 기존 이벤트 소스가 있다면 닫기
-    //             if (eventSources.current.congestionUpdate) {
-    //                 eventSources.current.congestionUpdate.close();
-    //             }
-    //
-    //             // 새 이벤트 소스 생성
-    //             const event: EventSource = subscribeCongestionUpdate((data) => {
-    //                 const updateData = data as unknown as PopulationData[];
-    //
-    //                 console.log("fetchTouristInfo");
-    //
-    //                 setTouristInfoData(updateData);
-    //                 if (error) {
-    //                     setError(null);
-    //                 }
-    //             });
-    //
-    //             // 이벤트 소스 저장
-    //             eventSources.current.congestionUpdate = event;
-    //         } else {
-    //             setTouristInfoData(dummyTouristData);
-    //         }
-    //     } catch (err) {
-    //         console.error("Failed to fetch tourist info:", err);
-    //         setError("정보를 불러오는데 실패했습니다.");
-    //         setTouristInfoData([]);
-    //     } finally {
-    //         setLoading(false);
-    //     }
-    // };
-
-    // 혼잡 현황 데이터 로드 함수
-    // 통합 코드 사용으로 미사용
-    // const fetchTouristSpots = async () => {
-    //     if (!adminCheck) return;
-    //
-    //     setSpotsLoading(true);
-    //
-    //     try {
-    //         if (!test) {
-    //             // 기존 이벤트 소스가 있다면 닫기
-    //             if (eventSources.current.congestionAlert) {
-    //                 eventSources.current.congestionAlert.close();
-    //             }
-    //
-    //             // 새 이벤트 소스 생성
-    //             const event: EventSource = subscribeCongestionAlert(
-    //                 (data): void => {
-    //                     // 데이터 타입 변환 및 처리
-    //                     setTouristSpotsData(data as unknown as TouristSpot[]);
-    //                     console.log("fetchTouristSpots");
-    //                     if (error) {
-    //                         setError(null);
-    //                     }
-    //                 }
-    //             );
-    //
-    //             // 이벤트 소스 저장
-    //             eventSources.current.congestionAlert = event;
-    //         }
-    //     } catch (err) {
-    //         console.error("Failed to fetch tourist spots:", err);
-    //         setError("정보를 불러오는데 실패했습니다");
-    //         setTouristSpotsData([]);
-    //     } finally {
-    //         setSpotsLoading(false);
-    //     }
-    // };
-
-    // 날씨 정보 데이터 로드 함수
-    // 통합 코드 사용으로 미사용
-    // const fetchWeatherData = async () => {
-    //     if (!adminCheck) return;
-    //
-    //     setWeatherLoading(true);
-    //     setError(null);
-    //
-    //     try {
-    //         if (!test) {
-    //             // 기존 이벤트 소스가 있다면 닫기
-    //             if (eventSources.current.weatherUpdate) {
-    //                 eventSources.current.weatherUpdate.close();
-    //             }
-    //
-    //             // 새 이벤트 소스 생성
-    //             const event = subscribeWeatherUpdate((data) => {
-    //                 setWeatherInfoData(data as unknown as WeatherData[]);
-    //                 console.log("fetchWeatherData");
-    //             });
-    //
-    //             // 이벤트 소스 저장
-    //             eventSources.current.weatherUpdate = event;
-    //         } else {
-    //             // 더미데이터로 교체
-    //             setWeatherInfoData(dummyWeatherData);
-    //             console.log("날씨 더미 데이터: ", weatherInfoData);
-    //         }
-    //     } catch (err) {
-    //         console.error("날씨 데이터 가져오기 실패:", err);
-    //         setError("날씨 정보를 불러오는데 실패했습니다");
-    //         setWeatherInfoData([]);
-    //     } finally {
-    //         setWeatherLoading(false);
-    //     }
-    // };
-
-    // 트래픽 정보 구독 설정
-    // 통합 코드 사용으로 미사용
-    // const fetchTrafficUpdate = () => {
-    //     if (!adminCheck) return;
-    //
-    //     if (!test) {
-    //         // 기존 이벤트 소스가 있다면 닫기
-    //         if (eventSources.current.trafficUpdate) {
-    //             eventSources.current.trafficUpdate.close();
-    //         }
-    //
-    //         // 새 이벤트 소스 생성
-    //         const event = subscribeTrafficUpdate((data) => {
-    //             const updateData = data as unknown as TrafficData[];
-    //             setTrafficData(updateData);
-    //         });
-    //
-    //         // 이벤트 소스 저장
-    //         eventSources.current.trafficUpdate = event;
-    //     } else {
-    //         setTrafficData(dummyTrafficData);
-    //         console.log("넣은 데이터: ", dummyTrafficData);
-    //     }
-    // };
-
-    // 주차 정보 구독 설정
-    // 통합 코드 사용으로 미사용
-    // const fetchParkUpdate = () => {
-    //     if (!adminCheck) return;
-    //
-    //     if (!test) {
-    //         // 기존 이벤트 소스가 있다면 닫기
-    //         if (eventSources.current.parkUpdate) {
-    //             eventSources.current.parkUpdate.close();
-    //         }
-    //
-    //         // 새 이벤트 소스 생성
-    //         const event = subscribeParkUpdate((data) => {
-    //             // 필요한 상태 업데이트 로직 추가
-    //             setParkData(data as unknown as ParkData[]);
-    //             console.log("parkUpdate", parkData);
-    //         });
-    //         // 이벤트 소스 저장
-    //         eventSources.current.parkUpdate = event;
-    //     }
-    // };
-
-    // 사고 정보 조회 구독
-    // 통합 코드 사용으로 미사용
-    // const fetchAccidentUpdate = () => {
-    //     if (!adminCheck) return;
-    //
-    //     if (!test) {
-    //         if (eventSources.current.accidentUpdate) {
-    //             eventSources.current.accidentUpdate.close();
-    //         }
-    //         const event = subscribeAccidentUpdate((data) => {
-    //             setAccidentData(data as unknown as AccidentData[]);
-    //             console.log("AccidentDataUpdate: ", data);
-    //         });
-    //
-    //         eventSources.current.accidentUpdate = event;
-    //     } else {
-    //         setAccidentData(dummyAccidentData);
-    //     }
-    // };
-
     // 모든 데이터 새로고침 함수
     const refreshAllData = async () => {
         if (!adminCheck) return Promise.resolve();
@@ -500,12 +315,6 @@ export const AdminDataProvider: React.FC<AdminDataProviderProps> = ({
     // 컴포넌트 마운트 시 데이터 로드 및 이벤트 소스 설정
     useEffect(() => {
         if (adminCheck) {
-            // fetchTouristInfo();
-            // fetchTouristSpots();
-            // fetchWeatherData();
-            // fetchTrafficUpdate();
-            // fetchParkUpdate();
-            // fetchAccidentUpdate();
             fetchCongestions();
             fetchExternals();
         }
@@ -531,7 +340,6 @@ export const AdminDataProvider: React.FC<AdminDataProviderProps> = ({
         mapData,
         findAreaData,
         isLoading: loading,
-        spotsLoading,
         // weatherLoading,
         error,
         refreshAllData,

@@ -22,7 +22,15 @@ const categoryMap: Record<string, string> = {
     cultural_event: "문화행사",
 };
 
-interface Area {
+const categoryBadge: Record<string, string> = {
+    accommodation: "bg-blue-100 text-blue-700",
+    attraction: "bg-green-100 text-green-700",
+    cafe: "bg-yellow-100 text-yellow-700",
+    restaurant: "bg-red-100 text-red-700",
+    cultural_event: "bg-purple-100 text-purple-700",
+};
+
+export interface Area {
     area_id: number | null;
     area_name: string;
     lat: number;
@@ -256,22 +264,66 @@ export default function MapSectionComponent() {
         items.forEach((item) => {
             const el = document.createElement("div");
             el.className = "custom-marker";
+            const badge =
+                categoryBadge[item.type] ?? "bg-gray-100 text-gray-700";
+            const label = categoryMap[item.type] ?? item.type;
+
+            // 전화번호, 카카오맵 버튼 추가
+            const phoneHtml = item.phone
+                ? `<div class="text-sm text-gray-500">전화: ${item.phone}</div>`
+                : "";
+            const kakaoHtml = item.kakaomap_url
+                ? `<button 
+                    class="mt-1 text-xs px-2 py-1 bg-[#FEE500] text-[#3C1E1E] font-bold rounded shadow hover:bg-yellow-300 transition"
+                    onclick="window.open('${item.kakaomap_url}', '_blank')"
+                >
+                    카카오맵에서 보기
+                </button>`
+                : "";
 
             const popup = new mapboxgl.Popup({
                 offset: 10,
                 closeButton: false,
+                maxWidth: "400px",
             }).setHTML(
                 `<div class="flex flex-col p-2 gap-2">
-                                <h3 class="font-bold text-xl text-gray-700">${item.name}</h3>
-                                <span class="text-md text-gray-500">${categoryMap?.[item.type] ?? item.type}</span>
-                                <p class="text-gray-700">${item.address}</p>
-                            </div>`
+                    <div class="flex items-center gap-2">
+                        <h3 class="font-bold text-xl text-gray-700">${item.name}</h3>
+                        <span class="inline-flex w-auto px-2 py-1 rounded-full text-xs font-semibold ${badge}">
+                            ${label}
+                        </span>
+                    </div>
+                    <p class="text-gray-700">${item.address}</p>
+                    ${phoneHtml}
+                    ${kakaoHtml}
+                    <button 
+                        class="mt-2 px-3 py-1 bg-indigo-600 text-white rounded-full font-bold hover:bg-indigo-700 transition detail-btn"
+                        data-area-id="${item.area_id ?? ""}"
+                    >
+                        가까운 지역구 보기
+                    </button>
+                </div>`
             );
 
             const marker = new mapboxgl.Marker({ element: el })
                 .setLngLat([item.lon, item.lat])
                 .setPopup(popup)
                 .addTo(map);
+
+            popup.on("open", () => {
+                const btn = popup.getElement()?.querySelector(".detail-btn");
+                if (btn) {
+                    btn.addEventListener("click", (e) => {
+                        e.stopPropagation();
+                        const areaId = item.area_id;
+                        console.log(areaId);
+                        if (areaId) {
+                            setSelectedAreaId(areaId);
+                            setShowFocusCard(true);
+                        }
+                    });
+                }
+            });
 
             searchMarkersRef.current.push({ marker, item });
         });

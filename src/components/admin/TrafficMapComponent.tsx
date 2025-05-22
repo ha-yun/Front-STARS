@@ -572,13 +572,13 @@ const TrafficMap: React.FC<TrafficMapProps> = ({
     const getTrafficColor = (status: string): string => {
         switch (status) {
             case "서행":
-                return "#FFA500"; // Orange
+                return "#ff6900"; // Orange
             case "정체":
-                return "#FF0000"; // Red
+                return "#fb2c36"; // Red
             case "원활":
-                return "#00FF00"; // Green
+                return "#00c951"; // Green
             default:
-                return "#FFFF00"; // Yellow
+                return "#efb100"; // Yellow
         }
     };
 

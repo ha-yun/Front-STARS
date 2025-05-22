@@ -108,19 +108,25 @@ const AdminTour = () => {
         setSelectedEvent(null);
     };
 
+    // Esc 키로 모달 닫기 기능
+    useEffect(() => {
+        const handleEscKey = (event: KeyboardEvent) => {
+            if (event.key === "Escape" && selectedEvent) {
+                closeModal();
+            }
+        };
+
+        // 이벤트 리스너 등록
+        window.addEventListener("keydown", handleEscKey);
+
+        // 클린업 함수
+        return () => {
+            window.removeEventListener("keydown", handleEscKey);
+        };
+    }, [selectedEvent]);
+
     // 고유한 카테고리 목록 추출
     const categories = Array.from(new Set(list.map((item) => item.category)));
-
-    // 요금 정보 포맷팅
-    // const formatFee = (fee: string): string => {
-    //     if (!fee) return "정보 없음";
-    //
-    //     if (fee.includes("\n")) {
-    //         return fee.split("\n")[0] + " ...";
-    //     }
-    //
-    //     return fee;
-    // };
 
     // 날짜 포맷팅 함수
     const formatDate = (dateString: string) => {
@@ -181,15 +187,15 @@ const AdminTour = () => {
     );
 
     return (
-        <div className="app-full-height bg-gray-100 min-h-screen flex flex-col w-full overflow-y-auto">
+        <div className="app-full-height bg-gray-100 min-h-screen flex flex-col w-full">
             {/* Header */}
             <AdminHeader path={"/manage"} />
 
-            {/* Main Container */}
-            <div className="flex flex-col p-4">
+            {/* Main Container - 패딩 축소 및 컨테이너 확장 */}
+            <div className="flex flex-col p-2 flex-grow overflow-hidden">
                 {/* 에러 메시지 표시 */}
                 {error && (
-                    <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 relative">
+                    <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-2 relative">
                         <strong className="font-bold">오류 발생!</strong>
                         <span className="block sm:inline"> {error}</span>
                         <button
@@ -201,9 +207,9 @@ const AdminTour = () => {
                     </div>
                 )}
 
-                {/* 필터 섹션 */}
-                <div className="bg-white rounded-lg shadow p-3 w-full mb-4">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                {/* 필터 섹션 - 높이 축소 */}
+                <div className="bg-white rounded-lg shadow p-2 w-full mb-2">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
                         {/* 카테고리 필터 */}
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -287,16 +293,16 @@ const AdminTour = () => {
                     </div>
                 </div>
 
-                {/* 문화 행사 목록 */}
-                <div className="bg-white rounded-lg shadow p-4 w-full">
-                    <h2 className="text-xl font-semibold mb-4">
+                {/* 문화 행사 목록 - 확장 */}
+                <div className="bg-white rounded-lg shadow p-2 w-full flex-grow flex flex-col overflow-hidden">
+                    <h2 className="text-xl font-semibold mb-2">
                         문화 행사 목록
                         <span className="text-gray-500 text-sm ml-2">
                             총 {list.length}개 중 {filteredList.length}개 표시
                             중
                         </span>
                         {loading && (
-                            <span className="text-sm text-blue-500 font-normal ml-2 flex items-center inline-flex">
+                            <span className="text-sm text-blue-500 font-normal ml-2 items-center inline-flex">
                                 <svg
                                     className="animate-spin -ml-1 mr-2 h-4 w-4 text-blue-500"
                                     xmlns="http://www.w3.org/2000/svg"
@@ -338,13 +344,9 @@ const AdminTour = () => {
                         </div>
                     )}
 
-                    {/* 모바일 뷰 (카드형) */}
-                    {/* 모바일 뷰 (카드형) */}
+                    {/* 모바일 뷰 (카드형) - 높이 조정 */}
                     {isMobileView && (
-                        <div
-                            className="overflow-y-auto"
-                            style={{ maxHeight: "500px" }}
-                        >
+                        <div className="overflow-y-auto flex-grow h-full">
                             <div className="space-y-3 pr-1">
                                 {loading && list.length === 0
                                     ? [...Array(5)].map((_, index) => (
@@ -420,136 +422,141 @@ const AdminTour = () => {
                         </div>
                     )}
 
-                    {/* 데스크톱 뷰 (테이블형) */}
+                    {/* 데스크톱 뷰 (테이블형) - 높이 조정 및 수평 스크롤 추가 */}
                     {!isMobileView && (
-                        <div className="relative">
-                            {/* 테이블 헤더 - 고정 */}
-                            <div className="overflow-x-auto">
-                                <table className="w-full table-fixed">
-                                    <thead className="bg-gray-50">
-                                        <tr>
-                                            <th className="w-24 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                카테고리
-                                            </th>
-                                            <th className="w-48 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                제목
-                                            </th>
-                                            <th className="w-28 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                기간
-                                            </th>
-                                            <th className="w-24 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                요금
-                                            </th>
-                                        </tr>
-                                    </thead>
-                                </table>
-                            </div>
+                        <div className="relative flex-grow flex flex-col overflow-hidden">
+                            {/* 테이블 전체 컨테이너 - 수평 스크롤 추가 */}
+                            <div className="overflow-x-auto flex-grow flex flex-col">
+                                {/* 테이블 헤더 - 고정 */}
+                                <div>
+                                    <table className="min-w-full w-full table-fixed">
+                                        <thead className="bg-gray-50">
+                                            <tr>
+                                                <th className="w-1/6 px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                    카테고리
+                                                </th>
+                                                <th className="w-2/5 px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                    제목
+                                                </th>
+                                                <th className="w-1/4 px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                    기간
+                                                </th>
+                                                <th className="w-1/6 px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                    요금
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                    </table>
+                                </div>
 
-                            {/* 테이블 본문 - 스크롤 */}
-                            <div
-                                className="overflow-x-auto overflow-y-auto"
-                                style={{ maxHeight: "500px" }}
-                            >
-                                <table className="w-full table-fixed">
-                                    <tbody className="bg-white divide-y divide-gray-200">
-                                        {loading && list.length === 0
-                                            ? [...Array(10)].map((_, index) => (
-                                                  <TableRowSkeleton
-                                                      key={index}
-                                                  />
-                                              ))
-                                            : filteredList.map(
-                                                  (item, index) => (
-                                                      <tr
-                                                          key={index}
-                                                          className={`${
-                                                              index % 2 === 0
-                                                                  ? "bg-white"
-                                                                  : "bg-gray-50"
-                                                          } hover:bg-gray-100 transition-colors ${
-                                                              !item.is_free
-                                                                  ? "cursor-pointer"
-                                                                  : ""
-                                                          }`}
-                                                          onClick={() =>
-                                                              handleEventClick(
-                                                                  item
-                                                              )
-                                                          }
-                                                      >
-                                                          <td className="w-24 px-4 py-3 text-sm text-gray-900">
-                                                              <div className="flex">
-                                                                  <span className="text-xs bg-gray-100 text-gray-800 px-2 py-1 rounded truncate">
-                                                                      {
-                                                                          item.category
-                                                                      }
-                                                                  </span>
-                                                                  <span className="text-xs ml-2 text-gray-500 py-1 truncate">
-                                                                      {item.gu}
-                                                                  </span>
-                                                              </div>
-                                                          </td>
-                                                          <td className="w-48 px-4 py-3 text-sm text-gray-900 font-medium">
-                                                              <div
-                                                                  className="truncate max-w-xs"
-                                                                  title={
-                                                                      item.event_name
-                                                                  }
-                                                              >
-                                                                  {
-                                                                      item.event_name
-                                                                  }
-                                                              </div>
-                                                          </td>
-                                                          <td className="w-28 px-4 py-3 text-sm text-gray-900">
-                                                              {formatDate(
-                                                                  item.start_date
-                                                              )}{" "}
-                                                              ~{" "}
-                                                              {formatDate(
-                                                                  item.end_date
-                                                              )}
-                                                          </td>
-                                                          <td className="w-24 px-4 py-3 text-sm text-gray-900">
-                                                              <div className="flex items-center">
-                                                                  <span
-                                                                      className={`px-2 py-1 text-xs rounded-full ${
-                                                                          item.is_free
-                                                                              ? "bg-green-100 text-green-800"
-                                                                              : "bg-red-100 text-red-800"
-                                                                      }`}
-                                                                  >
-                                                                      {item.is_free
-                                                                          ? "무료"
-                                                                          : "유료"}
-                                                                  </span>
-                                                                  {!item.is_free && (
-                                                                      <span className="ml-2 text-blue-500 text-xs">
-                                                                          <svg
-                                                                              xmlns="http://www.w3.org/2000/svg"
-                                                                              className="h-4 w-4 inline"
-                                                                              fill="none"
-                                                                              viewBox="0 0 24 24"
-                                                                              stroke="currentColor"
-                                                                          >
-                                                                              <path
-                                                                                  strokeLinecap="round"
-                                                                                  strokeLinejoin="round"
-                                                                                  strokeWidth={
-                                                                                      2
-                                                                                  }
-                                                                                  d="M13 16h-1v-4h-1m1-4h.01M12 20a8 8 0 100-16 8 8 0 000 16z"
-                                                                              />
-                                                                          </svg>
-                                                                      </span>
-                                                                  )}
-                                                              </div>
-                                                          </td>
-                                                      </tr>
+                                {/* 테이블 본문 - 스크롤 확장 */}
+                                <div className="overflow-y-auto flex-grow">
+                                    <table className="min-w-full w-full table-fixed">
+                                        <tbody className="bg-white divide-y divide-gray-200">
+                                            {loading && list.length === 0
+                                                ? [...Array(10)].map(
+                                                      (_, index) => (
+                                                          <TableRowSkeleton
+                                                              key={index}
+                                                          />
+                                                      )
                                                   )
-                                              )}
-                                    </tbody>
-                                </table>
+                                                : filteredList.map(
+                                                      (item, index) => (
+                                                          <tr
+                                                              key={index}
+                                                              className={`${
+                                                                  index % 2 ===
+                                                                  0
+                                                                      ? "bg-white"
+                                                                      : "bg-gray-50"
+                                                              } hover:bg-gray-100 transition-colors ${
+                                                                  !item.is_free
+                                                                      ? "cursor-pointer"
+                                                                      : ""
+                                                              }`}
+                                                              onClick={() =>
+                                                                  handleEventClick(
+                                                                      item
+                                                                  )
+                                                              }
+                                                          >
+                                                              <td className="w-1/6 px-4 py-3 text-sm text-gray-900">
+                                                                  <div className="flex flex-col">
+                                                                      <span className="text-xs bg-gray-100 text-gray-800 px-2 py-1 rounded truncate w-fit">
+                                                                          {
+                                                                              item.category
+                                                                          }
+                                                                      </span>
+                                                                      <span className="text-xs mt-1 text-gray-500 truncate">
+                                                                          {
+                                                                              item.gu
+                                                                          }
+                                                                      </span>
+                                                                  </div>
+                                                              </td>
+                                                              <td className="w-2/5 px-4 py-3 text-sm text-gray-900 font-medium">
+                                                                  <div
+                                                                      className="truncate"
+                                                                      title={
+                                                                          item.event_name
+                                                                      }
+                                                                  >
+                                                                      {
+                                                                          item.event_name
+                                                                      }
+                                                                  </div>
+                                                              </td>
+                                                              <td className="w-1/4 px-4 py-3 text-sm text-gray-900">
+                                                                  {formatDate(
+                                                                      item.start_date
+                                                                  )}{" "}
+                                                                  ~{" "}
+                                                                  {formatDate(
+                                                                      item.end_date
+                                                                  )}
+                                                              </td>
+                                                              <td className="w-1/6 px-4 py-3 text-sm text-gray-900">
+                                                                  <div className="flex items-center">
+                                                                      <span
+                                                                          className={`px-2 py-1 text-xs rounded-full ${
+                                                                              item.is_free
+                                                                                  ? "bg-green-100 text-green-800"
+                                                                                  : "bg-red-100 text-red-800"
+                                                                          }`}
+                                                                      >
+                                                                          {item.is_free
+                                                                              ? "무료"
+                                                                              : "유료"}
+                                                                      </span>
+                                                                      {!item.is_free && (
+                                                                          <span className="ml-2 text-blue-500 text-xs">
+                                                                              <svg
+                                                                                  xmlns="http://www.w3.org/2000/svg"
+                                                                                  className="h-4 w-4 inline"
+                                                                                  fill="none"
+                                                                                  viewBox="0 0 24 24"
+                                                                                  stroke="currentColor"
+                                                                              >
+                                                                                  <path
+                                                                                      strokeLinecap="round"
+                                                                                      strokeLinejoin="round"
+                                                                                      strokeWidth={
+                                                                                          2
+                                                                                      }
+                                                                                      d="M13 16h-1v-4h-1m1-4h.01M12 20a8 8 0 100-16 8 8 0 000 16z"
+                                                                                  />
+                                                                              </svg>
+                                                                          </span>
+                                                                      )}
+                                                                  </div>
+                                                              </td>
+                                                          </tr>
+                                                      )
+                                                  )}
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
                     )}
@@ -568,6 +575,8 @@ const AdminTour = () => {
                                 <button
                                     onClick={closeModal}
                                     className="text-gray-400 bg-white hover:text-gray-600"
+                                    aria-label="닫기"
+                                    title="닫기 (Esc)"
                                 >
                                     <svg
                                         xmlns="http://www.w3.org/2000/svg"
@@ -641,6 +650,7 @@ const AdminTour = () => {
                             <button
                                 onClick={closeModal}
                                 className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                                title="닫기 (Esc)"
                             >
                                 닫기
                             </button>

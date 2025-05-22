@@ -7,9 +7,10 @@ import AreaInfoCard from "./AreaInfoCard";
 import WeatherCard from "./WeatherCard";
 import ChartCard from "./ChartCard";
 import POICardList from "./POICardList";
-import ReviewAnalysisCard from "./ReviewAnalysisCard";
+import RatesCard from "./RatesCard";
 import TrafficInfoCard from "./TrafficInfoCard";
-import ParkingInfoCard from "./ParkingInfoCard";
+// import ParkingInfoCard from "./ParkingInfoCard";
+import AccidentAlertCard from "./AccidentAlertCard";
 import CongestionStatusCard from "./CongestionStatusCard";
 import AttractionCard from "./AttractionCard";
 import CulturalEventCard from "./CulturalEventCard";
@@ -126,6 +127,13 @@ export default function DashboardComponent() {
     const [events, setEvents] = useState<CulturalEvent[]>([]);
 
     const [weatherList, setWeatherList] = useState<WeatherData[]>([]);
+
+    const { accidentData } = usePlace();
+
+    const selectedAccidents = useMemo(() => {
+        if (!selectedAreaId || !accidentData) return [];
+        return accidentData.filter((acc) => acc.area_id === selectedAreaId);
+    }, [accidentData, selectedAreaId]);
 
     // 선택된 위치 교통 정보 찾기
     const map: MapData | undefined = mapData?.find(
@@ -356,53 +364,56 @@ export default function DashboardComponent() {
                     cardRef={(el) => (cardRefs.current[6] = el)}
                 />
 
-                <ReviewAnalysisCard
-                    datas={[
-                        { name: "좋아요", value: 70, fill: "#00bc7d" },
-                        { name: "별로예요", value: 30, fill: "#ef4444" },
-                    ]}
+                <RatesCard
                     style={cardStyles[7]}
                     cardRef={(el) => (cardRefs.current[7] = el)}
                 />
 
-                <TrafficInfoCard
+                <AccidentAlertCard
                     style={cardStyles[8]}
                     cardRef={(el) => (cardRefs.current[8] = el)}
-                    mapData={map}
+                    accidents={selectedAccidents}
                 />
 
-                <ParkingInfoCard
+                <TrafficInfoCard
                     style={cardStyles[9]}
                     cardRef={(el) => (cardRefs.current[9] = el)}
+                    mapData={map}
+                    accidentData={selectedAccidents}
                 />
 
-                {/* 관광지 카드들 */}
-                {attractions.map((a, i) => (
-                    <AttractionCard
-                        key={i}
-                        attraction={a}
-                        style={cardStyles[100 + i]}
-                        cardRef={(el) => (cardRefs.current[100 + i] = el)}
-                    />
-                ))}
+                {/*<ParkingInfoCard*/}
+                {/*    style={cardStyles[9]}*/}
+                {/*    cardRef={(el) => (cardRefs.current[9] = el)}*/}
+                {/*/>*/}
 
-                {/* POI 카드들 */}
-                <POICardList
-                    pois={poiList}
-                    baseIndex={10}
-                    cardRefs={cardRefs}
-                    cardStyles={cardStyles}
-                />
+                {/*/!* 관광지 카드들 *!/*/}
+                {/*{attractions.map((a, i) => (*/}
+                {/*    <AttractionCard*/}
+                {/*        key={i}*/}
+                {/*        attraction={a}*/}
+                {/*        style={cardStyles[100 + i]}*/}
+                {/*        cardRef={(el) => (cardRefs.current[100 + i] = el)}*/}
+                {/*    />*/}
+                {/*))}*/}
 
-                {/* 문화행사 카드들 */}
-                {events.map((e, i) => (
-                    <CulturalEventCard
-                        key={i}
-                        event={e}
-                        style={cardStyles[200 + i]}
-                        cardRef={(el) => (cardRefs.current[200 + i] = el)}
-                    />
-                ))}
+                {/*/!* POI 카드들 *!/*/}
+                {/*<POICardList*/}
+                {/*    pois={poiList}*/}
+                {/*    baseIndex={10}*/}
+                {/*    cardRefs={cardRefs}*/}
+                {/*    cardStyles={cardStyles}*/}
+                {/*/>*/}
+
+                {/*/!* 문화행사 카드들 *!/*/}
+                {/*{events.map((e, i) => (*/}
+                {/*    <CulturalEventCard*/}
+                {/*        key={i}*/}
+                {/*        event={e}*/}
+                {/*        style={cardStyles[200 + i]}*/}
+                {/*        cardRef={(el) => (cardRefs.current[200 + i] = el)}*/}
+                {/*    />*/}
+                {/*))}*/}
             </motion.div>
             <div className="absolute top-8 right-8 z-10 justify-between flex gap-2">
                 <div
