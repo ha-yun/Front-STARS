@@ -387,33 +387,33 @@ export default function DashboardComponent() {
                 {/*    cardRef={(el) => (cardRefs.current[9] = el)}*/}
                 {/*/>*/}
 
-                {/* 관광지 카드들 */}
-                {attractions.map((a, i) => (
-                    <AttractionCard
-                        key={i}
-                        attraction={a}
-                        style={cardStyles[100 + i]}
-                        cardRef={(el) => (cardRefs.current[100 + i] = el)}
-                    />
-                ))}
+                {/*/!* 관광지 카드들 *!/*/}
+                {/*{attractions.map((a, i) => (*/}
+                {/*    <AttractionCard*/}
+                {/*        key={i}*/}
+                {/*        attraction={a}*/}
+                {/*        style={cardStyles[100 + i]}*/}
+                {/*        cardRef={(el) => (cardRefs.current[100 + i] = el)}*/}
+                {/*    />*/}
+                {/*))}*/}
 
-                {/* POI 카드들 */}
-                <POICardList
-                    pois={poiList}
-                    baseIndex={10}
-                    cardRefs={cardRefs}
-                    cardStyles={cardStyles}
-                />
+                {/*/!* POI 카드들 *!/*/}
+                {/*<POICardList*/}
+                {/*    pois={poiList}*/}
+                {/*    baseIndex={10}*/}
+                {/*    cardRefs={cardRefs}*/}
+                {/*    cardStyles={cardStyles}*/}
+                {/*/>*/}
 
-                {/* 문화행사 카드들 */}
-                {events.map((e, i) => (
-                    <CulturalEventCard
-                        key={i}
-                        event={e}
-                        style={cardStyles[200 + i]}
-                        cardRef={(el) => (cardRefs.current[200 + i] = el)}
-                    />
-                ))}
+                {/*/!* 문화행사 카드들 *!/*/}
+                {/*{events.map((e, i) => (*/}
+                {/*    <CulturalEventCard*/}
+                {/*        key={i}*/}
+                {/*        event={e}*/}
+                {/*        style={cardStyles[200 + i]}*/}
+                {/*        cardRef={(el) => (cardRefs.current[200 + i] = el)}*/}
+                {/*    />*/}
+                {/*))}*/}
             </motion.div>
             <div className="absolute top-8 right-8 z-10 justify-between flex gap-2">
                 <div
